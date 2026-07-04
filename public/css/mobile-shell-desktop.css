@@ -1,0 +1,81 @@
+/* v3/v4 — wide screens: centered mobile column (378px) with phone-proportional hero */
+
+@media (min-width: 521px) {
+  :root {
+    --max-width: 378px;
+    --content-width: calc(var(--app-width) - var(--pad-left) - var(--pad-right));
+  }
+
+  html {
+    background-color: var(--color-cream-warm);
+  }
+
+  body {
+    background-color: var(--color-cream);
+  }
+
+  .page {
+    background-color: var(--color-cream);
+    box-shadow: 0 0 80px rgba(0, 0, 0, 0.06);
+  }
+
+  /* Mirror responsive.css @media (max-width: 520px) hero rules */
+  .hero {
+    --hero-content-top: 160px;
+    --hero-content-bottom: calc(var(--dock-safe) - 8px);
+
+    width: 100%;
+    max-width: var(--max-width);
+    height: var(--app-height);
+    max-height: var(--app-height);
+    min-height: 0;
+  }
+
+  .hero__fade {
+    top: auto;
+    bottom: 0;
+    height: 0;
+    display: none;
+  }
+
+  .hero__content {
+    gap: 0;
+    overflow: visible;
+  }
+
+  .heading-hero {
+    margin: 0 0 26px;
+    flex-shrink: 0;
+  }
+
+  .hero__cards-wrap {
+    position: relative;
+    margin-top: 0;
+    flex: 0 0 var(--hero-card-height);
+    height: var(--hero-card-height);
+    max-height: var(--hero-card-height);
+    overflow: visible;
+  }
+
+  .hero__cards-swiper {
+    height: var(--hero-card-height);
+    min-height: var(--hero-card-height);
+    overflow: visible;
+  }
+
+  .hero__bg-swiper .hero__bg-layer {
+    left: -12%;
+    width: 124%;
+  }
+
+  .opening__sticky {
+    width: 100%;
+    max-width: var(--max-width);
+  }
+
+  .ecosystem {
+    width: 100%;
+    max-width: var(--max-width);
+    margin-inline: auto;
+  }
+}

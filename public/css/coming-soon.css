@@ -1,0 +1,32 @@
+.coming-soon-page {
+  background: var(--color-cream);
+}
+
+.coming-soon-page .page {
+  min-height: 100svh;
+}
+
+.coming-soon {
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: 100svh;
+  margin: 0 auto;
+  padding: var(--pad-left) var(--pad-left) var(--dock-safe);
+}
+
+.coming-soon__text {
+  margin: 0;
+  font-family: var(--font-sans);
+  font-weight: 400;
+  font-size: var(--text-sans-base);
+  line-height: var(--leading-sans);
+  color: var(--color-text);
+  text-align: center;
+}
+
+.coming-soon-page .dock__cta {
+  pointer-events: auto;
+}

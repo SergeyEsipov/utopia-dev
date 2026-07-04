@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#f9f5ea" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#f9f5ea" media="(prefers-color-scheme: dark)" />
+    <title>Utopia — Coming soon</title>
+    <link rel="icon" href="/assets/LOGO.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="/css/fonts.css?v=20260618-2100" />
+    <link rel="stylesheet" href="/css/tokens.css?v=20260618-2100" />
+    <link rel="stylesheet" href="/css/base.css?v=20260612-1540" />
+    <link rel="stylesheet" href="/css/components.css?v=20260604-2150" />
+    <link rel="stylesheet" href="/css/menu.css?v=20260612-1400" />
+    <link rel="stylesheet" href="/css/coming-soon.css?v=20260622-2500" />
+    <link rel="stylesheet" href="/css/responsive.css?v=20260618-2100" />
+    <link rel="stylesheet" href="/overrides.css?v=20260622-2100" />
+    <link rel="stylesheet" href="/css/mobile-shell-desktop.css?v=20260622-2500" />
+  </head>
+  <body class="coming-soon-page">
+    <div class="page">
+      <main class="coming-soon" aria-label="Coming soon">
+        <p class="coming-soon__text">This page is coming soon</p>
+      </main>
+    </div>
+
+    <aside class="menu" id="site-menu" aria-hidden="true" aria-label="Site menu">
+      <div class="menu__surface">
+        <div class="menu__scroll">
+          <header class="menu__header">
+            <a class="logo menu__brand" href="/#top" aria-label="Utopia home">
+              <img class="logo__full" src="/assets/LOGO-dark.svg" alt="Utopia" width="100" height="114" />
+            </a>
+          </header>
+          <div class="menu__rule" role="presentation" aria-hidden="true"></div>
+
+          <nav class="menu__nav" aria-label="Main">
+            <div class="footer__destinations menu__destinations">
+              <a class="footer__label menu__destinations-label" href="coming-soon.html" data-coming-soon>Destinations</a>
+              <div data-destinations-nav data-destinations-id-prefix="menu-dest"></div>
+            </div>
+
+            <div class="footer__links menu__links" aria-label="Site">
+              <div class="menu__link-group">
+                <a class="menu__link" href="coming-soon.html" data-coming-soon>Private Jet</a>
+                <a class="menu__link" href="coming-soon.html" data-coming-soon>Superyacht</a>
+              </div>
+              <div class="menu__link-group">
+                <a class="menu__link" href="coming-soon.html" data-coming-soon>About</a>
+                <a class="menu__link" href="coming-soon.html" data-coming-soon>Careers</a>
+              </div>
+            </div>
+          </nav>
+        </div>
+      </div>
+    </aside>
+
+    <nav class="dock" aria-label="Primary navigation">
+      <a class="dock__icon-btn dock__home" href="/#top" aria-label="Utopia home">
+        <img class="dock__home-mark" src="/assets/logo-mark-dark.svg" alt="" width="20" height="20" />
+      </a>
+      <a class="dock__cta" href="/#request">Request a stay</a>
+      <button
+        type="button"
+        class="dock__icon-btn dock__menu-toggle"
+        aria-expanded="false"
+        aria-controls="site-menu"
+        aria-label="Open menu"
+      >
+        <img class="dock__icon-menu" src="/assets/menu.svg" alt="" width="16" height="16" />
+        <img class="dock__icon-close" src="/assets/close.svg" alt="" width="16" height="16" />
+      </button>
+    </nav>
+
+    <script type="module" src="/js/coming-soon-page.js?v=20260622-2500"></script>
+  </body>
+</html>

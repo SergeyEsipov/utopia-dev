@@ -1,0 +1,352 @@
+/* Desktop-only layout — Figma 1006:2408 (CTA), 1010:2918 (footer). Mobile (<900px) unchanged. */
+
+.cta-final__emblem,
+.footer__desktop-grid,
+.footer__legal--desktop,
+.footer__wordmark,
+.footer__back-top {
+  display: none;
+}
+
+@media (min-width: 900px) {
+  .footer__inner--mobile {
+    display: none !important;
+  }
+
+  .footer__desktop-grid {
+    display: grid;
+  }
+
+  .footer__legal--desktop {
+    display: grid;
+  }
+
+  .footer__wordmark {
+    display: block;
+  }
+
+  .footer__back-top,
+  .cta-final__emblem {
+    display: flex;
+  }
+
+  /* —— CTA: inset 783px panel — Figma 1006:2408 —— */
+  :is(.cta-final.cta-final--desktop, .cta-final.cta-final--final) {
+    width: 100%;
+    max-width: none;
+    height: auto;
+    min-height: 807px;
+    margin-left: 0;
+    padding: 12px 24px;
+    box-sizing: border-box;
+    background: #f9f5ea;
+    overflow: visible;
+  }
+
+  :is(.cta-final--desktop, .cta-final--final) .cta-final__panel {
+    position: relative;
+    width: 100%;
+    max-width: none;
+    height: 783px;
+    min-height: 783px;
+    aspect-ratio: auto;
+    border-radius: 24px;
+    overflow: hidden;
+    background: #e6dccd;
+  }
+
+  :is(.cta-final--desktop, .cta-final--final) .cta-final__bg {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+  }
+
+  :is(.cta-final--desktop, .cta-final--final) .cta-final__bg::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    pointer-events: none;
+    background: linear-gradient(
+      180deg,
+      #e6dccd 0%,
+      rgba(230, 220, 205, 0.4) 28%,
+      rgba(230, 220, 205, 0) 52%
+    );
+  }
+
+  :is(.cta-final--desktop, .cta-final--final) .cta-final__video,
+  :is(.cta-final--desktop, .cta-final--final) .cta-final__bg video {
+    position: absolute;
+    left: 50%;
+    bottom: -1px;
+    top: auto;
+    transform: translateX(-50%);
+    width: 1735px;
+    max-width: none;
+    height: 976px;
+    object-fit: cover;
+    object-position: center bottom;
+  }
+
+  :is(.cta-final--desktop, .cta-final--final) .cta-final__content {
+    position: absolute;
+    z-index: 2;
+    left: 50%;
+    top: 48px;
+    transform: translateX(-50%);
+    width: min(996px, calc(100% - 96px));
+    min-height: 216px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 0;
+    padding: 0;
+    box-sizing: border-box;
+    text-align: center;
+  }
+
+  :is(.cta-final--desktop, .cta-final--final) .cta-final__copy {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 30px;
+    width: 100%;
+    min-height: 116px;
+  }
+
+  :is(.cta-final--desktop, .cta-final--final) .cta-final__emblem {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100px;
+    height: 100px;
+    margin: 0;
+    padding: 0 0 6px;
+    border-radius: 160px;
+    background: rgba(249, 245, 234, 0.38);
+    -webkit-backdrop-filter: blur(16px) saturate(1.75);
+    backdrop-filter: blur(16px) saturate(1.75);
+    flex: 0 0 auto;
+    box-sizing: border-box;
+    opacity: 1;
+    visibility: visible;
+  }
+
+  /* Desktop Final: logo only, no glass circle — keep 100×100 Figma slot (1006:2586) */
+  .cta-final--final .cta-final__emblem {
+    width: 100px;
+    height: 100px;
+    margin: 0;
+    padding: 0;
+    border-radius: 0;
+    background: none;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 100px;
+  }
+
+  :is(.cta-final--desktop, .cta-final--final) .cta-final__emblem-mark {
+    width: 35px;
+    height: 49px;
+    display: block;
+  }
+
+  :is(.cta-final--desktop, .cta-final--final) .cta-final__title {
+    margin: 0;
+    font-size: 38px;
+    letter-spacing: -1.14px;
+    line-height: 1.2;
+    max-width: none;
+    margin-inline: auto;
+    color: #161514;
+    text-transform: capitalize;
+    min-height: 46px;
+  }
+
+  :is(.cta-final--desktop, .cta-final--final) .cta-final__cta {
+    box-sizing: border-box;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0;
+    min-width: 197px;
+    height: 40px;
+    padding: 11px 24px;
+    border-radius: 16px;
+    background: rgba(249, 245, 234, 0.8);
+    font-size: 16px;
+    line-height: 18px;
+    letter-spacing: -0.16px;
+    color: #161514;
+    white-space: nowrap;
+  }
+
+  /* —— Footer — Figma 1010:2918 —— */
+  :is(.footer.footer--desktop, .footer.footer--final) {
+    width: 100%;
+    max-width: none;
+    margin: 0;
+    min-height: 615px;
+    padding: 100px 120px 28px;
+    box-sizing: border-box;
+    position: relative;
+    background: #f9f5ea;
+  }
+
+  .footer__desktop-grid {
+    position: relative;
+    display: grid;
+    grid-template-columns: 183px 184px 183px 183px 184px;
+    column-gap: 20px;
+    row-gap: 0;
+    align-items: start;
+    justify-content: start;
+    width: 100%;
+    max-width: 1200px;
+    margin: 0;
+    min-height: 171px;
+    box-sizing: border-box;
+  }
+
+  .footer__col {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    min-width: 0;
+  }
+
+  .footer__col--dest .footer__col-heading {
+    min-height: 31px;
+  }
+
+  .footer__col--links {
+    gap: 20px;
+  }
+
+  .footer__col-heading {
+    margin: 0;
+    font-family: var(--font-serif);
+    font-size: 26px;
+    line-height: 1.2;
+    letter-spacing: -0.78px;
+    color: #161514;
+  }
+
+  .footer__col-list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .footer__col-link {
+    display: block;
+    font-family: var(--font-sans);
+    font-size: 12px;
+    line-height: 1.3;
+    letter-spacing: -0.12px;
+    color: #161514;
+    text-decoration: none;
+  }
+
+  .footer__col-link--muted {
+    color: rgba(22, 21, 20, 0.6);
+  }
+
+  .footer__col-link--active {
+    color: #161514;
+  }
+
+  a.footer__col-link:hover {
+    color: var(--color-text);
+  }
+
+  .footer__search,
+  .footer__back-top {
+    position: absolute;
+    top: 0;
+    right: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 38px;
+    padding: 11px 12px;
+    box-sizing: border-box;
+    border-radius: 16px;
+    background: rgba(229, 218, 203, 0.8);
+    text-decoration: none;
+  }
+
+  .footer__back-top img,
+  .footer__search img {
+    display: block;
+    width: 16px;
+    height: 16px;
+  }
+
+  .footer__wordmark {
+    display: block;
+    width: 100%;
+    max-width: 1200px;
+    height: auto;
+    aspect-ratio: 1200 / 188.586;
+    margin: 64px 0 0;
+    object-fit: contain;
+  }
+
+  .footer__legal--desktop {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+    max-width: 1200px;
+    margin: 47px 0 0;
+    width: 100%;
+    min-height: 16px;
+    padding-top: 0;
+    border-top: none;
+    font-family: var(--font-sans);
+    font-size: 12px;
+    line-height: 16px;
+    letter-spacing: -0.12px;
+    color: rgba(22, 21, 20, 0.6);
+  }
+
+  .footer__legal--desktop .footer__legal-copy {
+    grid-column: 1;
+    justify-self: start;
+    width: 314px;
+    max-width: 100%;
+    margin: 0;
+    color: inherit;
+    text-decoration: none;
+    text-align: left;
+  }
+
+  .footer__legal--desktop .footer__link:nth-child(2) {
+    grid-column: 2;
+    justify-self: center;
+    width: 150px;
+    margin: 0;
+    color: inherit;
+    text-decoration: none;
+    text-align: center;
+  }
+
+  .footer__legal--desktop .footer__link:last-child {
+    grid-column: 3;
+    justify-self: end;
+    width: 150px;
+    margin: 0;
+    color: inherit;
+    text-decoration: none;
+    text-align: right;
+  }
+}

@@ -1,0 +1,53 @@
+@media (prefers-reduced-motion: no-preference) {
+  [data-parallax] {
+    will-change: transform;
+  }
+
+  .hero__bg-layer[data-parallax="bg"] {
+    transform-origin: center center;
+    top: -2%;
+    bottom: 0;
+    height: 104%;
+    left: -14%;
+    width: 128%;
+  }
+
+  .parallax-media:not(.beyond__card-media) {
+    overflow: hidden;
+    flex-shrink: 0;
+  }
+
+  .beyond__card-media.parallax-media {
+    overflow: hidden;
+    flex-shrink: 0;
+    min-height: 0;
+  }
+
+  .beyond__card-media .beyond__image,
+  .beyond__card-media .beyond__video {
+    display: block;
+    width: 100%;
+    height: 100%;
+    margin-top: 0;
+    object-fit: cover;
+    object-position: center;
+  }
+
+  .days__card [data-parallax] {
+    width: 108%;
+    height: 108%;
+    margin-left: -4%;
+    margin-top: -4%;
+    max-width: none;
+    object-fit: cover;
+    object-position: center 35%;
+    transform-origin: center 35%;
+  }
+
+  .cta-final__bg [data-parallax] {
+    width: 100%;
+    height: 120%;
+    margin-top: -10%;
+  }
+
+}

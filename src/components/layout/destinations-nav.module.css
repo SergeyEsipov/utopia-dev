@@ -1,0 +1,84 @@
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+}
+
+.groupInner {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+}
+
+.categoryRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 123px;
+  flex-shrink: 0;
+  border: none;
+  background: transparent;
+  padding: 0;
+  cursor: pointer;
+  color: inherit;
+  text-align: left;
+}
+
+.label {
+  font-size: var(--utopia-text-2xl);
+  letter-spacing: var(--utopia-tracking-display-md);
+}
+
+.chevron {
+  flex-shrink: 0;
+  transition: transform var(--utopia-transition-base);
+}
+
+.chevronOpen {
+  transform: rotate(90deg);
+}
+
+.properties {
+  display: none;
+  flex-direction: column;
+  gap: 10px;
+  padding-top: 8px;
+  list-style: none;
+  margin: 0;
+  min-width: 0;
+}
+
+.groupOpen .properties {
+  display: flex;
+  animation: destFlyout 0.3s ease;
+}
+
+@keyframes destFlyout {
+  from {
+    opacity: 0;
+    transform: translateX(12px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.property {
+  font-family: var(--utopia-font-body);
+  font-size: var(--utopia-text-xs);
+  letter-spacing: var(--utopia-tracking-tight-xs);
+  line-height: var(--utopia-leading-normal);
+  color: var(--utopia-text-muted);
+  text-decoration: none;
+}
+
+.propertyActive {
+  color: var(--utopia-text-primary);
+}
+
+.property:hover {
+  opacity: 0.7;
+}

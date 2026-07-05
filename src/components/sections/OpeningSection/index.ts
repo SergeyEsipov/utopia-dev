@@ -1,0 +1,1 @@
+export { OpeningSection } from "./OpeningSection";

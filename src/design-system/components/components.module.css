@@ -1,0 +1,360 @@
+/* ── Typography ── */
+
+.headingHero {
+  font-family: var(--utopia-font-display);
+  font-weight: 300;
+  font-size: var(--utopia-text-xl);
+  line-height: var(--utopia-leading-tight);
+  letter-spacing: var(--utopia-tracking-display-sm);
+}
+
+.headingSection {
+  font-family: var(--utopia-font-display);
+  font-weight: 400;
+  font-size: var(--utopia-text-2xl);
+  line-height: var(--utopia-leading-tight);
+  letter-spacing: var(--utopia-tracking-display-md);
+}
+
+.headingCard {
+  font-family: var(--utopia-font-display);
+  font-weight: 400;
+  font-size: var(--utopia-text-2xl);
+  line-height: var(--utopia-leading-snug);
+  letter-spacing: var(--utopia-tracking-display-lg);
+}
+
+.textLg {
+  font-family: var(--utopia-font-body);
+  font-size: var(--utopia-text-lg);
+  line-height: var(--utopia-leading-relaxed);
+  letter-spacing: var(--utopia-tracking-tight-lg);
+}
+
+.textMd {
+  font-family: var(--utopia-font-body);
+  font-size: var(--utopia-text-md);
+  line-height: var(--utopia-leading-normal);
+  letter-spacing: var(--utopia-tracking-tight-md);
+}
+
+.textBase {
+  font-family: var(--utopia-font-body);
+  font-size: var(--utopia-text-base);
+  line-height: var(--utopia-leading-relaxed);
+  letter-spacing: var(--utopia-tracking-tight-sm);
+}
+
+.textSm {
+  font-family: var(--utopia-font-body);
+  font-size: var(--utopia-text-sm);
+  line-height: var(--utopia-leading-normal);
+  letter-spacing: var(--utopia-tracking-tight-xs);
+}
+
+.textCaption {
+  font-family: var(--utopia-font-body);
+  font-size: var(--utopia-text-xs);
+  line-height: var(--utopia-leading-normal);
+  letter-spacing: var(--utopia-tracking-tight-xs);
+}
+
+.textPrimary {
+  color: var(--utopia-text-primary);
+}
+
+.textMuted {
+  color: var(--utopia-text-muted);
+}
+
+.textInverse {
+  color: var(--utopia-text-inverse);
+}
+
+/* ── Button ── */
+
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--utopia-space-2);
+  border: none;
+  cursor: pointer;
+  font-family: var(--utopia-font-body);
+  font-weight: 400;
+  transition: opacity var(--utopia-transition-fast);
+}
+
+.button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.buttonMd {
+  padding: var(--utopia-space-3) var(--utopia-space-4);
+  font-size: var(--utopia-text-md);
+  letter-spacing: var(--utopia-tracking-tight-md);
+  border-radius: var(--utopia-radius-sm);
+}
+
+.buttonSm {
+  padding: var(--utopia-space-2) var(--utopia-space-3);
+  font-size: var(--utopia-text-sm);
+  letter-spacing: var(--utopia-tracking-tight-xs);
+  border-radius: var(--utopia-radius-sm);
+}
+
+.buttonPrimary {
+  background: var(--utopia-text-primary);
+  color: var(--utopia-text-inverse);
+}
+
+.buttonGlass {
+  color: var(--utopia-text-primary);
+  font-weight: 400;
+  border: none;
+}
+
+.buttonGhost {
+  background: transparent;
+  color: var(--utopia-text-primary);
+}
+
+.buttonOutline {
+  color: var(--utopia-text-primary);
+}
+
+.fullWidth {
+  width: 100%;
+}
+
+/* ── Location Pill ── */
+
+.locationPill {
+  display: inline-flex;
+  align-items: center;
+  font-family: var(--utopia-font-body);
+  font-size: var(--utopia-text-sm);
+  letter-spacing: var(--utopia-tracking-tight-xs);
+  color: var(--utopia-text-primary);
+}
+
+.locationPillContent {
+  padding: var(--utopia-space-2) var(--utopia-space-4);
+  white-space: nowrap;
+}
+
+.locationPillActive {
+  background: var(--utopia-text-primary);
+  color: var(--utopia-text-inverse);
+}
+
+/* ── Tab ── */
+
+.tab {
+  font-family: var(--utopia-font-body);
+  font-size: var(--utopia-text-sm);
+  letter-spacing: var(--utopia-tracking-tight-xs);
+}
+
+.tabContent {
+  padding: var(--utopia-space-2) var(--utopia-space-4);
+  white-space: nowrap;
+}
+
+.tabActive {
+  background: var(--utopia-text-inverse);
+  color: var(--utopia-text-primary);
+}
+
+.tabInactive {
+  background: transparent;
+  color: var(--utopia-tab-inactive);
+}
+
+/* ── Progress Dots ── */
+
+.progressDots {
+  display: flex;
+  align-items: center;
+  gap: var(--utopia-space-1);
+}
+
+.progressDot {
+  width: 24px;
+  height: 4px;
+  border-radius: var(--utopia-radius-progress);
+  background: var(--utopia-progress-track);
+  transition: background var(--utopia-transition-fast);
+}
+
+.progressDotActive {
+  background: var(--utopia-progress-fill);
+}
+
+/* ── Card ── */
+
+.card {
+  overflow: hidden;
+}
+
+.cardDefault {
+  border-radius: var(--utopia-radius-md);
+  border: 1px solid var(--utopia-card-border);
+  background: var(--utopia-bg-white);
+}
+
+.cardHero {
+  width: var(--utopia-hero-card-width);
+  height: var(--utopia-hero-card-height);
+  border-radius: var(--utopia-radius-md);
+  background: var(--utopia-bg-placeholder);
+}
+
+.cardOpening {
+  border-radius: var(--utopia-radius-lg);
+  background: var(--utopia-bg-white);
+}
+
+/* ── Dock ── */
+
+.dock {
+  display: flex;
+  align-items: center;
+  gap: var(--utopia-dock-gap);
+  height: var(--utopia-dock-height);
+  padding: 0 var(--utopia-space-2);
+  border-radius: var(--utopia-radius-pill);
+  background: transparent;
+}
+
+.dockItem {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--utopia-space-1);
+  font-family: var(--utopia-font-body);
+  font-size: var(--utopia-text-xs);
+  letter-spacing: var(--utopia-tracking-tight-xs);
+  color: var(--utopia-text-primary);
+}
+
+.dockItemContent {
+  padding: var(--utopia-space-2) var(--utopia-space-3);
+  gap: var(--utopia-space-1);
+}
+
+.dockItemActive {
+  background: var(--utopia-bg-white);
+}
+
+/* ── Icon ── */
+
+.icon {
+  display: block;
+  flex-shrink: 0;
+}
+
+/* ── Nav Pill ── */
+
+.navPill {
+  display: flex;
+  align-items: center;
+  gap: var(--utopia-space-2);
+  width: 100%;
+  max-width: 314px;
+}
+
+.dockItemActive {
+  /* Active state uses solid white under glass sheen */
+}
+
+.navPillBtn {
+  width: 40px;
+  flex-shrink: 0;
+}
+
+.navPillBtnContent {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.navPillLabel {
+  flex: 1;
+  min-width: 0;
+}
+
+.navPillLabelContent {
+  padding: 11px 24px;
+  font-family: var(--utopia-font-body);
+  font-size: var(--utopia-text-base);
+  letter-spacing: var(--utopia-tracking-tight-sm);
+  color: var(--utopia-text-black);
+  text-align: center;
+  white-space: nowrap;
+}
+
+.navPillDock .navPillLabelContent {
+  font-size: var(--utopia-text-md);
+}
+
+.navPillChevronLeft {
+  transform: rotate(180deg);
+}
+
+/* ── Category Tabs ── */
+
+.categoryTabs {
+  display: flex;
+  gap: var(--utopia-space-2);
+  width: 100%;
+}
+
+.categoryTab {
+  flex: 1;
+  padding-bottom: 11px;
+  border: none;
+  border-bottom: 1px solid var(--utopia-tab-border);
+  background: transparent;
+  font-family: var(--utopia-font-body);
+  font-size: var(--utopia-text-base);
+  letter-spacing: var(--utopia-tracking-tight-sm);
+  color: var(--utopia-tab-inactive);
+  cursor: pointer;
+  position: relative;
+}
+
+.categoryTabActive {
+  color: var(--utopia-text-inverse);
+}
+
+.categoryTabTrack {
+  position: absolute;
+  bottom: -0.5px;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: var(--utopia-tab-border);
+  overflow: hidden;
+}
+
+.categoryTabFill {
+  display: block;
+  height: 100%;
+  background: var(--utopia-text-inverse);
+  will-change: width;
+  transition: none;
+}
+
+.categoryTabsLight .categoryTab {
+  border-bottom-color: rgba(0, 0, 0, 0.2);
+  color: rgba(0, 0, 0, 0.5);
+}
+
+.categoryTabsLight .categoryTabActive {
+  color: var(--utopia-text-black);
+}
+
+.categoryTabsLight .categoryTabFill {
+  background: var(--utopia-text-black);
+}

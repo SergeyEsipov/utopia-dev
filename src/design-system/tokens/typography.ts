@@ -1,0 +1,67 @@
+export const typography = {
+  fontFamily: {
+    display: '"GT Ultra Median Trial", Georgia, serif',
+    body: '"NB International", system-ui, sans-serif',
+  },
+  fontSize: {
+    xs: "12px",
+    sm: "14px",
+    base: "15px",
+    md: "16px",
+    lg: "18px",
+    xl: "24px",
+    "2xl": "26px",
+  },
+  letterSpacing: {
+    tightXs: "-0.12px",
+    tightSm: "-0.15px",
+    tightMd: "-0.16px",
+    tightLg: "-0.18px",
+    displaySm: "-0.72px",
+    displayMd: "-0.78px",
+    displayLg: "-0.52px",
+  },
+  lineHeight: {
+    tight: 1.2,
+    snug: 1.25,
+    normal: 1.3,
+    relaxed: 1.5,
+  },
+  presets: {
+    displayHero: {
+      fontFamily: "display" as const,
+      fontWeight: 300,
+      fontSize: "xl" as const,
+      lineHeight: "tight" as const,
+      letterSpacing: "displaySm" as const,
+    },
+    displaySection: {
+      fontFamily: "display" as const,
+      fontWeight: 400,
+      fontSize: "2xl" as const,
+      lineHeight: "tight" as const,
+      letterSpacing: "displayMd" as const,
+    },
+    bodyBase: {
+      fontFamily: "body" as const,
+      fontWeight: 400,
+      fontSize: "base" as const,
+      lineHeight: "relaxed" as const,
+      letterSpacing: "tightSm" as const,
+    },
+    bodyMd: {
+      fontFamily: "body" as const,
+      fontWeight: 400,
+      fontSize: "md" as const,
+      lineHeight: "normal" as const,
+      letterSpacing: "tightMd" as const,
+    },
+    caption: {
+      fontFamily: "body" as const,
+      fontWeight: 400,
+      fontSize: "xs" as const,
+      lineHeight: "normal" as const,
+      letterSpacing: "tightXs" as const,
+    },
+  },
+} as const;

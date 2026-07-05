@@ -1,0 +1,261 @@
+.section {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+  padding: var(--utopia-section-padding-y) 0 var(--utopia-section-padding-y)
+    var(--utopia-space-4);
+  background: var(--utopia-bg-cream);
+  overflow: hidden;
+}
+
+@media (min-width: 1024px) {
+  .section {
+    flex-direction: row;
+    align-items: flex-start;
+    gap: 0;
+    padding: 100px 120px;
+    min-height: 771px;
+  }
+}
+
+.title {
+  position: relative;
+  z-index: 2;
+  flex-shrink: 0;
+  max-width: 298px;
+  margin-left: var(--utopia-space-4);
+  padding-right: var(--utopia-space-4);
+}
+
+@media (min-width: 1024px) {
+  .title {
+    position: absolute;
+    z-index: 2;
+    left: 120px;
+    top: 312px;
+    max-width: 387px;
+    margin-left: 0;
+    padding-right: 0;
+    font-size: 38px;
+    letter-spacing: -1.14px;
+    line-height: var(--utopia-leading-tight);
+  }
+}
+
+.carousel {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  width: 100%;
+}
+
+@media (min-width: 1024px) {
+  .carousel {
+    margin-left: auto;
+    max-width: 1044px;
+    width: calc(66.67% + 47px);
+  }
+}
+
+.trackWrap {
+  position: relative;
+  overflow: hidden;
+}
+
+.stage {
+  position: relative;
+  width: 100%;
+  overflow: visible;
+  touch-action: pan-y;
+  cursor: grab;
+  user-select: none;
+}
+
+.stageDragging {
+  cursor: grabbing;
+}
+
+.track {
+  position: relative;
+  width: 100%;
+}
+
+.card {
+  position: absolute;
+  top: 0;
+  overflow: hidden;
+  border-radius: var(--utopia-radius-sm);
+  transform-origin: top left;
+  will-change: left, width, height, transform, opacity;
+  pointer-events: none;
+}
+
+.cardActive {
+  border-radius: var(--utopia-radius-md);
+  pointer-events: auto;
+}
+
+.cardTopFade::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(
+    180deg,
+    #f9f5ea 7.482%,
+    rgba(249, 245, 234, 0) 12.226%
+  );
+  pointer-events: none;
+}
+
+.cardImage {
+  object-fit: cover;
+  object-position: center 35%;
+  background: var(--utopia-bg-placeholder);
+}
+
+.hit {
+  position: absolute;
+  top: 0;
+  z-index: 10;
+  width: 28%;
+  height: 100%;
+  padding: 0;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+}
+
+.hitPrev {
+  left: 0;
+}
+
+.hitNext {
+  right: 0;
+}
+
+.caption {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding-left: var(--utopia-space-4);
+  max-width: 276px;
+}
+
+.captionText {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+@media (min-width: 1024px) {
+  .caption {
+    max-width: 386px;
+    padding-left: 16px;
+    align-items: center;
+    text-align: center;
+  }
+}
+
+.captionTitle {
+  font-size: var(--utopia-text-lg);
+  letter-spacing: var(--utopia-tracking-tight-lg);
+  line-height: var(--utopia-leading-normal);
+}
+
+.captionDesc {
+  font-size: var(--utopia-text-base);
+}
+
+.progress {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 8px;
+  border-radius: var(--utopia-radius-progress);
+  background: var(--utopia-progress-track);
+  align-self: flex-start;
+}
+
+@media (min-width: 1024px) {
+  .progress {
+    align-self: center;
+  }
+}
+
+.progressItemActive {
+  display: flex;
+  align-items: center;
+}
+
+.progressTrack {
+  position: relative;
+  width: 34px;
+  height: 4px;
+  border-radius: 20px;
+  background: var(--utopia-progress-fill-muted);
+  overflow: hidden;
+}
+
+.progressFill {
+  height: 100%;
+  border-radius: inherit;
+  background: var(--utopia-progress-fill);
+  width: 0;
+  animation: daysProgressFill 5s linear forwards;
+}
+
+@keyframes daysProgressFill {
+  from {
+    width: 0;
+  }
+
+  to {
+    width: 100%;
+  }
+}
+
+.progressDot {
+  width: 4px;
+  height: 4px;
+  border: none;
+  border-radius: 50%;
+  background: var(--utopia-progress-fill-muted);
+  padding: 0;
+  cursor: pointer;
+}
+
+.fadeEdgeDesktop {
+  display: none;
+}
+
+@media (min-width: 1024px) {
+  .fadeEdgeDesktop {
+    display: block;
+    position: absolute;
+    left: calc(66.67% - 25px);
+    top: 50%;
+    transform: translateY(-50%);
+    width: 505px;
+    height: 771px;
+    background: linear-gradient(
+      to left,
+      var(--utopia-bg-cream) 0%,
+      rgba(249, 245, 234, 0) 90%
+    );
+    pointer-events: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .card {
+    transition: none !important;
+  }
+
+  .progressFill {
+    animation: none;
+    width: 100%;
+  }
+}

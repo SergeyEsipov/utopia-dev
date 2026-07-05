@@ -1,0 +1,16 @@
+.scrollTop {
+  position: absolute;
+  top: 100px;
+  right: 120px;
+  width: 40px;
+}
+
+.scrollTopContent {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.scrollTopIcon {
+  transform: rotate(-90deg);
+}

@@ -1,0 +1,27 @@
+/**
+ * Brand fonts — files in public/fonts/
+ */
+
+@font-face {
+  font-family: "GT Ultra Median Trial";
+  src: url("/fonts/gt-ultra-median-light.otf") format("opentype");
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "GT Ultra Median Trial";
+  src: url("/fonts/gt-ultra-median-regular.otf") format("opentype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "NB International";
+  src: url("/fonts/nb-international-regular.otf") format("opentype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}

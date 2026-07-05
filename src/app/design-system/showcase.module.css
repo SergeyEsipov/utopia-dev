@@ -1,0 +1,127 @@
+.page {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: var(--utopia-space-15) var(--utopia-space-8);
+  display: flex;
+  flex-direction: column;
+  gap: var(--utopia-space-15);
+}
+
+.header {
+  display: flex;
+  flex-direction: column;
+  gap: var(--utopia-space-2);
+}
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--utopia-space-6);
+}
+
+.stack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--utopia-space-6);
+}
+
+.swatches {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: var(--utopia-space-4);
+}
+
+.swatch {
+  display: flex;
+  flex-direction: column;
+  gap: var(--utopia-space-1);
+}
+
+.swatchColor {
+  height: 64px;
+  border-radius: var(--utopia-radius-sm);
+  border: 1px solid var(--utopia-card-border);
+}
+
+.tokenGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: var(--utopia-space-4);
+}
+
+.token {
+  padding: var(--utopia-space-3);
+  border-radius: var(--utopia-radius-sm);
+  border: 1px solid var(--utopia-card-border);
+  background: var(--utopia-bg-white);
+}
+
+.iconGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+  gap: var(--utopia-space-4);
+}
+
+.iconCell {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--utopia-space-2);
+  padding: var(--utopia-space-4);
+  border-radius: var(--utopia-radius-sm);
+  border: 1px solid var(--utopia-card-border);
+  background: var(--utopia-bg-white);
+}
+
+.componentBlock {
+  display: flex;
+  flex-direction: column;
+  gap: var(--utopia-space-3);
+}
+
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--utopia-space-3);
+}
+
+.darkSurface {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--utopia-space-2);
+  padding: var(--utopia-space-6);
+  border-radius: var(--utopia-radius-md);
+  background: var(--utopia-text-primary);
+}
+
+.cardDemo {
+  padding: var(--utopia-space-4);
+  min-width: 160px;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: var(--utopia-font-body);
+  font-size: var(--utopia-text-sm);
+}
+
+.table th,
+.table td {
+  text-align: left;
+  padding: var(--utopia-space-3) var(--utopia-space-4);
+  border-bottom: 1px solid var(--utopia-card-border);
+}
+
+.table th {
+  font-weight: 400;
+  color: var(--utopia-text-muted);
+}
+
+.table code {
+  font-size: var(--utopia-text-xs);
+  background: var(--utopia-bg-white);
+  padding: 2px 6px;
+  border-radius: 4px;
+}

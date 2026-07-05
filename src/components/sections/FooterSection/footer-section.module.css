@@ -1,0 +1,168 @@
+.footer {
+  background: var(--utopia-bg-cream);
+}
+
+/* ── Mobile ── */
+
+.mobile {
+  display: flex;
+  flex-direction: column;
+  gap: 40px;
+  padding: 32px;
+}
+
+@media (min-width: 1024px) {
+  .mobile {
+    display: none;
+  }
+}
+
+.mobileBlock {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.mobileLabel {
+  font-size: var(--utopia-text-base);
+  letter-spacing: var(--utopia-tracking-tight-sm);
+}
+
+.mobileDestLinks {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.mobileDestLink {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--utopia-space-2);
+  text-decoration: none;
+  color: inherit;
+}
+
+.mobilePages {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.mobilePageLink {
+  text-decoration: none;
+  color: inherit;
+}
+
+.mobileLegal {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.mobileLegal a {
+  text-decoration: none;
+}
+
+/* ── Desktop ── */
+
+.desktop {
+  display: none;
+  position: relative;
+  padding: 100px 120px 60px;
+  min-height: 615px;
+}
+
+@media (min-width: 1024px) {
+  .desktop {
+    display: block;
+  }
+}
+
+.columns {
+  display: flex;
+  gap: 20px;
+}
+
+.column {
+  width: 183px;
+  flex-shrink: 0;
+}
+
+.columnTitle {
+  font-size: var(--utopia-text-2xl);
+  margin-bottom: 20px;
+}
+
+.columnList {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.columnLink {
+  font-family: var(--utopia-font-body);
+  font-size: var(--utopia-text-xs);
+  letter-spacing: var(--utopia-tracking-tight-xs);
+  line-height: var(--utopia-leading-normal);
+  color: var(--utopia-text-muted);
+  text-decoration: none;
+}
+
+.columnLinkActive {
+  color: var(--utopia-text-primary);
+}
+
+.columnLink:hover {
+  opacity: 0.7;
+}
+
+.scrollTop {
+  position: absolute;
+  top: 100px;
+  right: 120px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 38px;
+  border: none;
+  border-radius: var(--utopia-radius-sm);
+  background: var(--utopia-dock-bg);
+  cursor: pointer;
+}
+
+.scrollTopIcon {
+  transform: rotate(-90deg);
+}
+
+.wordmarkWrap {
+  width: 100%;
+  margin-top: 147px;
+}
+
+.wordmarkImage {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.legal {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  margin-top: 48px;
+}
+
+.legalCenter {
+  text-align: center;
+  text-decoration: none;
+}
+
+.legalRight {
+  text-align: right;
+  text-decoration: none;
+}
+
+.legal a {
+  color: inherit;
+}

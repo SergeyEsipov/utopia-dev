@@ -1,0 +1,14 @@
+.page {
+  width: 100%;
+  max-width: var(--utopia-mobile-width);
+  margin: 0 auto;
+  padding-bottom: 72px;
+  background: var(--utopia-bg-cream);
+}
+
+@media (min-width: 1024px) {
+  .page {
+    max-width: var(--utopia-desktop-width);
+    padding-bottom: 0;
+  }
+}

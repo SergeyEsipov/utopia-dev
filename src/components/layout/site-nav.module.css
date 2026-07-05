@@ -1,0 +1,65 @@
+.nav {
+  display: none;
+  position: relative;
+  align-items: center;
+  justify-content: space-between;
+  height: 60px;
+  padding: 0 120px;
+  background: var(--utopia-bg-cream);
+}
+
+@media (min-width: 1024px) {
+  .nav {
+    display: flex;
+    max-width: var(--utopia-desktop-width);
+    margin: 0 auto;
+  }
+}
+
+.left {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.destLabel,
+.destLink,
+.navLink {
+  font-family: var(--utopia-font-body);
+  font-size: var(--utopia-text-xs);
+  letter-spacing: var(--utopia-tracking-tight-xs);
+  color: var(--utopia-text-black);
+}
+
+.destLinks,
+.right {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.separator {
+  font-family: var(--utopia-font-body);
+  font-size: 14px;
+  line-height: 22.4px;
+  letter-spacing: -0.2px;
+  color: rgba(0, 0, 0, 0.2);
+}
+
+.logo {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+}
+
+.navLink,
+.destLink {
+  text-decoration: none;
+}
+
+.navLink:hover,
+.destLink:hover {
+  opacity: 0.7;
+}

@@ -1,0 +1,99 @@
+/**
+ * Utopia Design Tokens
+ * Extracted from Figma file kUT2mAHHQ6MvyKYJZHGHS4 (Untitled Copy)
+ * Figma Variables: none — values taken from component styles
+ */
+
+:root {
+  /* ── Colors: Surfaces ── */
+  --utopia-bg-cream: #f9f5ea;
+  --utopia-bg-white: #ffffff;
+  --utopia-bg-menu: #f3f3f3;
+  --utopia-bg-ecosystem: #e6dccd;
+  --utopia-bg-placeholder: #d9d9d9;
+
+  /* ── Colors: Text ── */
+  --utopia-text-primary: #161514;
+  --utopia-text-muted: rgba(22, 21, 20, 0.6);
+  --utopia-text-inverse: #ffffff;
+  --utopia-text-black: #000000;
+
+  /* ── Colors: UI ── */
+  --utopia-dock-bg: rgba(229, 218, 203, 0.8);
+  --utopia-pill-bg: rgba(249, 245, 234, 0.6);
+  --utopia-card-border: rgba(229, 218, 203, 0.7);
+  --utopia-tab-inactive: rgba(255, 255, 255, 0.4);
+  --utopia-tab-border: rgba(255, 255, 255, 0.2);
+  --utopia-divider-on-cream: rgba(255, 255, 255, 0.2);
+  --utopia-progress-track: rgba(0, 0, 0, 0.06);
+  --utopia-progress-fill: #000000;
+  --utopia-progress-fill-muted: rgba(0, 0, 0, 0.4);
+
+  /* ── Typography: Families ── */
+  --utopia-font-display: "GT Ultra Median Trial", Georgia, "Times New Roman", serif;
+  --utopia-font-body: "NB International", system-ui, -apple-system, sans-serif;
+
+  /* ── Typography: Sizes ── */
+  --utopia-text-xs: 12px;
+  --utopia-text-sm: 14px;
+  --utopia-text-base: 15px;
+  --utopia-text-md: 16px;
+  --utopia-text-lg: 18px;
+  --utopia-text-xl: 24px;
+  --utopia-text-2xl: 26px;
+
+  /* ── Typography: Tracking ── */
+  --utopia-tracking-tight-xs: -0.12px;
+  --utopia-tracking-tight-sm: -0.15px;
+  --utopia-tracking-tight-md: -0.16px;
+  --utopia-tracking-tight-lg: -0.18px;
+  --utopia-tracking-display-sm: -0.72px;
+  --utopia-tracking-display-md: -0.78px;
+  --utopia-tracking-display-lg: -0.52px;
+
+  /* ── Typography: Line Heights ── */
+  --utopia-leading-tight: 1.2;
+  --utopia-leading-snug: 1.25;
+  --utopia-leading-normal: 1.3;
+  --utopia-leading-relaxed: 1.5;
+
+  /* ── Spacing ── */
+  --utopia-space-1: 4px;
+  --utopia-space-2: 8px;
+  --utopia-space-3: 12px;
+  --utopia-space-4: 16px;
+  --utopia-space-5: 20px;
+  --utopia-space-6: 24px;
+  --utopia-space-8: 32px;
+  --utopia-space-15: 60px;
+
+  /* ── Layout ── */
+  --utopia-mobile-width: 378px;
+  --utopia-desktop-width: 1440px;
+  --utopia-content-padding-x: 16px;
+  --utopia-content-padding-x-lg: 32px;
+  --utopia-section-padding-y: 60px;
+  --utopia-dock-height: 40px;
+  --utopia-dock-gap: 8px;
+  --utopia-hero-card-width: 314px;
+  --utopia-hero-card-height: 420px;
+  --utopia-logo-size: 100px;
+
+  /* ── Border Radius ── */
+  --utopia-radius-sm: 16px;
+  --utopia-radius-md: 24px;
+  --utopia-radius-lg: 26px;
+  --utopia-radius-pill: 160px;
+  --utopia-radius-progress: 30px;
+
+  /* ── Effects ── */
+  --utopia-blur-logo: 16px;
+  --utopia-backdrop-blur: 10px;
+  --utopia-transition-fast: 150ms ease;
+  --utopia-transition-base: 250ms ease;
+
+  /* ── Z-index ── */
+  --utopia-z-dock: 210;
+  --utopia-z-menu: 200;
+  --utopia-z-overlay: 150;
+}

@@ -1,0 +1,79 @@
+/**
+ * Typography presets matching Figma text styles
+ */
+
+.utopia-display-hero {
+  font-family: var(--utopia-font-display);
+  font-weight: 300;
+  font-size: var(--utopia-text-xl);
+  line-height: var(--utopia-leading-tight);
+  letter-spacing: var(--utopia-tracking-display-sm);
+}
+
+.utopia-display-section {
+  font-family: var(--utopia-font-display);
+  font-weight: 400;
+  font-size: var(--utopia-text-2xl);
+  line-height: var(--utopia-leading-tight);
+  letter-spacing: var(--utopia-tracking-display-md);
+}
+
+.utopia-display-card {
+  font-family: var(--utopia-font-display);
+  font-weight: 400;
+  font-size: var(--utopia-text-2xl);
+  line-height: var(--utopia-leading-snug);
+  letter-spacing: var(--utopia-tracking-display-lg);
+}
+
+.utopia-body-lg {
+  font-family: var(--utopia-font-body);
+  font-weight: 400;
+  font-size: var(--utopia-text-lg);
+  line-height: var(--utopia-leading-relaxed);
+  letter-spacing: var(--utopia-tracking-tight-lg);
+}
+
+.utopia-body-md {
+  font-family: var(--utopia-font-body);
+  font-weight: 400;
+  font-size: var(--utopia-text-md);
+  line-height: var(--utopia-leading-normal);
+  letter-spacing: var(--utopia-tracking-tight-md);
+}
+
+.utopia-body-base {
+  font-family: var(--utopia-font-body);
+  font-weight: 400;
+  font-size: var(--utopia-text-base);
+  line-height: var(--utopia-leading-relaxed);
+  letter-spacing: var(--utopia-tracking-tight-sm);
+}
+
+.utopia-body-sm {
+  font-family: var(--utopia-font-body);
+  font-weight: 400;
+  font-size: var(--utopia-text-sm);
+  line-height: var(--utopia-leading-normal);
+  letter-spacing: var(--utopia-tracking-tight-xs);
+}
+
+.utopia-caption {
+  font-family: var(--utopia-font-body);
+  font-weight: 400;
+  font-size: var(--utopia-text-xs);
+  line-height: var(--utopia-leading-normal);
+  letter-spacing: var(--utopia-tracking-tight-xs);
+}
+
+.utopia-text-primary {
+  color: var(--utopia-text-primary);
+}
+
+.utopia-text-muted {
+  color: var(--utopia-text-muted);
+}
+
+.utopia-text-inverse {
+  color: var(--utopia-text-inverse);
+}

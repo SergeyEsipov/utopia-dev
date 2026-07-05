@@ -1,0 +1,188 @@
+.section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-top: var(--utopia-section-padding-y);
+  background: var(--utopia-bg-cream);
+}
+
+@media (min-width: 1024px) {
+  .section {
+    padding: 100px 0;
+  }
+}
+
+.divider {
+  width: 100%;
+  max-width: var(--utopia-mobile-width);
+  height: 0;
+  border-top: 1px solid var(--utopia-divider-on-cream);
+  flex-shrink: 0;
+}
+
+@media (min-width: 1024px) {
+  .divider {
+    display: none;
+  }
+}
+
+.intro {
+  display: flex;
+  flex-direction: column;
+  gap: var(--utopia-space-4);
+  width: 100%;
+  max-width: 346px;
+  padding: 0 var(--utopia-space-4);
+  margin-bottom: 30px;
+}
+
+@media (min-width: 1024px) {
+  .intro {
+    max-width: 996px;
+    align-items: center;
+    text-align: center;
+    gap: 20px;
+    margin-bottom: 64px;
+    padding: 0 24px;
+  }
+}
+
+.heading {
+  font-size: var(--utopia-text-2xl);
+  letter-spacing: var(--utopia-tracking-display-md);
+}
+
+@media (min-width: 1024px) {
+  .heading {
+    font-size: 38px;
+    letter-spacing: -1.14px;
+    text-transform: capitalize;
+    max-width: 996px;
+  }
+}
+
+.subheading {
+  max-width: 314px;
+}
+
+@media (min-width: 1024px) {
+  .subheading {
+    max-width: 590px;
+    font-size: var(--utopia-text-md);
+    letter-spacing: var(--utopia-tracking-tight-md);
+    line-height: var(--utopia-leading-normal);
+  }
+}
+
+.content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 32px;
+  width: 100%;
+  max-width: 996px;
+  padding: 0;
+}
+
+@media (min-width: 1024px) {
+  .content {
+    padding: 0 24px;
+  }
+}
+
+.tabsDesktop {
+  display: none;
+  width: 100%;
+  max-width: 314px;
+}
+
+.tabsMobile {
+  display: flex;
+  position: absolute;
+  top: 32px;
+  left: 32px;
+  right: 32px;
+  width: auto;
+  max-width: 314px;
+  z-index: 2;
+}
+
+@media (min-width: 1024px) {
+  .tabsDesktop {
+    display: flex;
+  }
+
+  .tabsMobile {
+    display: none;
+  }
+}
+
+.visual {
+  position: relative;
+  width: 378px;
+  height: 488px;
+  overflow: hidden;
+  background: var(--utopia-bg-ecosystem);
+}
+
+.bgStack {
+  position: absolute;
+  inset: 0;
+}
+
+.bgImage {
+  object-fit: cover;
+  object-position: center;
+  transition: opacity 0.6s ease;
+  will-change: opacity;
+}
+
+@media (min-width: 1024px) {
+  .visual {
+    width: 996px;
+    height: 560px;
+    border-radius: 20px;
+  }
+}
+
+.gradient {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background: linear-gradient(
+    180deg,
+    rgba(51, 47, 46, 0) 86.131%,
+    #332f2e 108.21%
+  );
+  pointer-events: none;
+}
+
+@media (max-width: 1023px) {
+  .gradient {
+    background: linear-gradient(
+      90deg,
+      #d9d9d9 0%,
+      #d9d9d9 100%
+    );
+    opacity: 0;
+  }
+}
+
+.navWrap {
+  position: absolute;
+  bottom: 32px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: calc(100% - 64px);
+  max-width: 314px;
+  display: flex;
+  justify-content: center;
+  z-index: 2;
+}
+
+@media (min-width: 1024px) {
+  .navWrap {
+    bottom: 20px;
+    width: 335px;
+  }
+}

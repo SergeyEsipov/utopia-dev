@@ -1,0 +1,56 @@
+.dockWrap {
+  display: flex;
+  justify-content: center;
+  padding: 0 10px 12px;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: var(--utopia-z-dock);
+  pointer-events: none;
+}
+
+@media (min-width: 1024px) {
+  .dockWrap {
+    display: none;
+  }
+}
+
+.dock {
+  display: flex;
+  align-items: center;
+  gap: var(--utopia-space-2);
+  width: 100%;
+  max-width: 358px;
+  pointer-events: auto;
+}
+
+.iconBtn {
+  width: 40px;
+  flex-shrink: 0;
+}
+
+.iconBtnContent {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.cta {
+  flex: 1;
+  min-width: 0;
+}
+
+.ctaContent {
+  padding: 11px 12px;
+  font-family: var(--utopia-font-body);
+  font-size: var(--utopia-text-md);
+  letter-spacing: var(--utopia-tracking-tight-md);
+  color: var(--utopia-text-black);
+  white-space: nowrap;
+}
+
+.menuIconClose {
+  width: 16px !important;
+  height: 16px !important;
+}

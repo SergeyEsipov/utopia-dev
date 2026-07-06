@@ -1,6 +1,5 @@
 import Image from "next/image";
-import { Heading, Button, Icon } from "@/design-system/components";
-import { heroDestinations } from "@/lib/data";
+import { Heading, Button } from "@/design-system/components";
 import { images } from "@/lib/media";
 import {
   HeroMobileBackgroundLayer,
@@ -9,52 +8,12 @@ import {
 } from "./HeroMobileCarousel";
 import styles from "./hero-section.module.css";
 
-function HeroCard({
-  label,
-  size,
-  featured,
-}: {
-  label: string;
-  size: "sm" | "md";
-  featured?: boolean;
-}) {
-  return (
-    <div
-      className={[
-        styles.card,
-        featured ? styles.cardFeatured : "",
-        size === "md" ? styles.cardMd : styles.cardSm,
-      ]
-        .filter(Boolean)
-        .join(" ")}
-    >
-      <div className={styles.cardCaption}>
-        <span className={size === "md" ? styles.captionMd : styles.captionSm}>
-          {label}
-        </span>
-        <Icon name="chevron" size={12} alt="" />
-      </div>
-    </div>
-  );
-}
-
 export function HeroSection() {
   return (
     <HeroMobileCarouselRoot>
       <section className={styles.hero} aria-label="Hero">
-        <div className={styles.mobileCarousel}>
+        <div className={styles.heroMedia}>
           <HeroMobileBackgroundLayer />
-        </div>
-
-        <div className={styles.bgWrapDesktop}>
-          <Image
-            src={images.heroBg}
-            alt=""
-            fill
-            priority
-            className={styles.bg}
-            sizes="(min-width: 1024px) 1392px, 100vw"
-          />
         </div>
 
         <div className={styles.inner}>
@@ -79,17 +38,6 @@ export function HeroSection() {
             </Button>
 
             <HeroMobileCarouselTrack />
-
-            <div className={styles.cardsDesktop}>
-              {heroDestinations.map((dest) => (
-                <HeroCard
-                  key={dest.id}
-                  label={dest.label}
-                  size={dest.size}
-                  featured={"active" in dest && dest.active}
-                />
-              ))}
-            </div>
           </div>
         </div>
       </section>

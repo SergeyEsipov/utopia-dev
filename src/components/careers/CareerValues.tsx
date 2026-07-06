@@ -10,16 +10,10 @@ export function CareerValues() {
     <section className={styles.sectionWide} aria-labelledby="career-values-title">
       <div className={`${styles.sectionInner} ${styles.values}`}>
         <div className={styles.valuesInner}>
-          <div className={styles.valuesHero}>
-            <Image
-              src={images.careerValuesHero}
-              alt=""
-              width={1992}
-              height={956}
-              className={styles.valuesHeroImage}
-              priority
-            />
-            <div className={styles.valuesHeroOverlay} aria-hidden />
+          <div
+            className={styles.valuesHero}
+            style={{ backgroundImage: `url(${images.careerValuesHero})` }}
+          >
             <div className={styles.valuesHeroContent}>
               <h2 id="career-values-title" className={styles.valuesHeroTitle}>
                 {careerValues.hero.title}

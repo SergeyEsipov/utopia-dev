@@ -1,6 +1,4 @@
 .page {
   background: var(--utopia-bg-cream);
   width: 100%;
-  max-width: var(--utopia-desktop-width);
-  margin: 0 auto;
 }

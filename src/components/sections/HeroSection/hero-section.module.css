@@ -27,23 +27,16 @@
 
 .bgWrapDesktop {
   display: none;
-  position: absolute;
-  inset: 0;
 }
 
-.mobileCarousel {
+.heroMedia {
   position: absolute;
   inset: 0;
   z-index: 0;
 }
 
 @media (min-width: 1024px) {
-  .mobileCarousel {
-    display: none;
-  }
-
-  .bgWrapDesktop {
-    display: block;
+  .heroMedia {
     position: relative;
     height: 783px;
     border-radius: var(--utopia-radius-md);
@@ -51,10 +44,8 @@
   }
 }
 
-@media (min-width: 1024px) {
-  .bgWrap {
-    display: none;
-  }
+.mobileCarousel {
+  display: none;
 }
 
 .bg {
@@ -78,12 +69,18 @@
 }
 
 @media (min-width: 1024px) {
+  .hero {
+    position: relative;
+  }
+
   .inner {
     position: absolute;
     inset: 0;
     padding-bottom: 0;
     justify-content: flex-start;
     padding-top: 48px;
+    overflow: hidden;
+    border-radius: var(--utopia-radius-md);
   }
 }
 
@@ -121,7 +118,8 @@
     margin-top: 0;
     gap: 64px;
     flex: 1;
-    justify-content: center;
+    justify-content: flex-start;
+    padding-bottom: 48px;
   }
 }
 
@@ -177,6 +175,10 @@
   visibility: visible;
 }
 
+.cardsTrackScrolling {
+  /* sizing driven by --card-focus; transitions disabled while scrolling */
+}
+
 .cardsTrack::-webkit-scrollbar {
   display: none;
 }
@@ -194,30 +196,28 @@
   scroll-snap-stop: normal;
 }
 
+.cardsSlideClickable {
+  cursor: pointer;
+}
+
 @media (min-width: 1024px) {
   .cardsTrack {
-    display: none;
+    height: 331px;
+    gap: 40px;
+    padding-inline: calc(50% - 295px);
+    margin-top: auto;
+  }
+
+  .cardsSlide {
+    flex: 0 0 590px;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
   }
 }
 
 .cardsDesktop {
   display: none;
-  gap: 40px;
-  align-items: center;
-  justify-content: center;
-  width: 100%;
-  max-width: 1614px;
-  padding: 0 24px;
-}
-
-@media (min-width: 1024px) {
-  .cardsMobile {
-    display: none;
-  }
-
-  .cardsDesktop {
-    display: flex;
-  }
 }
 
 .card {
@@ -262,6 +262,19 @@
     box-shadow:
       0 16.152px 32.304px 0 rgba(0, 0, 0, 0.1),
       0 2.019px 2.019px 0 rgba(0, 0, 0, 0.05);
+  }
+
+  .cardAnimated {
+    --card-focus: 0;
+    width: calc(472px + 118px * var(--card-focus));
+    height: calc(265.5px + 65.5px * var(--card-focus));
+    border-radius: calc(16px + 4px * var(--card-focus));
+    transition: var(
+      --card-transition,
+      width 500ms cubic-bezier(0.22, 1, 0.36, 1),
+      height 500ms cubic-bezier(0.22, 1, 0.36, 1),
+      border-radius 500ms cubic-bezier(0.22, 1, 0.36, 1)
+    );
   }
 }
 

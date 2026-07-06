@@ -40,6 +40,7 @@ export function useDaysCarousel() {
   const [dragX, setDragX] = useState(0);
   const [autoplayKey, setAutoplayKey] = useState(0);
   const [isTransitioning, setIsTransitioning] = useState(false);
+  const [departingIndex, setDepartingIndex] = useState<number | null>(null);
   const pointerRef = useRef<number | null>(null);
   const startXRef = useRef(0);
   const activeRef = useRef(activeIndex);
@@ -53,7 +54,11 @@ export function useDaysCarousel() {
   const goTo = useCallback((index: number, kind: HapticKind | false = false) => {
     const wrapped =
       ((index % daysSlides.length) + daysSlides.length) % daysSlides.length;
-    if (wrapped !== activeRef.current && kind !== false) triggerHaptic(kind);
+    if (wrapped !== activeRef.current) {
+      setDepartingIndex(activeRef.current);
+      setIsTransitioning(true);
+      if (kind !== false) triggerHaptic(kind);
+    }
     setActiveIndex(wrapped);
     setDragX(0);
     setIsDragging(false);
@@ -73,6 +78,7 @@ export function useDaysCarousel() {
     setIsTransitioning(true);
     const timer = window.setTimeout(() => {
       setIsTransitioning(false);
+      setDepartingIndex(null);
     }, DAYS_TRANSITION_MS);
     return () => window.clearTimeout(timer);
   }, [activeIndex]);
@@ -122,16 +128,22 @@ export function useDaysCarousel() {
   const getCardStyle = useCallback(
     (slot: CardSlot, slideIndex: number): CSSProperties => {
       const isActive = slot.active;
-      const width = isActive ? metrics.activeW : metrics.inactiveW;
-      const height = isActive ? metrics.activeH : metrics.inactiveH;
+      const isDeparting =
+        !isDesktop &&
+        isTransitioning &&
+        departingIndex === slideIndex;
+      const width = isDeparting || isActive ? metrics.activeW : metrics.inactiveW;
+      const height = isDeparting || isActive ? metrics.activeH : metrics.inactiveH;
       const x = slot.x + (isDragging && isActive ? dragX : 0);
-      const inactiveOffset = !isActive && isDesktop ? daysDesktopMetrics.inactiveY : 0;
+      const inactiveOffset =
+        !isActive && !isDeparting && isDesktop ? daysDesktopMetrics.inactiveY : 0;
 
       let opacity = 1;
-      if (
+      if (isDeparting) {
+        opacity = 0;
+      } else if (
         !isDesktop &&
         slot.x <= daysMobileMetrics.peekLeft &&
-        !isTransitioning &&
         !isDragging
       ) {
         opacity = 0;
@@ -140,25 +152,28 @@ export function useDaysCarousel() {
         opacity = Math.max(0.55, 1 - Math.abs(dragX) / 280);
       }
 
+      const isNext =
+        slideIndex === (activeIndex + 1) % daysSlides.length;
+      const isPrev =
+        slideIndex ===
+        (activeIndex - 1 + daysSlides.length) % daysSlides.length;
+
       return {
         width: `${width}px`,
         height: `${height}px`,
         transform: `translate3d(${x}px, ${inactiveOffset}px, 0)`,
         opacity,
-        zIndex: isActive
-          ? 2
-          : slideIndex === (activeIndex + 1) % daysSlides.length
-            ? 1
-            : 0,
+        zIndex: isActive ? 2 : isDeparting ? 1 : isNext || isPrev ? 11 : 0,
       };
     },
-    [activeIndex, dragX, isDesktop, isDragging, isTransitioning, metrics],
+    [activeIndex, departingIndex, dragX, isDesktop, isDragging, isTransitioning, metrics],
   );
 
   const stageHeight = metrics.activeH;
 
   return {
     activeIndex,
+    departingIndex,
     slide: daysSlides[activeIndex],
     layouts,
     stageHeight,

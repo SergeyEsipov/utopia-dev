@@ -25,7 +25,7 @@ export const images = {
   careerTeamLegal: "/assets/careers/team-legal.jpg",
   careerTeamTechnical: "/assets/careers/team-technical.jpg",
   careerTeamFinance: "/assets/careers/team-finance.jpg",
-  careerValuesHero: "/assets/careers/values-hero.jpg",
+  careerValuesHero: "/assets/careers/values-hero-bg.jpg",
   careerValueNeverSettle: "/assets/careers/value-never-settle.png",
   careerValueDreamTeam: "/assets/careers/value-dream-team.png",
   careerValueThinkDeeper: "/assets/careers/value-think-deeper.png",

@@ -13,10 +13,11 @@
 
 .bgVideo {
   position: absolute;
-  top: -28px;
+  top: -16%;
   max-width: none;
-  height: calc(100% + 28px);
+  height: 116%;
   object-fit: cover;
+  object-position: center 46%;
   pointer-events: none;
   display: block;
   background: var(--utopia-bg-cream);
@@ -75,33 +76,80 @@
 .bgSlidekitesurf .bgVideo {
   width: 696px;
   left: calc(50% - 348px + 55px);
-  object-position: 52% 42%;
+  top: -22%;
+  height: 122%;
+  object-position: 52% 50%;
 }
 
 .bgSlidedunes .bgVideo {
   width: 100%;
   left: 0;
-  object-position: center;
+  top: -12%;
+  height: 112%;
+  object-position: center 40%;
 }
 
 .bgSlidelocalvibes .bgVideo {
-  width: 408px;
-  left: calc(50% - 204px - 1px);
-  object-position: bottom;
+  width: 100%;
+  left: 0;
+  top: -20%;
+  height: 120%;
+  object-position: center 64%;
+}
+
+@media (min-width: 640px) and (max-width: 1023px) {
+  .bgVideo {
+    top: -20%;
+    height: 120%;
+    object-position: center 44%;
+  }
+
+  .bgSlidekitesurf .bgVideo {
+    top: -28%;
+    height: 128%;
+    object-position: 52% 56%;
+  }
+
+  .bgSlidedunes .bgVideo {
+    top: -16%;
+    height: 116%;
+    object-position: center 42%;
+  }
+
+  .bgSlidelocalvibes .bgVideo {
+    top: -24%;
+    height: 124%;
+    object-position: center 61%;
+  }
 }
 
 @media (min-width: 1024px) {
   .bgVideo {
-    top: 0;
-    height: 100%;
+    top: -24%;
+    height: 124%;
+    object-position: center 46%;
   }
 
-  .bgSlidekitesurf .bgVideo,
-  .bgSlidedunes .bgVideo,
-  .bgSlidelocalvibes .bgVideo {
+  .bgSlidekitesurf .bgVideo {
+    top: -36%;
+    height: 136%;
     width: 100%;
     left: 0;
-    object-position: center;
+    object-position: 50% 66%;
+  }
+
+  .bgSlidedunes .bgVideo {
+    top: -24%;
+    height: 124%;
+    object-position: center 44%;
+  }
+
+  .bgSlidelocalvibes .bgVideo {
+    top: -32%;
+    height: 132%;
+    width: 100%;
+    left: 0;
+    object-position: center 60%;
   }
 }
 

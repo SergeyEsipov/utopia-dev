@@ -148,10 +148,11 @@ export function getScrollLeftForSlide(
   slideIndex: number,
   trackClientWidth: number,
   paddingLeft: number,
+  stride = HERO_CARD_WIDTH + HERO_CARD_GAP,
+  cardWidth = HERO_CARD_WIDTH,
 ): number {
-  const stride = HERO_CARD_WIDTH + HERO_CARD_GAP;
   const viewportCenter = trackClientWidth / 2;
-  const slideCenter = paddingLeft + slideIndex * stride + HERO_CARD_WIDTH / 2;
+  const slideCenter = paddingLeft + slideIndex * stride + cardWidth / 2;
   return slideCenter - viewportCenter;
 }
 
@@ -160,11 +161,12 @@ export function getRawSlideIndexFromScroll(
   scrollLeft: number,
   trackClientWidth: number,
   paddingLeft: number,
+  stride = HERO_CARD_WIDTH + HERO_CARD_GAP,
+  cardWidth = HERO_CARD_WIDTH,
 ): number {
-  const stride = HERO_CARD_WIDTH + HERO_CARD_GAP;
   const viewportCenter = trackClientWidth / 2;
   const slideCenterOffset =
-    scrollLeft + viewportCenter - paddingLeft - HERO_CARD_WIDTH / 2;
+    scrollLeft + viewportCenter - paddingLeft - cardWidth / 2;
   return slideCenterOffset / stride;
 }
 

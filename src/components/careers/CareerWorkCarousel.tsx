@@ -3,53 +3,179 @@
 import Image from "next/image";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Icon } from "@/design-system/components";
-import { careerWorkSlides } from "@/lib/career-data";
+import { careerWorkSlides, type WorkSlide } from "@/lib/career-data";
 import { triggerHaptic } from "@/lib/haptics";
 import { images } from "@/lib/media";
 import styles from "./careers.module.css";
 
 const SLIDE_GAP = 20;
 
-function getSlideStride(container: HTMLDivElement) {
+function getScrollMetrics(container: HTMLDivElement) {
   const slide = container.querySelector<HTMLElement>(`.${styles.workSlide}`);
-  if (!slide) return 346;
-  return slide.offsetWidth + SLIDE_GAP;
+  if (!slide) {
+    return { stride: 346, maxIndex: 0, maxScrollLeft: 0 };
+  }
+
+  const stride = slide.offsetWidth + SLIDE_GAP;
+  const maxScrollLeft = Math.max(0, container.scrollWidth - container.clientWidth);
+  const maxIndex =
+    maxScrollLeft <= 0 ? 0 : Math.round(maxScrollLeft / stride);
+
+  return { stride, maxIndex, maxScrollLeft };
+}
+
+function WorkSlideCard({
+  slide,
+  slideRef,
+}: {
+  slide: WorkSlide;
+  slideRef: (node: HTMLElement | null) => void;
+}) {
+  if (slide.layout === "text") {
+    return (
+      <article
+        ref={slideRef}
+        className={[styles.workSlide, styles.workSlideText].join(" ")}
+        aria-label={slide.title}
+      >
+        <p className={styles.workSlideBody}>{slide.body}</p>
+        <p className={styles.workSlideTextTitle}>{slide.title}</p>
+      </article>
+    );
+  }
+
+  if (slide.layout === "split") {
+    return (
+      <article
+        ref={slideRef}
+        className={[styles.workSlide, styles.workSlideSplit].join(" ")}
+        aria-label={slide.title}
+      >
+        <div className={styles.workSlideMedia}>
+          <Image
+            src={images[slide.imageKey!]}
+            alt=""
+            fill
+            sizes="326px"
+            className={styles.workSlideImage}
+          />
+          {slide.badge ? (
+            <span className={styles.workSlideBadge}>{slide.badge}</span>
+          ) : null}
+        </div>
+        <div className={styles.workSlideSplitFooter}>
+          <p className={styles.workSlideFooterTitle}>{slide.title}</p>
+        </div>
+      </article>
+    );
+  }
+
+  return (
+    <article
+      ref={slideRef}
+      className={[styles.workSlide, styles.workSlideOverlayCard].join(" ")}
+      aria-label={slide.title}
+    >
+      <div className={styles.workSlideMedia}>
+        <Image
+          src={images[slide.imageKey!]}
+          alt=""
+          fill
+          sizes="326px"
+          className={styles.workSlideImage}
+        />
+      </div>
+      <div className={styles.workSlideOverlay} aria-hidden />
+      <div className={styles.workSlideGradient} aria-hidden />
+      <p className={styles.workSlideTitle}>{slide.title}</p>
+    </article>
+  );
 }
 
 export function CareerWorkCarousel() {
   const trackRef = useRef<HTMLDivElement>(null);
+  const slideRefs = useRef<(HTMLElement | null)[]>([]);
   const [index, setIndex] = useState(0);
-  const maxIndex = careerWorkSlides.length - 1;
+  const [maxIndex, setMaxIndex] = useState(careerWorkSlides.length - 1);
   const canGoPrev = index > 0;
   const canGoNext = index < maxIndex;
+
+  const syncMetrics = useCallback(() => {
+    const container = trackRef.current;
+    if (!container) return;
+
+    const metrics = getScrollMetrics(container);
+    setMaxIndex(metrics.maxIndex);
+    setIndex((current) => Math.min(current, metrics.maxIndex));
+  }, []);
+
+  const syncIndexFromScroll = useCallback(() => {
+    const container = trackRef.current;
+    if (!container) return;
+
+    const { stride, maxIndex: max, maxScrollLeft } = getScrollMetrics(container);
+    const atEnd = container.scrollLeft >= maxScrollLeft - 1;
+    const nextIndex = atEnd
+      ? max
+      : Math.max(0, Math.min(max, Math.round(container.scrollLeft / stride)));
+
+    setMaxIndex(max);
+    setIndex(nextIndex);
+  }, []);
 
   const scrollToIndex = useCallback((next: number) => {
     const container = trackRef.current;
     if (!container) return;
 
-    const clamped = Math.max(0, Math.min(next, maxIndex));
-    const stride = getSlideStride(container);
+    const { maxIndex: max } = getScrollMetrics(container);
+    const clamped = Math.max(0, Math.min(next, max));
+    const target = slideRefs.current[clamped];
 
     setIndex(clamped);
+    setMaxIndex(max);
+
+    if (target) {
+      target.scrollIntoView({
+        behavior: "smooth",
+        inline: "start",
+        block: "nearest",
+      });
+      return;
+    }
+
+    const { stride, maxScrollLeft } = getScrollMetrics(container);
     container.scrollTo({
-      left: clamped * stride,
+      left: Math.min(clamped * stride, maxScrollLeft),
       behavior: "smooth",
     });
-  }, [maxIndex]);
+  }, []);
 
   useEffect(() => {
     const container = trackRef.current;
     if (!container) return;
 
-    const syncIndexFromScroll = () => {
-      const stride = getSlideStride(container);
-      const nextIndex = Math.round(container.scrollLeft / stride);
-      setIndex(Math.max(0, Math.min(nextIndex, maxIndex)));
+    syncMetrics();
+
+    const ro = new ResizeObserver(syncMetrics);
+    ro.observe(container);
+
+    let scrollEndTimer: ReturnType<typeof setTimeout> | undefined;
+
+    const handleScroll = () => {
+      if (scrollEndTimer) clearTimeout(scrollEndTimer);
+      scrollEndTimer = setTimeout(syncIndexFromScroll, 80);
     };
 
-    container.addEventListener("scroll", syncIndexFromScroll, { passive: true });
-    return () => container.removeEventListener("scroll", syncIndexFromScroll);
-  }, [maxIndex]);
+    container.addEventListener("scroll", handleScroll, { passive: true });
+    container.addEventListener("scrollend", syncIndexFromScroll);
+
+    return () => {
+      ro.disconnect();
+      if (scrollEndTimer) clearTimeout(scrollEndTimer);
+      container.removeEventListener("scroll", handleScroll);
+      container.removeEventListener("scrollend", syncIndexFromScroll);
+    };
+  }, [syncIndexFromScroll, syncMetrics]);
 
   const handlePrev = () => {
     if (!canGoPrev) return;
@@ -106,23 +232,14 @@ export function CareerWorkCarousel() {
 
           <div className={styles.workTrackWrap} ref={trackRef}>
             <div className={styles.workTrack}>
-              {careerWorkSlides.map((slide) => (
-                <article
+              {careerWorkSlides.map((slide, slideIndex) => (
+                <WorkSlideCard
                   key={slide.id}
-                  className={styles.workSlide}
-                  aria-label={slide.title}
-                >
-                  <Image
-                    src={images[slide.imageKey]}
-                    alt=""
-                    width={652}
-                    height={640}
-                    className={styles.workSlideImage}
-                  />
-                  {slide.body ? (
-                    <span className={styles.srOnly}>{slide.body}</span>
-                  ) : null}
-                </article>
+                  slide={slide}
+                  slideRef={(node) => {
+                    slideRefs.current[slideIndex] = node;
+                  }}
+                />
               ))}
             </div>
           </div>

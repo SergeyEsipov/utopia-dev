@@ -125,13 +125,13 @@ export const careerValues = {
   ],
 } as const;
 
-export type WorkSlideVariant = "image" | "text";
+export type WorkSlideLayout = "split" | "text" | "overlay";
 
 export type WorkSlide = {
   id: string;
   title: string;
-  imageKey: "careerWorkGuests" | "careerWorkRemote" | "careerWorkLocations" | "careerWorkTeam" | "careerWorkCompensation";
-  variant: WorkSlideVariant;
+  layout: WorkSlideLayout;
+  imageKey?: "careerWorkGuests" | "careerWorkRemote" | "careerWorkLocations" | "careerWorkTeam" | "careerWorkCompensation";
   badge?: string;
   body?: string;
 };
@@ -140,35 +140,34 @@ export const careerWorkSlides: WorkSlide[] = [
   {
     id: "guests",
     title: "Expectional guests",
+    layout: "split",
     imageKey: "careerWorkGuests",
-    variant: "image",
     badge: "everywhere",
   },
   {
     id: "remote",
     title: "Remote and on-site roles",
-    imageKey: "careerWorkRemote",
-    variant: "text",
+    layout: "text",
     body:
       "Some roles are fully remote. Others are based on-site, in some of the world's most beautiful destinations — from Brazil, Costa Rica and the Dominican Republic to Spain, South Africa and the UAE.",
   },
   {
     id: "locations",
     title: "Rare locations",
+    layout: "overlay",
     imageKey: "careerWorkLocations",
-    variant: "image",
   },
   {
     id: "team",
     title: "A team of professionals",
+    layout: "overlay",
     imageKey: "careerWorkTeam",
-    variant: "image",
   },
   {
     id: "compensation",
     title: "Strong compensation",
+    layout: "overlay",
     imageKey: "careerWorkCompensation",
-    variant: "image",
   },
 ];
 

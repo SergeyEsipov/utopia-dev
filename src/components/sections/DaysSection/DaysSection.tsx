@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { Heading, Text } from "@/design-system/components";
-import { daysSlides, DAYS_AUTOPLAY_MS, DAYS_TRANSITION_MS } from "@/lib/days-carousel";
+import { daysSlides, DAYS_AUTOPLAY_MS, DAYS_CAPTION_MS, DAYS_TRANSITION_MS } from "@/lib/days-carousel";
 import { images } from "@/lib/media";
 import { useDaysCarousel } from "./useDaysCarousel";
 import styles from "./days-section.module.css";
@@ -14,12 +14,17 @@ export function DaysSection() {
     isDragging,
     autoplayKey,
     activeIndex,
+    departingIndex,
     goTo,
     goNext,
     goPrev,
     getCardStyle,
     swipeHandlers,
   } = useDaysCarousel();
+
+  const slideCount = daysSlides.length;
+  const nextIndex = (activeIndex + 1) % slideCount;
+  const prevIndex = (activeIndex - 1 + slideCount) % slideCount;
 
   return (
     <section className={styles.section} aria-label="Private World">
@@ -35,6 +40,7 @@ export function DaysSection() {
           {
             "--days-autoplay-ms": `${DAYS_AUTOPLAY_MS}ms`,
             "--days-transition-ms": `${DAYS_TRANSITION_MS}ms`,
+            "--days-caption-ms": `${DAYS_CAPTION_MS}ms`,
           } as React.CSSProperties
         }
       >
@@ -47,18 +53,48 @@ export function DaysSection() {
             {...swipeHandlers}
           >
             <div className={styles.track} style={{ height: stageHeight }}>
-              {daysSlides.map((item, i) => (
+              {daysSlides.map((item, i) => {
+                const isActive = layouts[i]?.active;
+                const isDeparting = departingIndex === i;
+                const isNext = i === nextIndex;
+                const isPrev = i === prevIndex;
+                const isClickable = !isActive && (isNext || isPrev);
+
+                return (
                 <article
                   key={item.id}
                   className={[
                     styles.card,
-                    layouts[i]?.active ? styles.cardActive : "",
-                    layouts[i]?.active ? styles.cardTopFade : "",
+                    isActive ? styles.cardActive : "",
+                    isActive && !isDeparting ? styles.cardTopFade : "",
+                    isDeparting ? styles.cardDeparting : "",
+                    isNext ? styles.cardNext : "",
+                    isPrev ? styles.cardPrev : "",
                   ]
                     .filter(Boolean)
                     .join(" ")}
                   style={getCardStyle(layouts[i], i)}
-                  aria-hidden={!layouts[i]?.active}
+                  aria-hidden={!isActive}
+                  aria-label={isClickable ? item.title : undefined}
+                  role={isClickable ? "button" : undefined}
+                  tabIndex={isClickable ? 0 : undefined}
+                  onPointerDown={(event) => {
+                    if (!isClickable) return;
+                    event.stopPropagation();
+                  }}
+                  onClick={() => {
+                    if (!isClickable || isDragging) return;
+                    if (isNext) goNext();
+                    else if (isPrev) goPrev();
+                  }}
+                  onKeyDown={(event) => {
+                    if (!isClickable) return;
+                    if (event.key === "Enter" || event.key === " ") {
+                      event.preventDefault();
+                      if (isNext) goNext();
+                      else if (isPrev) goPrev();
+                    }
+                  }}
                 >
                   <Image
                     src={images[item.image]}
@@ -69,7 +105,8 @@ export function DaysSection() {
                     priority={i === 0}
                   />
                 </article>
-              ))}
+              );
+              })}
             </div>
 
             <button

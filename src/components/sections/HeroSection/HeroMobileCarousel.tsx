@@ -38,10 +38,12 @@ const START_SLIDE =
 type HeroCarouselContextValue = {
   trackRef: React.RefObject<HTMLDivElement | null>;
   centeredSlide: number;
+  rawScrollIndex: number;
   allSlides: HeroCarouselSlide[];
   bgMix: HeroBackgroundMix;
   ready: boolean;
   isScrolling: boolean;
+  scrollToSlide: (slideIndex: number, behavior?: ScrollBehavior) => void;
 };
 
 const HeroCarouselContext = createContext<HeroCarouselContextValue | null>(null);
@@ -65,31 +67,46 @@ function isSameBackgroundMix(
   );
 }
 
+function clamp01(value: number) {
+  return Math.max(0, Math.min(1, value));
+}
+
+function getCardFocus(rawIndex: number, slideIndex: number) {
+  return clamp01(1 - Math.abs(rawIndex - slideIndex));
+}
+
 function HeroCard({
   slide,
-  centered,
+  focus,
+  isScrolling,
 }: {
   slide: HeroCarouselSlide;
-  centered: boolean;
+  focus: number;
+  isScrolling: boolean;
 }) {
-  const isFeatured = centered && slide.size === "md";
+  const isDest = slide.size === "md";
+  const isFeatured = isDest && focus > 0.92;
 
   return (
     <div
       className={[
         styles.card,
+        styles.cardAnimated,
+        isDest ? styles.cardDest : styles.cardSide,
         isFeatured ? styles.cardFeatured : "",
-        centered && slide.size === "md" ? styles.cardMd : styles.cardSm,
+        focus > 0.5 ? styles.cardMd : styles.cardSm,
       ]
         .filter(Boolean)
         .join(" ")}
+      style={
+        {
+          "--card-focus": focus,
+          "--card-transition": isScrolling ? "none" : undefined,
+        } as React.CSSProperties
+      }
     >
       <div className={styles.cardCaption}>
-        <span
-          className={
-            centered && slide.size === "md" ? styles.captionMd : styles.captionSm
-          }
-        >
+        <span className={focus > 0.5 ? styles.captionMd : styles.captionSm}>
           {slide.label}
         </span>
         <Icon name="chevron" size={12} alt="" />
@@ -114,6 +131,7 @@ export function HeroMobileCarouselRoot({ children }: { children: ReactNode }) {
     getBackgroundMixFromRawSlideIndex(START_SLIDE),
   );
   const [centeredSlide, setCenteredSlide] = useState(START_SLIDE);
+  const [rawScrollIndex, setRawScrollIndex] = useState(START_SLIDE);
 
   const getMetrics = useCallback(() => {
     const track = trackRef.current;
@@ -121,10 +139,13 @@ export function HeroMobileCarouselRoot({ children }: { children: ReactNode }) {
 
     const computed = getComputedStyle(track);
     const paddingLeft = parseFloat(computed.paddingLeft) || 0;
-    const stride = HERO_CARD_WIDTH + HERO_CARD_GAP;
+    const gap = parseFloat(computed.gap) || HERO_CARD_GAP;
+    const slide = track.querySelector<HTMLElement>(`.${styles.cardsSlide}`);
+    const cardWidth = slide?.offsetWidth ?? HERO_CARD_WIDTH;
+    const stride = cardWidth + gap;
     const viewportCenter = track.clientWidth / 2;
 
-    return { track, paddingLeft, stride, viewportCenter };
+    return { track, paddingLeft, stride, cardWidth, viewportCenter };
   }, []);
 
   const scrollToSlide = useCallback(
@@ -132,11 +153,13 @@ export function HeroMobileCarouselRoot({ children }: { children: ReactNode }) {
       const metrics = getMetrics();
       if (!metrics) return;
 
-      const { track, paddingLeft } = metrics;
+      const { track, paddingLeft, stride, cardWidth } = metrics;
       const left = getScrollLeftForSlide(
         slideIndex,
         track.clientWidth,
         paddingLeft,
+        stride,
+        cardWidth,
       );
 
       if (behavior === "auto") {
@@ -157,17 +180,20 @@ export function HeroMobileCarouselRoot({ children }: { children: ReactNode }) {
       const metrics = getMetrics();
       if (!metrics) return null;
 
-      const { track, paddingLeft } = metrics;
+      const { track, paddingLeft, stride, cardWidth } = metrics;
       const rawIndex = getRawSlideIndexFromScroll(
         track.scrollLeft,
         track.clientWidth,
         paddingLeft,
+        stride,
+        cardWidth,
       );
       const nearestSlide = Math.round(rawIndex);
       const effectiveRawIndex = forceSnap ? nearestSlide : rawIndex;
 
       return {
         centeredSlide: nearestSlide,
+        rawScrollIndex: effectiveRawIndex,
         bgMix: getBackgroundMixFromRawSlideIndex(effectiveRawIndex),
       };
     },
@@ -182,6 +208,7 @@ export function HeroMobileCarouselRoot({ children }: { children: ReactNode }) {
       setCenteredSlide((current) =>
         current === state.centeredSlide ? current : state.centeredSlide,
       );
+      setRawScrollIndex(state.rawScrollIndex);
       setBgMix((current) =>
         isSameBackgroundMix(current, state.bgMix) ? current : state.bgMix,
       );
@@ -193,11 +220,13 @@ export function HeroMobileCarouselRoot({ children }: { children: ReactNode }) {
     const metrics = getMetrics();
     if (!metrics || loopLockRef.current) return;
 
-    const { track, paddingLeft } = metrics;
+    const { track, paddingLeft, stride, cardWidth } = metrics;
     const rawIndex = getRawSlideIndexFromScroll(
       track.scrollLeft,
       track.clientWidth,
       paddingLeft,
+      stride,
+      cardWidth,
     );
     const slideIndex = Math.round(rawIndex);
     const normalizedSlide = normalizeLoopSlideIndex(slideIndex, BASE_LENGTH);
@@ -226,6 +255,7 @@ export function HeroMobileCarouselRoot({ children }: { children: ReactNode }) {
       setCenteredSlide((current) =>
         current === state.centeredSlide ? current : state.centeredSlide,
       );
+      setRawScrollIndex(state.rawScrollIndex);
       setBgMix((current) =>
         isSameBackgroundMix(current, state.bgMix) ? current : state.bgMix,
       );
@@ -317,10 +347,12 @@ export function HeroMobileCarouselRoot({ children }: { children: ReactNode }) {
       value={{
         trackRef,
         centeredSlide,
+        rawScrollIndex,
         allSlides: ALL_SLIDES,
         bgMix,
         ready,
         isScrolling,
+        scrollToSlide,
       }}
     >
       {children}
@@ -340,29 +372,67 @@ export function HeroMobileBackgroundLayer() {
 }
 
 export function HeroMobileCarouselTrack() {
-  const { trackRef, centeredSlide, allSlides, ready } = useHeroCarousel();
+  const { trackRef, centeredSlide, rawScrollIndex, allSlides, ready, isScrolling, scrollToSlide } =
+    useHeroCarousel();
+
+  const handleSlideClick = useCallback(
+    (index: number) => {
+      if (index === centeredSlide) return;
+      scrollToSlide(index, "smooth");
+    },
+    [centeredSlide, scrollToSlide],
+  );
+
+  const handleSlideKeyDown = useCallback(
+    (event: React.KeyboardEvent, index: number) => {
+      if (index === centeredSlide) return;
+      if (event.key !== "Enter" && event.key !== " ") return;
+      event.preventDefault();
+      scrollToSlide(index, "smooth");
+    },
+    [centeredSlide, scrollToSlide],
+  );
 
   return (
     <div
       ref={trackRef}
-      className={[styles.cardsTrack, ready ? styles.cardsTrackReady : ""]
+      className={[
+        styles.cardsTrack,
+        ready ? styles.cardsTrackReady : "",
+        isScrolling ? styles.cardsTrackScrolling : "",
+      ]
         .filter(Boolean)
         .join(" ")}
       aria-label="Destinations carousel"
     >
-      {allSlides.map((slide, index) => (
-        <div
-          key={`${slide.id}-${index}`}
-          className={[
-            styles.cardsSlide,
-            slide.size === "sm" ? styles.cardsSlideSide : styles.cardsSlideDest,
-          ]
-            .filter(Boolean)
-            .join(" ")}
-        >
-          <HeroCard slide={slide} centered={index === centeredSlide} />
-        </div>
-      ))}
+      {allSlides.map((slide, index) => {
+        const centered = index === centeredSlide;
+        const focus = getCardFocus(rawScrollIndex, index);
+
+        return (
+          <div
+            key={`${slide.id}-${index}`}
+            className={[
+              styles.cardsSlide,
+              slide.size === "sm" ? styles.cardsSlideSide : styles.cardsSlideDest,
+              !centered ? styles.cardsSlideClickable : "",
+            ]
+              .filter(Boolean)
+              .join(" ")}
+            onClick={centered ? undefined : () => handleSlideClick(index)}
+            onKeyDown={
+              centered ? undefined : (event) => handleSlideKeyDown(event, index)
+            }
+            role={centered ? undefined : "button"}
+            tabIndex={centered ? undefined : 0}
+            aria-label={
+              centered ? undefined : `Go to ${slide.label.replace(" >", "")}`
+            }
+          >
+            <HeroCard slide={slide} focus={focus} isScrolling={isScrolling} />
+          </div>
+        );
+      })}
     </div>
   );
 }

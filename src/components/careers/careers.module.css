@@ -127,9 +127,13 @@
 
 @media (min-width: 640px) {
   .filters {
-    flex-direction: row;
     gap: 20px;
-    height: 40px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .filters {
+    flex-direction: row;
   }
 }
 
@@ -139,7 +143,7 @@
   justify-content: space-between;
   gap: 12px;
   width: 100%;
-  height: 40px;
+  min-height: 40px;
   padding: 11px 24px;
   border: 1px solid rgba(28, 28, 28, 0.55);
   border-radius: var(--utopia-radius-sm);
@@ -151,7 +155,15 @@
   cursor: pointer;
 }
 
-@media (min-width: 640px) {
+.filterControl span {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  text-align: left;
+}
+
+@media (min-width: 1024px) {
   .filterLocation {
     width: 285px;
     flex-shrink: 0;
@@ -159,6 +171,7 @@
 
   .filterSearch {
     flex: 1;
+    min-width: 0;
   }
 }
 
@@ -462,25 +475,19 @@
   height: clamp(280px, 50vw, 478px);
   border-radius: var(--utopia-radius-sm);
   overflow: hidden;
-  background: #c5c2b8;
+  background-color: #c5c2b8;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
 }
 
-.valuesHeroImage {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  object-position: center center;
-  z-index: 0;
-}
-
-.valuesHeroOverlay {
+.valuesHero::before {
+  content: "";
   position: absolute;
   inset: 0;
   background: rgba(0, 0, 0, 0.2);
-  z-index: 1;
   pointer-events: none;
+  z-index: 1;
 }
 
 .valuesHeroContent {
@@ -511,7 +518,6 @@
   line-height: 1.3;
   letter-spacing: var(--utopia-tracking-tight-md);
   max-width: 385px;
-  text-wrap: balance;
 }
 
 .valuesRow {
@@ -520,7 +526,7 @@
   gap: 20px;
 }
 
-@media (min-width: 768px) {
+@media (min-width: 1024px) {
   .valuesRowTwo {
     grid-template-columns: repeat(2, 1fr);
   }
@@ -572,6 +578,12 @@
 
 .workInner {
   position: relative;
+}
+
+@media (min-width: 1024px) {
+  .workInner {
+    max-width: none;
+  }
 }
 
 .workHeader {
@@ -639,8 +651,10 @@
 .workTrackWrap {
   overflow-x: auto;
   scroll-snap-type: x mandatory;
+  scroll-behavior: auto;
   -webkit-overflow-scrolling: touch;
   scrollbar-width: none;
+  container-type: inline-size;
 }
 
 .workTrackWrap::-webkit-scrollbar {
@@ -662,14 +676,139 @@
   border-radius: var(--utopia-radius-sm);
   overflow: hidden;
   scroll-snap-align: start;
+  scroll-snap-stop: always;
+  isolation: isolate;
+  background: #4a2018;
+}
+
+@media (min-width: 1024px) {
+  .workSlide {
+    width: min(326px, calc((100cqw - 40px) / 3));
+  }
+}
+
+.workSlideMedia {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+
+.workSlideSplit {
+  display: flex;
+  flex-direction: column;
+  background: #4a2018;
+}
+
+.workSlideSplit .workSlideMedia {
+  position: relative;
+  inset: auto;
+  flex: 0 0 172px;
+  height: 172px;
+}
+
+.workSlideSplitFooter {
+  flex: 1;
+  display: flex;
+  align-items: flex-end;
+  padding: 0 20px 12px;
+  min-height: 0;
+}
+
+.workSlideFooterTitle {
+  font-family: var(--utopia-font-body);
+  font-size: var(--utopia-text-lg);
+  line-height: 1.3;
+  letter-spacing: var(--utopia-tracking-tight-lg);
+  color: var(--utopia-text-inverse);
+}
+
+.workSlideText {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 20px;
+  background: #ebdfd2;
+}
+
+.workSlideBody {
+  font-family: var(--utopia-font-body);
+  font-size: var(--utopia-text-md);
+  line-height: 1.3;
+  letter-spacing: var(--utopia-tracking-tight-md);
+  color: var(--utopia-text-black);
+}
+
+.workSlideTextTitle {
+  font-family: var(--utopia-font-body);
+  font-size: var(--utopia-text-lg);
+  line-height: 1.3;
+  letter-spacing: var(--utopia-tracking-tight-lg);
+  color: var(--utopia-text-black);
 }
 
 .workSlideImage {
-  display: block;
-  width: 100%;
-  height: 100%;
   object-fit: cover;
   object-position: center center;
+}
+
+.workSlideOverlayCard .workSlideImage {
+  width: 100% !important;
+  height: auto !important;
+  min-height: 100%;
+  inset: auto !important;
+  top: 50% !important;
+  left: 0 !important;
+  right: 0 !important;
+  transform: translateY(-50%);
+}
+
+.workSlideOverlay {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background: rgba(0, 0, 0, 0.2);
+  pointer-events: none;
+}
+
+.workSlideGradient {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  background: linear-gradient(
+    180deg,
+    rgba(0, 0, 0, 0) 0%,
+    rgba(102, 102, 102, 0.1) 100%
+  );
+  pointer-events: none;
+}
+
+.workSlideBadge {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  z-index: 3;
+  padding: 4px 18px;
+  border-radius: 80px;
+  background: rgba(0, 0, 0, 0.2);
+  backdrop-filter: blur(8px);
+  font-family: var(--utopia-font-body);
+  font-size: var(--utopia-text-xs);
+  line-height: 1.3;
+  letter-spacing: var(--utopia-tracking-tight-xs);
+  color: var(--utopia-text-inverse);
+  text-transform: uppercase;
+}
+
+.workSlideTitle {
+  position: absolute;
+  left: 20px;
+  bottom: 12px;
+  z-index: 3;
+  font-family: var(--utopia-font-body);
+  font-size: var(--utopia-text-lg);
+  line-height: 1.3;
+  letter-spacing: var(--utopia-tracking-tight-lg);
+  color: var(--utopia-text-inverse);
 }
 
 .srOnly {

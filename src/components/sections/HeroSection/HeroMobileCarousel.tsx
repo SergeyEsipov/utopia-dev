@@ -84,15 +84,13 @@ function HeroCard({
   focus: number;
   isScrolling: boolean;
 }) {
-  const isDest = slide.size === "md";
-  const isFeatured = isDest && focus > 0.92;
+  const isFeatured = focus > 0.92;
 
   return (
     <div
       className={[
         styles.card,
         styles.cardAnimated,
-        isDest ? styles.cardDest : styles.cardSide,
         isFeatured ? styles.cardFeatured : "",
         focus > 0.5 ? styles.cardMd : styles.cardSm,
       ]
@@ -414,7 +412,7 @@ export function HeroMobileCarouselTrack() {
             key={`${slide.id}-${index}`}
             className={[
               styles.cardsSlide,
-              slide.size === "sm" ? styles.cardsSlideSide : styles.cardsSlideDest,
+              styles.cardsSlideDest,
               !centered ? styles.cardsSlideClickable : "",
             ]
               .filter(Boolean)

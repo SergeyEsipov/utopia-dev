@@ -9,22 +9,16 @@ import styles from "./days-section.module.css";
 
 export function DaysSection() {
   const {
-    layouts,
+    cards,
     stageHeight,
     isDragging,
     autoplayKey,
     activeIndex,
-    departingIndex,
     goTo,
     goNext,
     goPrev,
-    getCardStyle,
     swipeHandlers,
   } = useDaysCarousel();
-
-  const slideCount = daysSlides.length;
-  const nextIndex = (activeIndex + 1) % slideCount;
-  const prevIndex = (activeIndex - 1 + slideCount) % slideCount;
 
   return (
     <section className={styles.section} aria-label="Private World">
@@ -53,46 +47,40 @@ export function DaysSection() {
             {...swipeHandlers}
           >
             <div className={styles.track} style={{ height: stageHeight }}>
-              {daysSlides.map((item, i) => {
-                const isActive = layouts[i]?.active;
-                const isDeparting = departingIndex === i;
-                const isNext = i === nextIndex;
-                const isPrev = i === prevIndex;
-                const isClickable = !isActive && (isNext || isPrev);
+              {cards.map((card) => {
+                const item = daysSlides[card.slideIndex];
 
                 return (
                 <article
-                  key={item.id}
+                  key={card.key}
                   className={[
                     styles.card,
-                    isActive ? styles.cardActive : "",
-                    isActive && !isDeparting ? styles.cardTopFade : "",
-                    isDeparting ? styles.cardDeparting : "",
-                    isNext ? styles.cardNext : "",
-                    isPrev ? styles.cardPrev : "",
+                    card.active ? styles.cardActive : "",
+                    card.active && !card.departing ? styles.cardTopFade : "",
+                    card.departing ? styles.cardDeparting : "",
+                    card.next ? styles.cardNext : "",
+                    card.prev ? styles.cardPrev : "",
                   ]
                     .filter(Boolean)
                     .join(" ")}
-                  style={getCardStyle(layouts[i], i)}
-                  aria-hidden={!isActive}
-                  aria-label={isClickable ? item.title : undefined}
-                  role={isClickable ? "button" : undefined}
-                  tabIndex={isClickable ? 0 : undefined}
+                  style={card.style}
+                  aria-hidden={!card.active}
+                  aria-label={card.clickable ? item.title : undefined}
+                  role={card.clickable ? "button" : undefined}
+                  tabIndex={card.clickable ? 0 : undefined}
                   onPointerDown={(event) => {
-                    if (!isClickable) return;
+                    if (!card.clickable) return;
                     event.stopPropagation();
                   }}
                   onClick={() => {
-                    if (!isClickable || isDragging) return;
-                    if (isNext) goNext();
-                    else if (isPrev) goPrev();
+                    if (!card.clickable || isDragging) return;
+                    goNext();
                   }}
                   onKeyDown={(event) => {
-                    if (!isClickable) return;
+                    if (!card.clickable) return;
                     if (event.key === "Enter" || event.key === " ") {
                       event.preventDefault();
-                      if (isNext) goNext();
-                      else if (isPrev) goPrev();
+                      goNext();
                     }
                   }}
                 >
@@ -102,7 +90,7 @@ export function DaysSection() {
                     fill
                     className={styles.cardImage}
                     sizes="(max-width: 1023px) 276px, 386px"
-                    priority={i === 0}
+                    priority={card.offset >= 0}
                   />
                 </article>
               );

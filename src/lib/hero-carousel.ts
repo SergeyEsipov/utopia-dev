@@ -7,8 +7,7 @@ export type HeroDestination = {
 export type HeroCarouselSlide = {
   id: string;
   label: string;
-  size: "sm" | "md";
-  bgIndex: number | null;
+  bgIndex: number;
 };
 
 export type HeroBackgroundMix = {
@@ -16,8 +15,6 @@ export type HeroBackgroundMix = {
   to: number;
   blend: number;
 };
-
-export const HERO_SIDE_LABEL = "Jericoacoara, Brazil";
 
 export const heroCarouselDestinations: HeroDestination[] = [
   {
@@ -57,7 +54,7 @@ export const heroCarouselDestinations: HeroDestination[] = [
   },
 ];
 
-export const HERO_SIDE_BG_INDEX = heroCarouselDestinations.length - 1;
+export const HERO_DESTINATION_COUNT = heroCarouselDestinations.length;
 
 export const HERO_CARD_WIDTH = 314;
 export const HERO_CARD_GAP = 22;
@@ -66,37 +63,18 @@ export const HERO_LOOP_COPIES = 3;
 export const HERO_BG_CROSSFADE_MS = 550;
 export const HERO_BG_CROSSFADE_EASING = "cubic-bezier(0.22, 1, 0.36, 1)";
 
-const sideSlide = (): HeroCarouselSlide => ({
-  id: "jericoacoara-side",
-  label: HERO_SIDE_LABEL,
-  size: "sm",
-  bgIndex: HERO_SIDE_BG_INDEX,
-});
-
 export function buildHeroCarouselSlides(): HeroCarouselSlide[] {
-  const slides: HeroCarouselSlide[] = [sideSlide()];
-
-  heroCarouselDestinations.forEach((dest, index) => {
-    slides.push({
-      id: dest.id,
-      label: dest.label,
-      size: "md",
-      bgIndex: index,
-    });
-    slides.push(sideSlide());
-  });
-
-  return slides;
+  return heroCarouselDestinations.map((dest, index) => ({
+    id: dest.id,
+    label: dest.label,
+    bgIndex: index,
+  }));
 }
 
 export const heroCarouselSlides = buildHeroCarouselSlides();
 
 export function destinationProgressFromSlideIndex(slideIndex: number): number {
-  const normalized = normalizeSlideIndex(slideIndex);
-  return Math.max(
-    0,
-    Math.min(heroCarouselDestinations.length - 1, (normalized - 1) / 2),
-  );
+  return normalizeSlideIndex(slideIndex);
 }
 
 export function normalizeSlideIndex(slideIndex: number): number {
@@ -104,14 +82,8 @@ export function normalizeSlideIndex(slideIndex: number): number {
   return ((slideIndex % count) + count) % count;
 }
 
-export function isSideSlideIndex(slideIndex: number): boolean {
-  return normalizeSlideIndex(slideIndex) % 2 === 0;
-}
-
 function backgroundIndexForSlide(slideIndex: number): number {
-  const normalizedSlideIndex = normalizeSlideIndex(slideIndex);
-  const slide = heroCarouselSlides[normalizedSlideIndex];
-  return slide.bgIndex ?? HERO_SIDE_BG_INDEX;
+  return normalizeSlideIndex(slideIndex);
 }
 
 function smoothstep(t: number): number {
@@ -122,7 +94,6 @@ function smoothstep(t: number): number {
 export function getBackgroundMixFromRawSlideIndex(
   rawIndex: number,
 ): HeroBackgroundMix {
-  const normalizedRaw = normalizeSlideIndex(rawIndex);
   const nearestSlide = Math.round(rawIndex);
   const isSnapped = Math.abs(rawIndex - nearestSlide) < 0.04;
 
@@ -131,9 +102,9 @@ export function getBackgroundMixFromRawSlideIndex(
     return { from: destIndex, to: destIndex, blend: 0 };
   }
 
-  const fromSlide = Math.floor(normalizedRaw);
-  const toSlide = Math.ceil(normalizedRaw);
-  const local = normalizedRaw - fromSlide;
+  const fromSlide = Math.floor(rawIndex);
+  const toSlide = Math.ceil(rawIndex);
+  const local = rawIndex - fromSlide;
   const from = backgroundIndexForSlide(fromSlide);
   const to = backgroundIndexForSlide(toSlide);
 
@@ -184,5 +155,5 @@ export function normalizeLoopSlideIndex(
 }
 
 export function slideIndexForDestination(destinationIndex: number): number {
-  return destinationIndex * 2 + 1;
+  return destinationIndex;
 }

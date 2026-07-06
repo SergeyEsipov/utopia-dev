@@ -6,8 +6,8 @@ import {
 } from "./hero-background.ts";
 import {
   HERO_CARD_WIDTH,
+  HERO_DESTINATION_COUNT,
   HERO_LOOP_COPIES,
-  HERO_SIDE_BG_INDEX,
   HERO_START_DESTINATION_INDEX,
   buildHeroCarouselSlides,
   destinationProgressFromSlideIndex,
@@ -16,7 +16,6 @@ import {
   getScrollLeftForSlide,
   heroCarouselDestinations,
   heroCarouselSlides,
-  isSideSlideIndex,
   normalizeLoopSlideIndex,
   normalizeSlideIndex,
   slideIndexForDestination,
@@ -40,56 +39,58 @@ function rawIndexFromScrollLeft(
 }
 
 describe("hero carousel structure", () => {
-  it("alternates side and destination slides", () => {
-    assert.equal(heroCarouselSlides[0].bgIndex, HERO_SIDE_BG_INDEX);
-    assert.equal(heroCarouselSlides[1].bgIndex, 0);
-    assert.equal(heroCarouselSlides[2].bgIndex, HERO_SIDE_BG_INDEX);
-    assert.equal(heroCarouselSlides[3].bgIndex, 1);
+  it("has one slide per destination", () => {
+    assert.equal(BASE_LENGTH, HERO_DESTINATION_COUNT);
+    assert.equal(buildHeroCarouselSlides().length, 7);
+    assert.deepEqual(
+      heroCarouselSlides.map((slide) => slide.id),
+      heroCarouselDestinations.map((dest) => dest.id),
+    );
   });
 
-  it("has one loop copy length of 15", () => {
-    assert.equal(BASE_LENGTH, 15);
-    assert.equal(buildHeroCarouselSlides().length, 15);
+  it("maps each slide to its destination background", () => {
+    heroCarouselSlides.forEach((slide, index) => {
+      assert.equal(slide.bgIndex, index);
+      assert.equal(slide.label, heroCarouselDestinations[index].label);
+    });
   });
 });
 
 describe("normalizeSlideIndex", () => {
   it("wraps loop copy indices back to base track", () => {
-    assert.equal(normalizeSlideIndex(16), 1);
-    assert.equal(normalizeSlideIndex(18), 3);
-    assert.equal(normalizeSlideIndex(31), 1);
+    assert.equal(normalizeSlideIndex(7), 0);
+    assert.equal(normalizeSlideIndex(9), 2);
+    assert.equal(normalizeSlideIndex(14), 0);
   });
 
   it("preserves fractional position within a loop copy", () => {
-    assert.ok(Math.abs(normalizeSlideIndex(16.5) - 1.5) < 1e-9);
-    assert.ok(Math.abs(normalizeSlideIndex(17.8) - 2.8) < 1e-9);
+    assert.ok(Math.abs(normalizeSlideIndex(7.5) - 0.5) < 1e-9);
+    assert.ok(Math.abs(normalizeSlideIndex(8.8) - 1.8) < 1e-9);
   });
 });
 
 describe("slideIndexForDestination", () => {
-  it("maps each destination to an odd slide index", () => {
+  it("maps each destination to its slide index", () => {
     for (let i = 0; i < heroCarouselDestinations.length; i++) {
-      const slideIndex = slideIndexForDestination(i);
-      assert.equal(slideIndex, i * 2 + 1);
-      assert.equal(isSideSlideIndex(slideIndex), false);
+      assert.equal(slideIndexForDestination(i), i);
     }
   });
 });
 
 describe("normalizeLoopSlideIndex", () => {
   it("keeps indices in the middle loop copy", () => {
-    assert.equal(normalizeLoopSlideIndex(16), 16);
-    assert.equal(normalizeLoopSlideIndex(29), 29);
+    assert.equal(normalizeLoopSlideIndex(8), 8);
+    assert.equal(normalizeLoopSlideIndex(13), 13);
   });
 
   it("rewinds from the first copy into the middle copy", () => {
-    assert.equal(normalizeLoopSlideIndex(1), 16);
-    assert.equal(normalizeLoopSlideIndex(14), 29);
+    assert.equal(normalizeLoopSlideIndex(0), 7);
+    assert.equal(normalizeLoopSlideIndex(6), 13);
   });
 
   it("rewinds from the third copy into the middle copy", () => {
-    assert.equal(normalizeLoopSlideIndex(30), 15);
-    assert.equal(normalizeLoopSlideIndex(44), 29);
+    assert.equal(normalizeLoopSlideIndex(14), 7);
+    assert.equal(normalizeLoopSlideIndex(20), 13);
   });
 });
 
@@ -148,13 +149,13 @@ describe("getBackgroundMixFromRawSlideIndex at rest", () => {
   }
 
   const loopPairs = [
-    [0, 1, 16],
-    [1, 3, 18],
-    [2, 5, 20],
-    [3, 7, 22],
-    [4, 9, 24],
-    [5, 11, 26],
-    [6, 13, 28],
+    [0, 0, 7],
+    [1, 1, 8],
+    [2, 2, 9],
+    [3, 3, 10],
+    [4, 4, 11],
+    [5, 5, 12],
+    [6, 6, 13],
   ] as const;
 
   for (const [destIndex, baseSlide, loopSlide] of loopPairs) {
@@ -165,84 +166,21 @@ describe("getBackgroundMixFromRawSlideIndex at rest", () => {
       assert.equal(base.from, destIndex);
     });
   }
-
-  it("never shows Jericoacoara bg when centered on Roca loop copy", () => {
-    const mix = getBackgroundMixFromRawSlideIndex(16);
-    assert.notEqual(mix.from, 6);
-    assert.notEqual(mix.to, 6);
-    assert.equal(mix.from, 0);
-  });
-
-  it("shows Jericoacoara as a single image on side slides at rest", () => {
-    const sideIndices = [0, 2, 4, 6, 8, 10, 12, 14];
-    for (const sideIndex of sideIndices) {
-      const mix = getBackgroundMixFromRawSlideIndex(sideIndex);
-      assert.deepEqual(mix, {
-        from: HERO_SIDE_BG_INDEX,
-        to: HERO_SIDE_BG_INDEX,
-        blend: 0,
-      });
-    }
-  });
-
-  it("maps side slides to their own background instead of adjacent destinations", () => {
-    assert.deepEqual(getBackgroundMixFromRawSlideIndex(2), {
-      from: HERO_SIDE_BG_INDEX,
-      to: HERO_SIDE_BG_INDEX,
-      blend: 0,
-    });
-    assert.deepEqual(getBackgroundMixFromRawSlideIndex(4), {
-      from: HERO_SIDE_BG_INDEX,
-      to: HERO_SIDE_BG_INDEX,
-      blend: 0,
-    });
-  });
 });
 
 describe("getBackgroundMixFromRawSlideIndex while scrolling", () => {
-  it("eases into crossfade from the start of slide transition", () => {
-    const early = getBackgroundMixFromRawSlideIndex(16.15);
-    assert.equal(early.from, 0);
-    assert.equal(early.to, HERO_SIDE_BG_INDEX);
-    assert.ok(early.blend > 0);
-    assert.ok(early.blend < 0.35);
-
-    const mid = getBackgroundMixFromRawSlideIndex(17);
-    assert.deepEqual(mid, {
-      from: HERO_SIDE_BG_INDEX,
-      to: HERO_SIDE_BG_INDEX,
-      blend: 0,
-    });
-  });
-
-  it("crossfades from destination backgrounds into side backgrounds", () => {
-    const mix = getBackgroundMixFromRawSlideIndex(16.5);
+  it("crossfades directly between adjacent destinations", () => {
+    const mix = getBackgroundMixFromRawSlideIndex(7.5);
     assert.equal(mix.from, 0);
-    assert.equal(mix.to, HERO_SIDE_BG_INDEX);
+    assert.equal(mix.to, 1);
     assert.ok(mix.blend > 0);
     assert.ok(mix.blend < 1);
   });
 
-  it("snaps to the side background near the side slide center", () => {
-    assert.equal(isSideSlideIndex(17), true);
-    const scrolling = getBackgroundMixFromRawSlideIndex(17.02);
-    const snapped = getBackgroundMixFromRawSlideIndex(17);
-    assert.deepEqual(scrolling, {
-      from: HERO_SIDE_BG_INDEX,
-      to: HERO_SIDE_BG_INDEX,
-      blend: 0,
-    });
-    assert.deepEqual(snapped, {
-      from: HERO_SIDE_BG_INDEX,
-      to: HERO_SIDE_BG_INDEX,
-      blend: 0,
-    });
-  });
-
-  it("crossfades from the side background into the next destination", () => {
-    const mix = getBackgroundMixFromRawSlideIndex(17.5);
-    assert.equal(mix.from, HERO_SIDE_BG_INDEX);
-    assert.equal(mix.to, 1);
+  it("wraps from the last destination into the first", () => {
+    const mix = getBackgroundMixFromRawSlideIndex(6.5);
+    assert.equal(mix.from, 6);
+    assert.equal(mix.to, 0);
     assert.ok(mix.blend > 0);
     assert.ok(mix.blend < 1);
   });
@@ -253,7 +191,7 @@ describe("getScrollLeftForSlide", () => {
   const paddingLeft = (trackWidth - HERO_CARD_WIDTH) / 2;
 
   it("centers the requested slide in the viewport", () => {
-    for (const slideIndex of [16, 17, 18, 19]) {
+    for (const slideIndex of [7, 8, 9, 10]) {
       const scrollLeft = getScrollLeftForSlide(
         slideIndex,
         trackWidth,
@@ -269,9 +207,9 @@ describe("getScrollLeftForSlide", () => {
   });
 
   it("increases monotonically for consecutive slides", () => {
-    const a = getScrollLeftForSlide(16, trackWidth, paddingLeft);
-    const b = getScrollLeftForSlide(17, trackWidth, paddingLeft);
-    const c = getScrollLeftForSlide(18, trackWidth, paddingLeft);
+    const a = getScrollLeftForSlide(7, trackWidth, paddingLeft);
+    const b = getScrollLeftForSlide(8, trackWidth, paddingLeft);
+    const c = getScrollLeftForSlide(9, trackWidth, paddingLeft);
     assert.ok(b > a);
     assert.ok(c > b);
     assert.equal(b - a, c - b);
@@ -328,11 +266,11 @@ describe("resolveHeroBackgroundRenderLayers", () => {
 });
 
 describe("full swipe Roca to Cabarete journey", () => {
-  it("passes through the Jericoacoara side background while scrolling", () => {
+  it("crossfades directly from Roca to Cabarete", () => {
     const trackWidth = 378;
     const paddingLeft = (trackWidth - HERO_CARD_WIDTH) / 2;
-    const rocaSlide = 16;
-    const cabareteSlide = 18;
+    const rocaSlide = 7;
+    const cabareteSlide = 8;
 
     const steps: HeroBackgroundMix[] = [];
     for (let slide = rocaSlide; slide <= cabareteSlide; slide += 0.25) {
@@ -345,15 +283,9 @@ describe("full swipe Roca to Cabarete journey", () => {
     assert.deepEqual(steps[steps.length - 1], { from: 1, to: 1, blend: 0 });
 
     const mid = steps[Math.floor(steps.length / 2)];
-    assert.deepEqual(mid, {
-      from: HERO_SIDE_BG_INDEX,
-      to: HERO_SIDE_BG_INDEX,
-      blend: 0,
-    });
-
-    assert.equal(steps[1].from, 0);
-    assert.equal(steps[1].to, HERO_SIDE_BG_INDEX);
-    assert.equal(steps[steps.length - 2].from, HERO_SIDE_BG_INDEX);
-    assert.equal(steps[steps.length - 2].to, 1);
+    assert.equal(mid.from, 0);
+    assert.equal(mid.to, 1);
+    assert.ok(mid.blend > 0);
+    assert.ok(mid.blend < 1);
   });
 });

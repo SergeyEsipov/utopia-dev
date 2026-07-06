@@ -192,10 +192,6 @@
   scroll-snap-stop: always;
 }
 
-.cardsSlideSide {
-  scroll-snap-stop: normal;
-}
-
 .cardsSlideClickable {
   cursor: pointer;
 }

@@ -118,8 +118,11 @@
   pointer-events: none;
   transition:
     transform var(--days-transition-ms, 900ms) cubic-bezier(0.22, 1, 0.36, 1),
+    width var(--days-transition-ms, 900ms) cubic-bezier(0.22, 1, 0.36, 1),
+    height var(--days-transition-ms, 900ms) cubic-bezier(0.22, 1, 0.36, 1),
     opacity calc(var(--days-transition-ms, 900ms) * 0.55)
-      cubic-bezier(0.22, 1, 0.36, 1);
+      cubic-bezier(0.22, 1, 0.36, 1),
+    border-radius var(--days-transition-ms, 900ms) cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .cardDeparting .cardImage {

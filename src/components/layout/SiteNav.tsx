@@ -1,9 +1,14 @@
 import Image from "next/image";
 import { navDestinations, navLinks } from "@/lib/data";
 import { images } from "@/lib/media";
+import { getCompanyHref, NOT_FOUND_HREF } from "@/lib/routes";
 import styles from "./site-nav.module.css";
 
-export function SiteNav() {
+type SiteNavProps = {
+  activeLink?: (typeof navLinks)[number];
+};
+
+export function SiteNav({ activeLink }: SiteNavProps) {
   return (
     <header className={styles.nav}>
       <div className={styles.left}>
@@ -11,7 +16,7 @@ export function SiteNav() {
         <span className={styles.separator}>|</span>
         <nav className={styles.destLinks} aria-label="Destination categories">
           {navDestinations.map((dest) => (
-            <a key={dest} href="#" className={styles.destLink}>
+            <a key={dest} href={NOT_FOUND_HREF} className={styles.destLink}>
               {dest}
             </a>
           ))}
@@ -30,7 +35,17 @@ export function SiteNav() {
 
       <nav className={styles.right} aria-label="Site links">
         {navLinks.map((link) => (
-          <a key={link} href="#" className={styles.navLink}>
+          <a
+            key={link}
+            href={getCompanyHref(link)}
+            className={[
+              styles.navLink,
+              activeLink === link ? styles.navLinkActive : "",
+            ]
+              .filter(Boolean)
+              .join(" ")}
+            aria-current={activeLink === link ? "page" : undefined}
+          >
             {link}
           </a>
         ))}

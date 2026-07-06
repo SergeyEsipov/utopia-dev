@@ -1,7 +1,11 @@
 "use client";
 
+import { useRef } from "react";
+import { useRouter } from "next/navigation";
 import { Heading, Text, Button, NavPill } from "@/design-system/components";
-import { openingCopy, openingSlides } from "@/lib/opening-carousel";
+import { openingCopy, normalizeOpeningSlideIndex } from "@/lib/opening-carousel";
+import { triggerHaptic } from "@/lib/haptics";
+import { NOT_FOUND_HREF } from "@/lib/routes";
 import {
   useOpeningCarousel,
   useOpeningVideo,
@@ -9,29 +13,50 @@ import {
 import styles from "./opening-section.module.css";
 
 export function OpeningSection() {
-  const { index, slide, dragPx, isDragging, goNext, goPrev, swipeHandlers } =
-    useOpeningCarousel();
-  const { setVideoRef } = useOpeningVideo(index);
-
-  const trackOffset = `calc(-${index * 100}% + ${dragPx}px)`;
+  const slidesRef = useRef<HTMLDivElement>(null);
+  const router = useRouter();
+  const {
+    index,
+    loopIndex,
+    slide,
+    allSlides,
+    trackOffsetPx,
+    isDragging,
+    loopJumping,
+    goNext,
+    goPrev,
+    swipeHandlers,
+  } = useOpeningCarousel(slidesRef);
+  const { setVideoRef } = useOpeningVideo(index, slidesRef);
 
   return (
     <section className={styles.section} aria-label="Opening">
-      <div className={styles.frame} {...swipeHandlers}>
-        <div className={styles.slides}>
+      <div className={styles.frame}>
+        <div
+          ref={slidesRef}
+          className={styles.slides}
+          {...swipeHandlers}
+        >
           <div
-            className={[styles.track, isDragging ? styles.trackDragging : ""]
+            className={[
+              styles.track,
+              isDragging ? styles.trackDragging : "",
+              loopJumping ? styles.trackJumping : "",
+            ]
               .filter(Boolean)
               .join(" ")}
-            style={{ transform: `translate3d(${trackOffset}, 0, 0)` }}
+            style={{ transform: `translate3d(${trackOffsetPx}px, 0, 0)` }}
           >
-            {openingSlides.map((item, i) => (
+            {allSlides.map((item, i) => {
+              const slideIndex = normalizeOpeningSlideIndex(i);
+
+              return (
               <div
-                key={item.id}
-                className={[styles.slide, i === index ? styles.slideActive : ""]
+                key={`${item.id}-${i}`}
+                className={[styles.slide, i === loopIndex ? styles.slideActive : ""]
                   .filter(Boolean)
                   .join(" ")}
-                aria-hidden={i !== index}
+                aria-hidden={i !== loopIndex}
               >
                 <div
                   className={[
@@ -42,12 +67,13 @@ export function OpeningSection() {
                     .join(" ")}
                 >
                   <video
-                    ref={setVideoRef(i)}
+                    ref={i === loopIndex ? setVideoRef(slideIndex) : undefined}
                     className={styles.bgVideo}
                     muted
                     loop
                     playsInline
-                    preload={Math.abs(i - index) <= 1 ? "metadata" : "none"}
+                    autoPlay={i === loopIndex}
+                    preload={Math.abs(slideIndex - index) <= 1 ? "auto" : "metadata"}
                     poster={item.poster}
                   >
                     {item.videoWebm ? (
@@ -57,7 +83,8 @@ export function OpeningSection() {
                   </video>
                 </div>
               </div>
-            ))}
+            );
+            })}
           </div>
         </div>
 
@@ -78,6 +105,10 @@ export function OpeningSection() {
             variant="outline"
             className={styles.cta}
             contentClassName={styles.ctaContent}
+            onClick={() => {
+              triggerHaptic("light");
+              router.push(NOT_FOUND_HREF);
+            }}
           >
             {openingCopy.cta}
           </Button>

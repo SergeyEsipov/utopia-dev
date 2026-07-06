@@ -20,10 +20,12 @@ export const UTOPIA_GLASS_BASE = {
 } as const;
 
 export const glassPresets = {
-  /** Dock / footer chrome — rgba(229, 218, 203, 0.8) */
+  /** Dock / footer chrome — Figma `173:1888` */
   dock: {
-    ...UTOPIA_GLASS_BASE,
     background: "rgba(229, 218, 203, 0.8)",
+    blur: "0px",
+    saturate: 1,
+    shadow: "none",
   },
   /** Nav pills, opening CTA — rgba(249, 245, 234, 0.6) */
   pill: {
@@ -49,6 +51,9 @@ export function resolveGlassPreset(
 }
 
 export function glassBackdropStyle(preset: GlassPresetValues): CSSProperties {
+  if (preset.blur === "0px" && preset.saturate === 1) {
+    return {};
+  }
   return {
     backdropFilter: `blur(${preset.blur}) saturate(${preset.saturate})`,
     WebkitBackdropFilter: `blur(${preset.blur}) saturate(${preset.saturate})`,

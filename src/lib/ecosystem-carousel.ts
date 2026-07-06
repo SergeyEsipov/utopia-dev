@@ -12,6 +12,9 @@ export type EcosystemCategory = {
 
 export const ECOSYSTEM_SLIDE_DURATION_MS = 5500;
 
+/** @deprecated use HERO_BG_CROSSFADE_MS from hero-carousel */
+export const ECOSYSTEM_CROSSFADE_MS = 550;
+
 export const ecosystemCategoryData: EcosystemCategory[] = [
   {
     id: "tropical",
@@ -113,4 +116,17 @@ export function getCategoryProgress(
 ): number {
   const count = ecosystemCategoryData[categoryIndex]?.locations.length ?? 1;
   return Math.min(1, (slideIndex + slideProgress) / count);
+}
+
+export function getCategoryProgressRange(
+  categoryIndex: number,
+  slideIndex: number,
+): { start: number; end: number } {
+  const count = ecosystemCategoryData[categoryIndex]?.locations.length ?? 1;
+  const clampedSlideIndex = Math.max(0, Math.min(count - 1, slideIndex));
+
+  return {
+    start: clampedSlideIndex / count,
+    end: Math.min(1, (clampedSlideIndex + 1) / count),
+  };
 }

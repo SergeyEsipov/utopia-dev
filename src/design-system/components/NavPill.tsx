@@ -1,6 +1,7 @@
 "use client";
 
 import { Icon } from "./Icon";
+import { triggerHaptic } from "@/lib/haptics";
 import { GlassSurface } from "@/design-system/liquid-glass";
 import styles from "./components.module.css";
 
@@ -39,7 +40,10 @@ export function NavPill({
         radius={16}
         className={styles.navPillBtn}
         contentClassName={styles.navPillBtnContent}
-        onClick={onPrev}
+        onClick={() => {
+          triggerHaptic("navigate");
+          onPrev?.();
+        }}
         aria-label="Previous"
       >
         <Icon
@@ -69,7 +73,10 @@ export function NavPill({
         radius={16}
         className={styles.navPillBtn}
         contentClassName={styles.navPillBtnContent}
-        onClick={onNext}
+        onClick={() => {
+          triggerHaptic("navigate");
+          onNext?.();
+        }}
         aria-label="Next"
       >
         <Icon name="chevronDark" size={12} alt="" />

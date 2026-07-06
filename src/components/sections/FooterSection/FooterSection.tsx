@@ -7,6 +7,7 @@ import {
   footerDesktopLinks,
 } from "@/lib/data";
 import { images } from "@/lib/media";
+import { NOT_FOUND_HREF, getCompanyHref } from "@/lib/routes";
 import styles from "./footer-section.module.css";
 import { FooterScrollTop } from "./FooterScrollTop";
 
@@ -23,7 +24,7 @@ export function FooterSection() {
 
         <div className={styles.mobilePages}>
           {footerMobileLinks.experiences.map((page) => (
-            <Text key={page} variant="base" as="a" href="#" className={styles.mobilePageLink}>
+            <Text key={page} variant="base" as="a" href={NOT_FOUND_HREF} className={styles.mobilePageLink}>
               {page}
             </Text>
           ))}
@@ -31,7 +32,7 @@ export function FooterSection() {
 
         <div className={styles.mobilePages}>
           {footerMobileLinks.company.map((page) => (
-            <Text key={page} variant="base" as="a" href="#" className={styles.mobilePageLink}>
+            <Text key={page} variant="base" as="a" href={getCompanyHref(page)} className={styles.mobilePageLink}>
               {page}
             </Text>
           ))}
@@ -41,10 +42,10 @@ export function FooterSection() {
           <Text variant="caption" muted>
             Copyright © 2026 Utopia. All Rights Reserved
           </Text>
-          <Text variant="caption" muted as="a" href="#">
+          <Text variant="caption" muted as="a" href={NOT_FOUND_HREF}>
             Terms and Conditions
           </Text>
-          <Text variant="caption" muted as="a" href="#">
+          <Text variant="caption" muted as="a" href={NOT_FOUND_HREF}>
             Privacy Policy
           </Text>
         </div>
@@ -62,7 +63,7 @@ export function FooterSection() {
                   {footerDestinations[category].map((item) => (
                     <li key={item.label}>
                       <a
-                        href="#"
+                        href={NOT_FOUND_HREF}
                         className={[
                           styles.columnLink,
                           "active" in item && item.active
@@ -85,7 +86,7 @@ export function FooterSection() {
             <ul className={styles.columnList}>
               {footerDesktopLinks.experiences.map((link) => (
                 <li key={link}>
-                  <a href="#" className={styles.columnLink}>
+                  <a href={NOT_FOUND_HREF} className={styles.columnLink}>
                     {link}
                   </a>
                 </li>
@@ -97,7 +98,7 @@ export function FooterSection() {
             <ul className={styles.columnList}>
               {footerDesktopLinks.company.map((link) => (
                 <li key={link}>
-                  <a href="#" className={styles.columnLink}>
+                  <a href={getCompanyHref(link)} className={styles.columnLink}>
                     {link}
                   </a>
                 </li>
@@ -122,10 +123,10 @@ export function FooterSection() {
           <Text variant="caption" muted>
             Copyright © 2026 Utopia. All Rights Reserved
           </Text>
-          <Text variant="caption" muted as="a" href="#" className={styles.legalCenter}>
+          <Text variant="caption" muted as="a" href={NOT_FOUND_HREF} className={styles.legalCenter}>
             Terms and conditions
           </Text>
-          <Text variant="caption" muted as="a" href="#" className={styles.legalRight}>
+          <Text variant="caption" muted as="a" href={NOT_FOUND_HREF} className={styles.legalRight}>
             Privacy policy
           </Text>
         </div>

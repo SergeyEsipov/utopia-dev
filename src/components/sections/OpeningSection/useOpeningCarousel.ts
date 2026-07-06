@@ -1,48 +1,88 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
-import { OPENING_SLIDE_COUNT, openingSlides } from "@/lib/opening-carousel";
+import {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+  type RefObject,
+} from "react";
+import {
+  OPENING_LOOP_COPIES,
+  OPENING_SLIDE_COUNT,
+  OPENING_START_INDEX,
+  OPENING_TRANSITION_MS,
+  normalizeOpeningLoopIndex,
+  normalizeOpeningSlideIndex,
+  openingSlides,
+} from "@/lib/opening-carousel";
+import { triggerHaptic, type HapticKind } from "@/lib/haptics";
 
 const SWIPE_MIN_X = 28;
 const SWIPE_LOCK_X = 8;
 const SWIPE_LOCK_Y = 8;
-const EDGE_RESISTANCE = 0.32;
 
-export function useOpeningCarousel() {
-  const [index, setIndex] = useState(0);
+export function useOpeningCarousel(
+  slidesRef: RefObject<HTMLElement | null>,
+) {
+  const [loopIndex, setLoopIndex] = useState(OPENING_START_INDEX);
+  const [slideWidth, setSlideWidth] = useState(0);
   const [dragPx, setDragPx] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
-  const indexRef = useRef(index);
+  const [loopJumping, setLoopJumping] = useState(false);
+  const loopIndexRef = useRef(loopIndex);
   const pointerRef = useRef<number | null>(null);
   const startRef = useRef({ x: 0, y: 0 });
   const gestureRef = useRef({ locked: false, horizontal: false });
 
-  indexRef.current = index;
+  const index = normalizeOpeningSlideIndex(loopIndex);
+  loopIndexRef.current = loopIndex;
 
-  const goTo = useCallback((nextIndex: number) => {
-    const wrapped =
-      ((nextIndex % OPENING_SLIDE_COUNT) + OPENING_SLIDE_COUNT) %
-      OPENING_SLIDE_COUNT;
-    setIndex(wrapped);
+  useLayoutEffect(() => {
+    const el = slidesRef.current;
+    if (!el) return;
+
+    const sync = () => setSlideWidth(el.clientWidth);
+    sync();
+
+    const ro = new ResizeObserver(sync);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, [slidesRef]);
+
+  const goTo = useCallback((nextLoopIndex: number, kind: HapticKind | false = "navigate") => {
+    if (nextLoopIndex !== loopIndexRef.current && kind !== false) triggerHaptic(kind);
+    setLoopIndex(nextLoopIndex);
     setDragPx(0);
     setIsDragging(false);
   }, []);
 
-  const goNext = useCallback(() => goTo(indexRef.current + 1), [goTo]);
-  const goPrev = useCallback(() => goTo(indexRef.current - 1), [goTo]);
+  const goNext = useCallback(
+    (kind: HapticKind | false = "navigate") => goTo(loopIndexRef.current + 1, kind),
+    [goTo],
+  );
+  const goPrev = useCallback(
+    (kind: HapticKind | false = "navigate") => goTo(loopIndexRef.current - 1, kind),
+    [goTo],
+  );
 
-  const applyDrag = useCallback((dx: number) => {
-    const current = indexRef.current;
-    if (current === 0 && dx > 0) {
-      setDragPx(dx * EDGE_RESISTANCE);
-      return;
-    }
-    if (current === OPENING_SLIDE_COUNT - 1 && dx < 0) {
-      setDragPx(dx * EDGE_RESISTANCE);
-      return;
-    }
-    setDragPx(dx);
-  }, []);
+  useEffect(() => {
+    if (isDragging) return;
+
+    const normalized = normalizeOpeningLoopIndex(loopIndex);
+    if (normalized === loopIndex) return;
+
+    const timer = window.setTimeout(() => {
+      setLoopJumping(true);
+      setLoopIndex(normalized);
+      window.requestAnimationFrame(() => {
+        setLoopJumping(false);
+      });
+    }, OPENING_TRANSITION_MS);
+
+    return () => window.clearTimeout(timer);
+  }, [isDragging, loopIndex]);
 
   const onPointerDown = useCallback((event: React.PointerEvent<HTMLElement>) => {
     if (event.pointerType === "mouse" && event.button !== 0) return;
@@ -70,8 +110,8 @@ export function useOpeningCarousel() {
     if (!gestureRef.current.horizontal) return;
 
     event.preventDefault();
-    applyDrag(dx);
-  }, [applyDrag]);
+    setDragPx(dx);
+  }, []);
 
   const onPointerEnd = useCallback(
     (event: React.PointerEvent<HTMLElement>) => {
@@ -83,8 +123,8 @@ export function useOpeningCarousel() {
       const absY = Math.abs(dy);
 
       if (gestureRef.current.horizontal && absX >= SWIPE_MIN_X && absX > absY) {
-        if (dx < 0) goNext();
-        else goPrev();
+        if (dx < 0) goNext("success");
+        else goPrev("success");
       } else {
         setDragPx(0);
         setIsDragging(false);
@@ -100,13 +140,46 @@ export function useOpeningCarousel() {
     [goNext, goPrev],
   );
 
+  useEffect(() => {
+    const onKeyDown = (event: KeyboardEvent) => {
+      const target = event.target as HTMLElement | null;
+      if (
+        target?.closest("input, textarea, select, button, a, [role='tab']")
+      ) {
+        return;
+      }
+
+      if (event.key === "ArrowLeft") {
+        event.preventDefault();
+        goPrev();
+      } else if (event.key === "ArrowRight") {
+        event.preventDefault();
+        goNext();
+      }
+    };
+
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [goNext, goPrev]);
+
+  const trackOffsetPx =
+    slideWidth > 0 ? -(loopIndex * slideWidth) + dragPx : 0;
+
+  const allSlides = Array.from({ length: OPENING_LOOP_COPIES }, () => openingSlides).flat();
+
   return {
     index,
+    loopIndex,
     slide: openingSlides[index],
+    allSlides,
+    slideWidth,
+    trackOffsetPx,
     dragPx,
     isDragging,
+    loopJumping,
     goNext,
     goPrev,
+    goTo,
     swipeHandlers: {
       onPointerDown,
       onPointerMove,
@@ -116,23 +189,55 @@ export function useOpeningCarousel() {
   };
 }
 
-export function useOpeningVideo(activeIndex: number) {
+export function useOpeningVideo(
+  activeIndex: number,
+  slidesRef: RefObject<HTMLElement | null>,
+) {
   const videoRefs = useRef<(HTMLVideoElement | null)[]>([]);
+  const visibleRef = useRef(true);
+
+  useEffect(() => {
+    const section = slidesRef.current?.closest("section");
+    if (!section) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        visibleRef.current = entry.isIntersecting;
+        if (entry.isIntersecting) {
+          const video = videoRefs.current[activeIndex];
+          if (video) {
+            const promise = video.play();
+            if (promise?.catch) promise.catch(() => {});
+          }
+        } else {
+          videoRefs.current.forEach((video) => video?.pause());
+        }
+      },
+      { threshold: 0.35 },
+    );
+
+    observer.observe(section);
+    return () => observer.disconnect();
+  }, [activeIndex, slidesRef]);
 
   useEffect(() => {
     videoRefs.current.forEach((video, i) => {
       if (!video) return;
 
       if (i === activeIndex) {
-        const play = () => {
-          const promise = video.play();
-          if (promise?.catch) promise.catch(() => {});
-        };
+        video.currentTime = 0;
+        if (visibleRef.current) {
+          const play = () => {
+            const promise = video.play();
+            if (promise?.catch) promise.catch(() => {});
+          };
 
-        if (video.readyState >= HTMLMediaElement.HAVE_CURRENT_DATA) play();
-        else video.addEventListener("loadeddata", play, { once: true });
+          if (video.readyState >= HTMLMediaElement.HAVE_CURRENT_DATA) play();
+          else video.addEventListener("loadeddata", play, { once: true });
+        }
       } else {
         video.pause();
+        video.currentTime = 0;
       }
     });
   }, [activeIndex]);

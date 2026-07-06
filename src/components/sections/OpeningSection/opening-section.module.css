@@ -13,9 +13,9 @@
 
 .bgVideo {
   position: absolute;
-  top: 0;
+  top: -28px;
   max-width: none;
-  height: 100%;
+  height: calc(100% + 28px);
   object-fit: cover;
   pointer-events: none;
   display: block;
@@ -27,6 +27,12 @@
   inset: 0;
   z-index: 0;
   overflow: hidden;
+  touch-action: pan-y pinch-zoom;
+  cursor: grab;
+}
+
+.slides:active {
+  cursor: grabbing;
 }
 
 .track {
@@ -39,6 +45,10 @@
 }
 
 .trackDragging {
+  transition: none;
+}
+
+.trackJumping {
   transition: none;
 }
 
@@ -64,7 +74,8 @@
 
 .bgSlidekitesurf .bgVideo {
   width: 696px;
-  left: calc(50% - 348px + 143px);
+  left: calc(50% - 348px + 55px);
+  object-position: 52% 42%;
 }
 
 .bgSlidedunes .bgVideo {
@@ -80,6 +91,11 @@
 }
 
 @media (min-width: 1024px) {
+  .bgVideo {
+    top: 0;
+    height: 100%;
+  }
+
   .bgSlidekitesurf .bgVideo,
   .bgSlidedunes .bgVideo,
   .bgSlidelocalvibes .bgVideo {
@@ -92,14 +108,12 @@
 .frame {
   position: relative;
   width: 100%;
-  height: 732px;
+  height: var(--utopia-opening-frame-height);
   overflow: hidden;
-  touch-action: pan-y;
 }
 
 @media (min-width: 1024px) {
   .frame {
-    height: 783px;
     border-radius: 32px;
   }
 }
@@ -199,11 +213,15 @@
 .navWrap {
   position: absolute;
   bottom: 32px;
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 3;
-  width: calc(100% - 64px);
+  left: 32px;
+  right: 32px;
+  width: auto;
   max-width: 314px;
+  margin-inline: auto;
+  display: flex;
+  justify-content: center;
+  z-index: 3;
+  pointer-events: auto;
 }
 
 @media (min-width: 1024px) {
@@ -214,7 +232,7 @@
 
 .bottomFade {
   position: absolute;
-  top: 732px;
+  top: var(--utopia-opening-frame-height);
   left: 0;
   right: 0;
   height: 144px;

@@ -27,11 +27,9 @@ export function MenuProvider({ children }: { children: ReactNode }) {
   const toggle = useCallback(() => setIsOpen((value) => !value), []);
 
   useEffect(() => {
-    document.body.style.overflow = isOpen ? "hidden" : "";
     document.body.classList.toggle("menu-open", isOpen);
 
     return () => {
-      document.body.style.overflow = "";
       document.body.classList.remove("menu-open");
     };
   }, [isOpen]);

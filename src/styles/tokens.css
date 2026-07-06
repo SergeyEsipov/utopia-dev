@@ -69,6 +69,7 @@
 
   /* ── Layout ── */
   --utopia-mobile-width: 378px;
+  --utopia-tablet-visual-max: 840px;
   --utopia-desktop-width: 1440px;
   --utopia-content-padding-x: 16px;
   --utopia-content-padding-x-lg: 32px;

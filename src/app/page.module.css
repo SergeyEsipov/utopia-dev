@@ -1,6 +1,6 @@
 .page {
   width: 100%;
-  max-width: var(--utopia-mobile-width);
+  max-width: var(--utopia-layout-max);
   margin: 0 auto;
   padding-bottom: 72px;
   background: var(--utopia-bg-cream);

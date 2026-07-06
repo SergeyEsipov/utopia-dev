@@ -41,3 +41,26 @@ export const openingSlides: OpeningSlide[] = [
 ];
 
 export const OPENING_SLIDE_COUNT = openingSlides.length;
+export const OPENING_LOOP_COPIES = 3;
+export const OPENING_START_INDEX = OPENING_SLIDE_COUNT;
+export const OPENING_TRANSITION_MS = 550;
+
+export function normalizeOpeningSlideIndex(loopIndex: number): number {
+  return (
+    ((loopIndex % OPENING_SLIDE_COUNT) + OPENING_SLIDE_COUNT) %
+    OPENING_SLIDE_COUNT
+  );
+}
+
+/** Keeps the carousel in the middle loop copy for infinite scroll */
+export function normalizeOpeningLoopIndex(
+  loopIndex: number,
+  baseLength = OPENING_SLIDE_COUNT,
+): number {
+  const lowerBound = baseLength;
+  const upperBound = baseLength * 2;
+
+  if (loopIndex < lowerBound) return loopIndex + baseLength;
+  if (loopIndex >= upperBound) return loopIndex - baseLength;
+  return loopIndex;
+}

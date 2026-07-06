@@ -11,6 +11,12 @@ export type HeroCarouselSlide = {
   bgIndex: number | null;
 };
 
+export type HeroBackgroundMix = {
+  from: number;
+  to: number;
+  blend: number;
+};
+
 export const HERO_SIDE_LABEL = "Jericoacoara, Brazil";
 
 export const heroCarouselDestinations: HeroDestination[] = [
@@ -51,15 +57,20 @@ export const heroCarouselDestinations: HeroDestination[] = [
   },
 ];
 
+export const HERO_SIDE_BG_INDEX = heroCarouselDestinations.length - 1;
+
 export const HERO_CARD_WIDTH = 314;
 export const HERO_CARD_GAP = 22;
 export const HERO_START_DESTINATION_INDEX = 0;
+export const HERO_LOOP_COPIES = 3;
+export const HERO_BG_CROSSFADE_MS = 550;
+export const HERO_BG_CROSSFADE_EASING = "cubic-bezier(0.22, 1, 0.36, 1)";
 
 const sideSlide = (): HeroCarouselSlide => ({
   id: "jericoacoara-side",
   label: HERO_SIDE_LABEL,
   size: "sm",
-  bgIndex: null,
+  bgIndex: HERO_SIDE_BG_INDEX,
 });
 
 export function buildHeroCarouselSlides(): HeroCarouselSlide[] {
@@ -93,20 +104,44 @@ export function normalizeSlideIndex(slideIndex: number): number {
   return ((slideIndex % count) + count) % count;
 }
 
-export function getBackgroundMixFromRawSlideIndex(rawIndex: number): {
-  from: number;
-  to: number;
-  blend: number;
-} {
-  const normalized = normalizeSlideIndex(Math.round(rawIndex));
-  const destProgress = (normalized - 1) / 2;
-  const clamped = Math.max(
-    0,
-    Math.min(heroCarouselDestinations.length - 1, destProgress),
-  );
-  const from = Math.floor(clamped);
-  const to = Math.min(heroCarouselDestinations.length - 1, from + 1);
-  return { from, to, blend: clamped - from };
+export function isSideSlideIndex(slideIndex: number): boolean {
+  return normalizeSlideIndex(slideIndex) % 2 === 0;
+}
+
+function backgroundIndexForSlide(slideIndex: number): number {
+  const normalizedSlideIndex = normalizeSlideIndex(slideIndex);
+  const slide = heroCarouselSlides[normalizedSlideIndex];
+  return slide.bgIndex ?? HERO_SIDE_BG_INDEX;
+}
+
+function smoothstep(t: number): number {
+  const x = Math.max(0, Math.min(1, t));
+  return x * x * (3 - 2 * x);
+}
+
+export function getBackgroundMixFromRawSlideIndex(
+  rawIndex: number,
+): HeroBackgroundMix {
+  const normalizedRaw = normalizeSlideIndex(rawIndex);
+  const nearestSlide = Math.round(rawIndex);
+  const isSnapped = Math.abs(rawIndex - nearestSlide) < 0.04;
+
+  if (isSnapped) {
+    const destIndex = backgroundIndexForSlide(nearestSlide);
+    return { from: destIndex, to: destIndex, blend: 0 };
+  }
+
+  const fromSlide = Math.floor(normalizedRaw);
+  const toSlide = Math.ceil(normalizedRaw);
+  const local = normalizedRaw - fromSlide;
+  const from = backgroundIndexForSlide(fromSlide);
+  const to = backgroundIndexForSlide(toSlide);
+
+  if (from === to) {
+    return { from, to: from, blend: 0 };
+  }
+
+  return { from, to, blend: smoothstep(local) };
 }
 
 export function getScrollLeftForSlide(
@@ -118,6 +153,32 @@ export function getScrollLeftForSlide(
   const viewportCenter = trackClientWidth / 2;
   const slideCenter = paddingLeft + slideIndex * stride + HERO_CARD_WIDTH / 2;
   return slideCenter - viewportCenter;
+}
+
+/** Inverse of getScrollLeftForSlide — raw fractional slide index from scroll position */
+export function getRawSlideIndexFromScroll(
+  scrollLeft: number,
+  trackClientWidth: number,
+  paddingLeft: number,
+): number {
+  const stride = HERO_CARD_WIDTH + HERO_CARD_GAP;
+  const viewportCenter = trackClientWidth / 2;
+  const slideCenterOffset =
+    scrollLeft + viewportCenter - paddingLeft - HERO_CARD_WIDTH / 2;
+  return slideCenterOffset / stride;
+}
+
+/** Keeps the carousel in the middle loop copy for infinite scroll */
+export function normalizeLoopSlideIndex(
+  slideIndex: number,
+  baseLength = heroCarouselSlides.length,
+): number {
+  const lowerBound = baseLength;
+  const upperBound = baseLength * 2;
+
+  if (slideIndex < lowerBound) return slideIndex + baseLength;
+  if (slideIndex >= upperBound) return slideIndex - baseLength;
+  return slideIndex;
 }
 
 export function slideIndexForDestination(destinationIndex: number): number {

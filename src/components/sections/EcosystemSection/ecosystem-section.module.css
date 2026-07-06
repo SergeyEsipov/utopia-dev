@@ -14,7 +14,7 @@
 
 .divider {
   width: 100%;
-  max-width: var(--utopia-mobile-width);
+  max-width: var(--utopia-layout-max);
   height: 0;
   border-top: 1px solid var(--utopia-divider-on-cream);
   flex-shrink: 0;
@@ -34,6 +34,7 @@
   max-width: 346px;
   padding: 0 var(--utopia-space-4);
   margin-bottom: 30px;
+  box-sizing: border-box;
 }
 
 @media (min-width: 1024px) {
@@ -100,10 +101,9 @@
   display: flex;
   position: absolute;
   top: 32px;
-  left: 32px;
-  right: 32px;
-  width: auto;
-  max-width: 314px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(calc(100% - 64px), 314px);
   z-index: 2;
 }
 
@@ -119,10 +119,18 @@
 
 .visual {
   position: relative;
-  width: 378px;
-  height: 488px;
+  width: var(--utopia-layout-max);
+  height: calc(var(--utopia-layout-max) * 488 / 378);
   overflow: hidden;
   background: var(--utopia-bg-ecosystem);
+}
+
+@media (min-width: 1024px) {
+  .visual {
+    width: 996px;
+    height: 560px;
+    border-radius: 20px;
+  }
 }
 
 .bgStack {
@@ -133,16 +141,7 @@
 .bgImage {
   object-fit: cover;
   object-position: center;
-  transition: opacity 0.6s ease;
   will-change: opacity;
-}
-
-@media (min-width: 1024px) {
-  .visual {
-    width: 996px;
-    height: 560px;
-    border-radius: 20px;
-  }
 }
 
 .gradient {
@@ -171,18 +170,20 @@
 .navWrap {
   position: absolute;
   bottom: 32px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: calc(100% - 64px);
+  left: 32px;
+  right: 32px;
+  width: auto;
   max-width: 314px;
+  margin-inline: auto;
   display: flex;
   justify-content: center;
   z-index: 2;
+  pointer-events: auto;
 }
 
 @media (min-width: 1024px) {
   .navWrap {
     bottom: 20px;
-    width: 335px;
+    max-width: 335px;
   }
 }

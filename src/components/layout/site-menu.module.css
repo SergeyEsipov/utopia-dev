@@ -3,15 +3,22 @@
   inset: 0;
   z-index: var(--utopia-z-menu);
   width: 100%;
-  max-width: var(--utopia-mobile-width);
+  max-width: 100%;
   margin: 0 auto;
   pointer-events: none;
   visibility: hidden;
 }
 
+.menuVisible {
+  visibility: visible;
+}
+
 .menuOpen {
   pointer-events: auto;
-  visibility: visible;
+}
+
+.menuClosing {
+  pointer-events: none;
 }
 
 @media (min-width: 1024px) {
@@ -27,11 +34,21 @@
   flex-direction: column;
   background: var(--utopia-bg-cream);
   opacity: 0;
-  transition: opacity 0.35s ease;
+  transform: translate3d(0, -12px, 0);
+  transition:
+    opacity 600ms cubic-bezier(0.22, 1, 0.36, 1),
+    transform 600ms cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: opacity, transform;
 }
 
 .menuOpen .surface {
   opacity: 1;
+  transform: translate3d(0, 0, 0);
+}
+
+.menuClosing .surface {
+  opacity: 0;
+  transform: translate3d(0, -12px, 0);
 }
 
 .scroll {
@@ -58,6 +75,42 @@
   justify-content: center;
   width: 100px;
   margin: 0 auto;
+  opacity: 0;
+  transform: translate3d(0, -8px, 0) scale(0.96);
+}
+
+.menuOpen .logoLink {
+  animation: menuLogoIn 700ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation-delay: 60ms;
+}
+
+.menuClosing .logoLink {
+  animation: menuLogoOut 700ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation-delay: 480ms;
+}
+
+@keyframes menuLogoOut {
+  from {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+
+  to {
+    opacity: 0;
+    transform: translate3d(0, -8px, 0) scale(0.96);
+  }
+}
+
+@keyframes menuLogoIn {
+  from {
+    opacity: 0;
+    transform: translate3d(0, -8px, 0) scale(0.96);
+  }
+
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) scale(1);
+  }
 }
 
 .logo {
@@ -73,14 +126,49 @@
   margin-top: 31px;
   border: none;
   border-top: 1px solid rgba(22, 21, 20, 0.12);
+  transform: scaleX(0);
+  transform-origin: left center;
+}
+
+.menuOpen .rule {
+  animation: menuRuleIn 800ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation-delay: 100ms;
+}
+
+.menuClosing .rule {
+  animation: menuRuleOut 800ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation-delay: 400ms;
+}
+
+@keyframes menuRuleOut {
+  from {
+    transform: scaleX(1);
+  }
+
+  to {
+    transform: scaleX(0);
+  }
+}
+
+@keyframes menuRuleIn {
+  from {
+    transform: scaleX(0);
+  }
+
+  to {
+    transform: scaleX(1);
+  }
 }
 
 .nav {
   display: flex;
   flex-direction: column;
   gap: 48px;
-  margin-top: var(--utopia-space-4);
-  padding: 0 var(--utopia-space-4) 0 32px;
+  width: 100%;
+  max-width: var(--utopia-layout-max);
+  margin: var(--utopia-space-4) auto 0;
+  padding: 0 var(--utopia-content-inset);
+  box-sizing: border-box;
 }
 
 .navBlock {
@@ -90,15 +178,102 @@
   width: 100%;
 }
 
-.label {
-  font-size: var(--utopia-text-base);
-  letter-spacing: var(--utopia-tracking-tight-sm);
+.navBlockVisible .label {
+  animation: menuFadeUp 680ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation-delay: 140ms;
+}
+
+.menuClosing .label {
+  animation: menuFadeDown 680ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation-delay: 320ms;
+}
+
+@keyframes menuFadeDown {
+  from {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+
+  to {
+    opacity: 0;
+    transform: translate3d(0, 10px, 0);
+  }
 }
 
 .linkGroup {
   display: flex;
   flex-direction: column;
   gap: 20px;
+}
+
+.linkGroupVisible .link {
+  opacity: 0;
+  transform: translate3d(0, 10px, 0);
+  animation: menuFadeUp 680ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.linkGroupVisible .link:nth-child(1) {
+  animation-delay: 520ms;
+}
+
+.linkGroupVisible .link:nth-child(2) {
+  animation-delay: 580ms;
+}
+
+.linkGroupVisible .link:nth-child(3) {
+  animation-delay: 640ms;
+}
+
+.nav > .linkGroupVisible:nth-of-type(3) .link:nth-child(1) {
+  animation-delay: 760ms;
+}
+
+.nav > .linkGroupVisible:nth-of-type(3) .link:nth-child(2) {
+  animation-delay: 820ms;
+}
+
+.nav > .linkGroupVisible:nth-of-type(3) .link:nth-child(3) {
+  animation-delay: 880ms;
+}
+
+.menuClosing .linkGroupVisible .link {
+  animation: menuFadeDown 680ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.menuClosing .nav > .linkGroupVisible:nth-of-type(3) .link:nth-child(3) {
+  animation-delay: 0ms;
+}
+
+.menuClosing .nav > .linkGroupVisible:nth-of-type(3) .link:nth-child(2) {
+  animation-delay: 60ms;
+}
+
+.menuClosing .nav > .linkGroupVisible:nth-of-type(3) .link:nth-child(1) {
+  animation-delay: 120ms;
+}
+
+.menuClosing .linkGroupVisible .link:nth-child(3) {
+  animation-delay: 180ms;
+}
+
+.menuClosing .linkGroupVisible .link:nth-child(2) {
+  animation-delay: 240ms;
+}
+
+.menuClosing .linkGroupVisible .link:nth-child(1) {
+  animation-delay: 300ms;
+}
+
+@keyframes menuFadeUp {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 10px, 0);
+  }
+
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
 }
 
 .link {
@@ -112,4 +287,9 @@
 
 .link:hover {
   opacity: 0.7;
+}
+
+.label {
+  font-size: var(--utopia-text-base);
+  letter-spacing: var(--utopia-tracking-tight-sm);
 }

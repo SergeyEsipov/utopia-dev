@@ -1,8 +1,11 @@
 "use client";
 
-import Image from "next/image";
 import { Heading, Text, CategoryTabs, NavPill } from "@/design-system/components";
-import { ecosystemSlides } from "@/lib/ecosystem-carousel";
+import {
+  ECOSYSTEM_SLIDE_DURATION_MS,
+  getCategoryProgressRange,
+} from "@/lib/ecosystem-carousel";
+import { EcosystemBackground } from "./EcosystemBackground";
 import { useEcosystemCarousel } from "./useEcosystemCarousel";
 import styles from "./ecosystem-section.module.css";
 
@@ -10,15 +13,17 @@ export function EcosystemSection() {
   const {
     globalIndex,
     categoryIndex,
-    categoryProgress,
+    slideIndex,
     slide,
+    bgMix,
+    isAnimating,
     categoryLabels,
     goNext,
     goPrev,
     goToCategory,
-    pause,
-    resume,
   } = useEcosystemCarousel();
+
+  const categoryProgress = getCategoryProgressRange(categoryIndex, slideIndex);
 
   return (
     <section className={styles.section} aria-label="Ecosystem">
@@ -40,33 +45,17 @@ export function EcosystemSection() {
           items={categoryLabels}
           activeIndex={categoryIndex}
           onChange={goToCategory}
-          progress={categoryProgress}
+          progress={categoryProgress.end}
+          progressStart={categoryProgress.start}
+          progressEnd={categoryProgress.end}
+          progressDurationMs={ECOSYSTEM_SLIDE_DURATION_MS}
+          progressAnimationKey={globalIndex}
           variant="onLight"
           className={styles.tabsDesktop}
         />
 
-        <div
-          className={styles.visual}
-          onPointerEnter={pause}
-          onPointerLeave={resume}
-        >
-          <div className={styles.bgStack} aria-hidden>
-            {ecosystemSlides.map((item, index) => (
-              <Image
-                key={item.id}
-                src={item.bg}
-                alt=""
-                fill
-                className={styles.bgImage}
-                sizes="(max-width: 1023px) 100vw, 996px"
-                priority={index <= 1}
-                style={{
-                  opacity: index === globalIndex ? 1 : 0,
-                  zIndex: index === globalIndex ? 1 : 0,
-                }}
-              />
-            ))}
-          </div>
+        <div className={styles.visual}>
+          <EcosystemBackground bgMix={bgMix} isAnimating={isAnimating} />
 
           <div className={styles.gradient} />
 
@@ -74,7 +63,11 @@ export function EcosystemSection() {
             items={categoryLabels}
             activeIndex={categoryIndex}
             onChange={goToCategory}
-            progress={categoryProgress}
+            progress={categoryProgress.end}
+            progressStart={categoryProgress.start}
+            progressEnd={categoryProgress.end}
+            progressDurationMs={ECOSYSTEM_SLIDE_DURATION_MS}
+            progressAnimationKey={globalIndex}
             variant="onDark"
             className={styles.tabsMobile}
           />

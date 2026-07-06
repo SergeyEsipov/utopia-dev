@@ -3,7 +3,7 @@ import { Heading, Button, Icon } from "@/design-system/components";
 import { heroDestinations } from "@/lib/data";
 import { images } from "@/lib/media";
 import {
-  HeroMobileBackground,
+  HeroMobileBackgroundLayer,
   HeroMobileCarouselRoot,
   HeroMobileCarouselTrack,
 } from "./HeroMobileCarousel";
@@ -43,7 +43,7 @@ export function HeroSection() {
     <HeroMobileCarouselRoot>
       <section className={styles.hero} aria-label="Hero">
         <div className={styles.mobileCarousel}>
-          <HeroMobileBackground />
+          <HeroMobileBackgroundLayer />
         </div>
 
         <div className={styles.bgWrapDesktop}>

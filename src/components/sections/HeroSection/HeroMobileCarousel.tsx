@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import {
   createContext,
   useCallback,
@@ -15,18 +14,23 @@ import { Icon } from "@/design-system/components";
 import {
   HERO_CARD_GAP,
   HERO_CARD_WIDTH,
+  HERO_LOOP_COPIES,
   HERO_START_DESTINATION_INDEX,
   getBackgroundMixFromRawSlideIndex,
+  getRawSlideIndexFromScroll,
   getScrollLeftForSlide,
-  heroCarouselDestinations,
   heroCarouselSlides,
+  normalizeLoopSlideIndex,
   slideIndexForDestination,
+  type HeroBackgroundMix,
   type HeroCarouselSlide,
 } from "@/lib/hero-carousel";
+import { triggerHaptic } from "@/lib/haptics";
+import { HeroMobileBackground } from "./HeroMobileBackground";
 import styles from "./hero-section.module.css";
 
 const BASE_LENGTH = heroCarouselSlides.length;
-const LOOP_COPIES = 3;
+const LOOP_COPIES = HERO_LOOP_COPIES;
 const ALL_SLIDES = Array.from({ length: LOOP_COPIES }, () => heroCarouselSlides).flat();
 const START_SLIDE =
   BASE_LENGTH + slideIndexForDestination(HERO_START_DESTINATION_INDEX);
@@ -35,8 +39,9 @@ type HeroCarouselContextValue = {
   trackRef: React.RefObject<HTMLDivElement | null>;
   centeredSlide: number;
   allSlides: HeroCarouselSlide[];
-  bgMix: { from: number; to: number; blend: number };
+  bgMix: HeroBackgroundMix;
   ready: boolean;
+  isScrolling: boolean;
 };
 
 const HeroCarouselContext = createContext<HeroCarouselContextValue | null>(null);
@@ -49,6 +54,17 @@ function useHeroCarousel() {
   return context;
 }
 
+function isSameBackgroundMix(
+  current: HeroBackgroundMix,
+  next: HeroBackgroundMix,
+) {
+  return (
+    current.from === next.from &&
+    current.to === next.to &&
+    current.blend === next.blend
+  );
+}
+
 function HeroCard({
   slide,
   centered,
@@ -56,7 +72,7 @@ function HeroCard({
   slide: HeroCarouselSlide;
   centered: boolean;
 }) {
-  const isFeatured = centered && slide.bgIndex !== null;
+  const isFeatured = centered && slide.size === "md";
 
   return (
     <div
@@ -88,8 +104,13 @@ export function HeroMobileCarouselRoot({ children }: { children: ReactNode }) {
   const loopLockRef = useRef(false);
   const initLockRef = useRef(true);
   const initDoneRef = useRef(false);
+  const scrollEndTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const isScrollingRef = useRef(false);
+  const userScrollRef = useRef(false);
+  const prevCenteredRef = useRef(START_SLIDE);
   const [ready, setReady] = useState(false);
-  const [bgMix, setBgMix] = useState(() =>
+  const [isScrolling, setIsScrolling] = useState(false);
+  const [bgMix, setBgMix] = useState<HeroBackgroundMix>(() =>
     getBackgroundMixFromRawSlideIndex(START_SLIDE),
   );
   const [centeredSlide, setCenteredSlide] = useState(START_SLIDE);
@@ -131,53 +152,109 @@ export function HeroMobileCarouselRoot({ children }: { children: ReactNode }) {
     [getMetrics],
   );
 
-  const normalizeLoop = useCallback(() => {
-    if (initLockRef.current) return;
+  const readScrollState = useCallback(
+    (forceSnap = false) => {
+      const metrics = getMetrics();
+      if (!metrics) return null;
 
+      const { track, paddingLeft } = metrics;
+      const rawIndex = getRawSlideIndexFromScroll(
+        track.scrollLeft,
+        track.clientWidth,
+        paddingLeft,
+      );
+      const nearestSlide = Math.round(rawIndex);
+      const effectiveRawIndex = forceSnap ? nearestSlide : rawIndex;
+
+      return {
+        centeredSlide: nearestSlide,
+        bgMix: getBackgroundMixFromRawSlideIndex(effectiveRawIndex),
+      };
+    },
+    [getMetrics],
+  );
+
+  const applyScrollState = useCallback(
+    (forceSnap = false) => {
+      const state = readScrollState(forceSnap);
+      if (!state) return;
+
+      setCenteredSlide((current) =>
+        current === state.centeredSlide ? current : state.centeredSlide,
+      );
+      setBgMix((current) =>
+        isSameBackgroundMix(current, state.bgMix) ? current : state.bgMix,
+      );
+    },
+    [readScrollState],
+  );
+
+  const normalizeLoopInner = useCallback(() => {
     const metrics = getMetrics();
     if (!metrics || loopLockRef.current) return;
 
-    const { track, paddingLeft, stride, viewportCenter } = metrics;
-    const slideCenterOffset =
-      track.scrollLeft + viewportCenter - paddingLeft - HERO_CARD_WIDTH / 2;
-    const slideIndex = Math.round(slideCenterOffset / stride);
+    const { track, paddingLeft } = metrics;
+    const rawIndex = getRawSlideIndexFromScroll(
+      track.scrollLeft,
+      track.clientWidth,
+      paddingLeft,
+    );
+    const slideIndex = Math.round(rawIndex);
+    const normalizedSlide = normalizeLoopSlideIndex(slideIndex, BASE_LENGTH);
 
-    const lowerBound = BASE_LENGTH;
-    const upperBound = BASE_LENGTH * 2;
-
-    if (slideIndex < lowerBound) {
+    if (normalizedSlide !== slideIndex) {
       loopLockRef.current = true;
-      scrollToSlide(slideIndex + BASE_LENGTH, "auto");
+      scrollToSlide(normalizedSlide, "auto");
       loopLockRef.current = false;
-    } else if (slideIndex >= upperBound) {
-      loopLockRef.current = true;
-      scrollToSlide(slideIndex - BASE_LENGTH, "auto");
-      loopLockRef.current = false;
+      applyScrollState(true);
     }
-  }, [getMetrics, scrollToSlide]);
+  }, [applyScrollState, getMetrics, scrollToSlide]);
 
-  const updateFromScroll = useCallback(() => {
-    const metrics = getMetrics();
-    if (!metrics) return;
+  const finishScroll = useCallback(() => {
+    if (initLockRef.current) return;
 
-    const { track, paddingLeft, stride, viewportCenter } = metrics;
-    const slideCenterOffset =
-      track.scrollLeft + viewportCenter - paddingLeft - HERO_CARD_WIDTH / 2;
-    const rawIndex = slideCenterOffset / stride;
-    const nearestSlide = Math.round(rawIndex);
+    normalizeLoopInner();
+    const state = readScrollState(true);
+    if (state) {
+      const prevKey = normalizeLoopSlideIndex(prevCenteredRef.current, BASE_LENGTH);
+      const newKey = normalizeLoopSlideIndex(state.centeredSlide, BASE_LENGTH);
+      if (userScrollRef.current && prevKey !== newKey) {
+        triggerHaptic("navigate");
+      }
+      userScrollRef.current = false;
+      prevCenteredRef.current = state.centeredSlide;
+      setCenteredSlide((current) =>
+        current === state.centeredSlide ? current : state.centeredSlide,
+      );
+      setBgMix((current) =>
+        isSameBackgroundMix(current, state.bgMix) ? current : state.bgMix,
+      );
+    } else {
+      applyScrollState(true);
+    }
+    isScrollingRef.current = false;
+    setIsScrolling(false);
+  }, [applyScrollState, normalizeLoopInner, readScrollState]);
 
-    setCenteredSlide(nearestSlide);
-    setBgMix(getBackgroundMixFromRawSlideIndex(rawIndex));
-  }, [getMetrics]);
+  const onScrollFrame = useCallback(() => {
+    if (initLockRef.current) return;
+
+    if (!isScrollingRef.current) {
+      isScrollingRef.current = true;
+      setIsScrolling(true);
+    }
+    applyScrollState(false);
+  }, [applyScrollState]);
 
   const onScroll = useCallback(() => {
     if (initLockRef.current) return;
     if (rafRef.current !== null) return;
+
     rafRef.current = window.requestAnimationFrame(() => {
       rafRef.current = null;
-      updateFromScroll();
+      onScrollFrame();
     });
-  }, [updateFromScroll]);
+  }, [onScrollFrame]);
 
   useLayoutEffect(() => {
     if (initDoneRef.current) return;
@@ -187,43 +264,53 @@ export function HeroMobileCarouselRoot({ children }: { children: ReactNode }) {
 
     initLockRef.current = true;
     scrollToSlide(START_SLIDE, "auto");
-    updateFromScroll();
+    applyScrollState(true);
+    prevCenteredRef.current = START_SLIDE;
     initLockRef.current = false;
     initDoneRef.current = true;
     setReady(true);
-  }, [scrollToSlide, updateFromScroll]);
+  }, [applyScrollState, scrollToSlide]);
 
   useEffect(() => {
     const track = trackRef.current;
     if (!track) return;
 
-    const onScrollEnd = () => {
-      if (initLockRef.current) return;
-      normalizeLoop();
-      updateFromScroll();
+    const scheduleScrollEnd = () => {
+      if (scrollEndTimerRef.current) {
+        clearTimeout(scrollEndTimerRef.current);
+      }
+      scrollEndTimerRef.current = setTimeout(finishScroll, 100);
     };
 
+    const onScrollWithFallback = () => {
+      if (initLockRef.current || loopLockRef.current) return;
+      userScrollRef.current = true;
+      onScroll();
+      scheduleScrollEnd();
+    };
+
+    const onScrollEnd = () => {
+      if (scrollEndTimerRef.current) {
+        clearTimeout(scrollEndTimerRef.current);
+        scrollEndTimerRef.current = null;
+      }
+      finishScroll();
+    };
+
+    track.addEventListener("scroll", onScrollWithFallback, { passive: true });
     track.addEventListener("scrollend", onScrollEnd);
 
-    let scrollEndTimer: ReturnType<typeof setTimeout> | undefined;
-    const onScrollWithFallback = () => {
-      if (initLockRef.current) return;
-      onScroll();
-      if (scrollEndTimer) clearTimeout(scrollEndTimer);
-      scrollEndTimer = setTimeout(onScrollEnd, 120);
-    };
-
-    track.addEventListener("scroll", onScrollWithFallback);
-
     return () => {
-      track.removeEventListener("scrollend", onScrollEnd);
       track.removeEventListener("scroll", onScrollWithFallback);
-      if (scrollEndTimer) clearTimeout(scrollEndTimer);
+      track.removeEventListener("scrollend", onScrollEnd);
+      if (scrollEndTimerRef.current) {
+        clearTimeout(scrollEndTimerRef.current);
+      }
       if (rafRef.current !== null) {
         window.cancelAnimationFrame(rafRef.current);
       }
     };
-  }, [normalizeLoop, onScroll, updateFromScroll]);
+  }, [finishScroll, onScroll]);
 
   return (
     <HeroCarouselContext.Provider
@@ -233,6 +320,7 @@ export function HeroMobileCarouselRoot({ children }: { children: ReactNode }) {
         allSlides: ALL_SLIDES,
         bgMix,
         ready,
+        isScrolling,
       }}
     >
       {children}
@@ -240,36 +328,14 @@ export function HeroMobileCarouselRoot({ children }: { children: ReactNode }) {
   );
 }
 
-export function HeroMobileBackground() {
-  const { bgMix, ready } = useHeroCarousel();
-
+export function HeroMobileBackgroundLayer() {
+  const { bgMix, ready, isScrolling } = useHeroCarousel();
   return (
-    <div
-      className={[styles.bgWrap, ready ? styles.bgWrapReady : ""]
-        .filter(Boolean)
-        .join(" ")}
-      aria-hidden
-    >
-      {heroCarouselDestinations.map((dest, index) => {
-        let opacity = 0;
-        if (index === bgMix.from) opacity = 1 - bgMix.blend;
-        if (index === bgMix.to) opacity = bgMix.blend;
-        if (bgMix.from === bgMix.to && index === bgMix.from) opacity = 1;
-
-        return (
-          <Image
-            key={dest.id}
-            src={dest.bg}
-            alt=""
-            fill
-            priority={index <= 1}
-            className={styles.bg}
-            sizes="100vw"
-            style={{ opacity }}
-          />
-        );
-      })}
-    </div>
+    <HeroMobileBackground
+      bgMix={bgMix}
+      ready={ready}
+      isScrolling={isScrolling}
+    />
   );
 }
 
@@ -285,7 +351,15 @@ export function HeroMobileCarouselTrack() {
       aria-label="Destinations carousel"
     >
       {allSlides.map((slide, index) => (
-        <div key={`${slide.id}-${index}`} className={styles.cardsSlide}>
+        <div
+          key={`${slide.id}-${index}`}
+          className={[
+            styles.cardsSlide,
+            slide.size === "sm" ? styles.cardsSlideSide : styles.cardsSlideDest,
+          ]
+            .filter(Boolean)
+            .join(" ")}
+        >
           <HeroCard slide={slide} centered={index === centeredSlide} />
         </div>
       ))}

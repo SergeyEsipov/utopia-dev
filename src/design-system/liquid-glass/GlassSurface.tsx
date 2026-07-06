@@ -69,7 +69,7 @@ export const GlassSurface = forwardRef<
     .join(" ");
 
   const surfaceStyle: CSSProperties = {
-    minHeight: height,
+    ...(height != null ? { minHeight: height, height } : {}),
     borderRadius: radius,
     background: glass.background,
     boxShadow: glass.shadow,
@@ -77,21 +77,17 @@ export const GlassSurface = forwardRef<
     ...style,
   };
 
-  const contentClasses = [
-    styles.content,
-    fullWidth ? styles.contentFill : "",
-    contentClassName,
-  ]
+  const contentClasses = [styles.content, contentClassName]
     .filter(Boolean)
     .join(" ");
 
+  const backdrop = glassBackdropStyle(glass);
+
   const content = (
     <>
-      <div
-        className={styles.backdrop}
-        style={glassBackdropStyle(glass)}
-        aria-hidden
-      />
+      {backdrop.backdropFilter ? (
+        <div className={styles.backdrop} style={backdrop} aria-hidden />
+      ) : null}
       {glass.sheen ? (
         <div
           className={styles.sheen}

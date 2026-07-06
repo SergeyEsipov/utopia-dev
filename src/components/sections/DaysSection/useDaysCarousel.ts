@@ -16,6 +16,7 @@ import {
   getDaysLayouts,
   type CardSlot,
 } from "@/lib/days-carousel";
+import { triggerHaptic, type HapticKind } from "@/lib/haptics";
 
 const SWIPE_THRESHOLD = 40;
 
@@ -38,6 +39,7 @@ export function useDaysCarousel() {
   const [isDragging, setIsDragging] = useState(false);
   const [dragX, setDragX] = useState(0);
   const [autoplayKey, setAutoplayKey] = useState(0);
+  const [isTransitioning, setIsTransitioning] = useState(false);
   const pointerRef = useRef<number | null>(null);
   const startXRef = useRef(0);
   const activeRef = useRef(activeIndex);
@@ -48,21 +50,36 @@ export function useDaysCarousel() {
   const metrics = isDesktop ? daysDesktopMetrics : daysMobileMetrics;
   const layouts = getDaysLayouts(activeIndex, daysSlides.length, isDesktop);
 
-  const goTo = useCallback((index: number) => {
+  const goTo = useCallback((index: number, kind: HapticKind | false = false) => {
     const wrapped =
       ((index % daysSlides.length) + daysSlides.length) % daysSlides.length;
+    if (wrapped !== activeRef.current && kind !== false) triggerHaptic(kind);
     setActiveIndex(wrapped);
     setDragX(0);
     setIsDragging(false);
     setAutoplayKey((k) => k + 1);
   }, []);
 
-  const goNext = useCallback(() => goTo(activeRef.current + 1), [goTo]);
-  const goPrev = useCallback(() => goTo(activeRef.current - 1), [goTo]);
+  const goNext = useCallback(
+    (kind: HapticKind | false = "navigate") => goTo(activeRef.current + 1, kind),
+    [goTo],
+  );
+  const goPrev = useCallback(
+    (kind: HapticKind | false = "navigate") => goTo(activeRef.current - 1, kind),
+    [goTo],
+  );
+
+  useEffect(() => {
+    setIsTransitioning(true);
+    const timer = window.setTimeout(() => {
+      setIsTransitioning(false);
+    }, DAYS_TRANSITION_MS);
+    return () => window.clearTimeout(timer);
+  }, [activeIndex]);
 
   useEffect(() => {
     const timer = window.setTimeout(() => {
-      goNext();
+      goNext(false);
     }, DAYS_AUTOPLAY_MS);
 
     return () => window.clearTimeout(timer);
@@ -87,8 +104,8 @@ export function useDaysCarousel() {
 
       const dx = event.clientX - startXRef.current;
       if (Math.abs(dx) >= SWIPE_THRESHOLD) {
-        if (dx < 0) goNext();
-        else goPrev();
+        if (dx < 0) goNext("success");
+        else goPrev("success");
       } else {
         setDragX(0);
         setIsDragging(false);
@@ -107,32 +124,35 @@ export function useDaysCarousel() {
       const isActive = slot.active;
       const width = isActive ? metrics.activeW : metrics.inactiveW;
       const height = isActive ? metrics.activeH : metrics.inactiveH;
-      const left = slot.x + (isDragging && isActive ? dragX : 0);
+      const x = slot.x + (isDragging && isActive ? dragX : 0);
       const inactiveOffset = !isActive && isDesktop ? daysDesktopMetrics.inactiveY : 0;
 
       let opacity = 1;
-      if (!isDesktop && slot.x <= daysMobileMetrics.peekLeft) opacity = 0;
+      if (
+        !isDesktop &&
+        slot.x <= daysMobileMetrics.peekLeft &&
+        !isTransitioning &&
+        !isDragging
+      ) {
+        opacity = 0;
+      }
       if (isDragging && isActive && Math.abs(dragX) > 0) {
-        opacity = Math.max(0.3, 1 - Math.abs(dragX) / 160);
+        opacity = Math.max(0.55, 1 - Math.abs(dragX) / 280);
       }
 
       return {
         width: `${width}px`,
         height: `${height}px`,
-        left: `${left}px`,
-        transform: `translate3d(0, ${inactiveOffset}px, 0)`,
+        transform: `translate3d(${x}px, ${inactiveOffset}px, 0)`,
         opacity,
         zIndex: isActive
           ? 2
           : slideIndex === (activeIndex + 1) % daysSlides.length
             ? 1
             : 0,
-        transition: isDragging
-          ? "none"
-          : `left ${DAYS_TRANSITION_MS}ms cubic-bezier(0.22, 0.61, 0.36, 1), width ${DAYS_TRANSITION_MS}ms cubic-bezier(0.22, 0.61, 0.36, 1), height ${DAYS_TRANSITION_MS}ms cubic-bezier(0.22, 0.61, 0.36, 1), opacity ${DAYS_TRANSITION_MS}ms cubic-bezier(0.22, 0.61, 0.36, 1), transform ${DAYS_TRANSITION_MS}ms cubic-bezier(0.22, 0.61, 0.36, 1)`,
       };
     },
-    [activeIndex, dragX, isDesktop, isDragging, metrics],
+    [activeIndex, dragX, isDesktop, isDragging, isTransitioning, metrics],
   );
 
   const stageHeight = metrics.activeH;

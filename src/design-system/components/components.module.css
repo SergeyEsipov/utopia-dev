@@ -252,6 +252,7 @@
 .icon {
   display: block;
   flex-shrink: 0;
+  object-fit: contain;
 }
 
 /* ── Nav Pill ── */
@@ -261,7 +262,6 @@
   align-items: center;
   gap: var(--utopia-space-2);
   width: 100%;
-  max-width: 314px;
 }
 
 .dockItemActive {
@@ -270,6 +270,7 @@
 
 .navPillBtn {
   width: 40px;
+  height: 40px;
   flex-shrink: 0;
 }
 
@@ -277,6 +278,11 @@
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+.navPillChevronLeft {
+  transform: rotate(180deg);
+  transform-origin: center;
 }
 
 .navPillLabel {
@@ -292,14 +298,12 @@
   color: var(--utopia-text-black);
   text-align: center;
   white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .navPillDock .navPillLabelContent {
   font-size: var(--utopia-text-md);
-}
-
-.navPillChevronLeft {
-  transform: rotate(180deg);
 }
 
 /* ── Category Tabs ── */
@@ -314,7 +318,6 @@
   flex: 1;
   padding-bottom: 11px;
   border: none;
-  border-bottom: 1px solid var(--utopia-tab-border);
   background: transparent;
   font-family: var(--utopia-font-body);
   font-size: var(--utopia-text-base);
@@ -330,29 +333,51 @@
 
 .categoryTabTrack {
   position: absolute;
-  bottom: -0.5px;
+  bottom: 0;
   left: 0;
   right: 0;
-  height: 1px;
+  height: 2px;
+  border-radius: var(--utopia-radius-progress);
   background: var(--utopia-tab-border);
   overflow: hidden;
 }
 
 .categoryTabFill {
-  display: block;
-  height: 100%;
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
   background: var(--utopia-text-inverse);
-  will-change: width;
-  transition: none;
+  transform: scaleX(var(--tab-progress, 0));
+  transform-origin: left center;
+  will-change: transform;
+  z-index: 0;
+}
+
+.categoryTabFillAnimated {
+  animation: category-tab-fill var(--tab-progress-duration, 0ms) linear forwards;
+  transform: scaleX(var(--tab-progress-start, var(--tab-progress, 0)));
+}
+
+@keyframes category-tab-fill {
+  from {
+    transform: scaleX(var(--tab-progress-start, 0));
+  }
+
+  to {
+    transform: scaleX(var(--tab-progress-end, 1));
+  }
 }
 
 .categoryTabsLight .categoryTab {
-  border-bottom-color: rgba(0, 0, 0, 0.2);
   color: rgba(0, 0, 0, 0.5);
 }
 
 .categoryTabsLight .categoryTabActive {
   color: var(--utopia-text-black);
+}
+
+.categoryTabsLight .categoryTabTrack {
+  background: rgba(0, 0, 0, 0.2);
 }
 
 .categoryTabsLight .categoryTabFill {

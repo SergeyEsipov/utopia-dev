@@ -17,6 +17,8 @@
   position: absolute;
   inset: 0;
   opacity: 0;
+  isolation: isolate;
+  background: #0a0a0a;
 }
 
 .bgWrapReady {
@@ -58,7 +60,6 @@
 .bg {
   object-fit: cover;
   object-position: center;
-  transition: none;
   will-change: opacity;
 }
 
@@ -126,7 +127,9 @@
 
 .title {
   text-align: center;
-  max-width: 378px;
+  max-width: var(--utopia-layout-max);
+  padding-inline: var(--utopia-content-inset);
+  box-sizing: border-box;
 }
 
 @media (min-width: 1024px) {
@@ -163,7 +166,6 @@
   overflow-x: auto;
   overflow-y: hidden;
   scroll-snap-type: x mandatory;
-  scroll-behavior: smooth;
   overscroll-behavior-x: contain;
   -webkit-overflow-scrolling: touch;
   scrollbar-width: none;
@@ -182,7 +184,14 @@
 .cardsSlide {
   flex: 0 0 314px;
   scroll-snap-align: center;
+}
+
+.cardsSlideDest {
   scroll-snap-stop: always;
+}
+
+.cardsSlideSide {
+  scroll-snap-stop: normal;
 }
 
 @media (min-width: 1024px) {

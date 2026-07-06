@@ -1,0 +1,724 @@
+/* ── Shared layout ── */
+
+.page {
+  background: var(--utopia-bg-cream);
+  width: 100%;
+}
+
+.sectionWide {
+  width: 100%;
+  max-width: var(--utopia-layout-max);
+  margin: 0 auto;
+  padding-left: var(--utopia-content-inset);
+  padding-right: var(--utopia-content-inset);
+}
+
+.sectionInner {
+  width: 100%;
+  max-width: var(--utopia-content-wide);
+  margin: 0 auto;
+}
+
+.sectionNarrow {
+  width: 100%;
+  max-width: var(--utopia-content-narrow);
+  margin: 0 auto;
+}
+
+.displayTitle {
+  font-family: var(--utopia-font-display);
+  font-weight: 400;
+  font-size: clamp(28px, 5vw, 38px);
+  line-height: 1.2;
+  letter-spacing: -1.14px;
+  color: var(--utopia-text-primary);
+}
+
+.eyebrowLg {
+  font-family: var(--utopia-font-body);
+  font-size: clamp(16px, 3vw, 20px);
+  line-height: 1.3;
+  letter-spacing: -0.2px;
+  color: var(--utopia-text-muted);
+}
+
+.bodyMd {
+  font-family: var(--utopia-font-body);
+  font-size: var(--utopia-text-md);
+  line-height: 1.3;
+  letter-spacing: var(--utopia-tracking-tight-md);
+  color: var(--utopia-text-primary);
+}
+
+.bodySm {
+  font-family: var(--utopia-font-body);
+  font-size: var(--utopia-text-sm);
+  line-height: 1.3;
+  letter-spacing: var(--utopia-tracking-tight-xs);
+  color: var(--utopia-text-muted);
+}
+
+.linkUnderline {
+  font-family: var(--utopia-font-body);
+  font-size: var(--utopia-text-sm);
+  line-height: 1.3;
+  letter-spacing: var(--utopia-tracking-tight-xs);
+  color: var(--utopia-text-muted);
+  text-decoration: underline;
+  text-underline-position: from-font;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+}
+
+.linkUnderline:hover {
+  opacity: 0.7;
+}
+
+/* ── Hero ── */
+
+.hero {
+  padding-top: clamp(64px, 12vw, 120px);
+  padding-bottom: clamp(48px, 8vw, 80px);
+}
+
+.heroContent {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  text-align: center;
+}
+
+.heroIntro {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  width: 100%;
+}
+
+.heroCopy {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+  text-align: center;
+}
+
+/* ── Jobs ── */
+
+.jobs {
+  padding-top: clamp(48px, 10vw, 120px);
+  padding-bottom: clamp(48px, 10vw, 120px);
+}
+
+.jobsInner {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+
+.filters {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+@media (min-width: 640px) {
+  .filters {
+    flex-direction: row;
+    gap: 20px;
+    height: 40px;
+  }
+}
+
+.filterControl {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  width: 100%;
+  height: 40px;
+  padding: 11px 24px;
+  border: 1px solid rgba(28, 28, 28, 0.55);
+  border-radius: var(--utopia-radius-sm);
+  background: transparent;
+  font-family: var(--utopia-font-body);
+  font-size: var(--utopia-text-md);
+  letter-spacing: var(--utopia-tracking-tight-md);
+  color: var(--utopia-text-black);
+  cursor: pointer;
+}
+
+@media (min-width: 640px) {
+  .filterLocation {
+    width: 285px;
+    flex-shrink: 0;
+  }
+
+  .filterSearch {
+    flex: 1;
+  }
+}
+
+.filterPlaceholder {
+  color: var(--utopia-text-muted);
+}
+
+.filterIcon {
+  flex-shrink: 0;
+}
+
+.jobsLayout {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+
+@media (min-width: 1024px) {
+  .jobsLayout {
+    flex-direction: row;
+    gap: 20px;
+    align-items: flex-start;
+  }
+}
+
+.departments {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  width: 100%;
+}
+
+@media (min-width: 1024px) {
+  .departments {
+    width: 285px;
+    flex-shrink: 0;
+  }
+}
+
+.departmentsTitle {
+  font-family: var(--utopia-font-body);
+  font-size: var(--utopia-text-lg);
+  line-height: 1.3;
+  letter-spacing: var(--utopia-tracking-tight-lg);
+  color: var(--utopia-text-black);
+}
+
+.departmentsList {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.departmentItem {
+  font-family: var(--utopia-font-body);
+  font-size: var(--utopia-text-sm);
+  line-height: 1.3;
+  letter-spacing: var(--utopia-tracking-tight-xs);
+  color: var(--utopia-text-black);
+}
+
+.departmentCount {
+  color: var(--utopia-text-muted);
+}
+
+.roles {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  flex: 1;
+  min-width: 0;
+}
+
+.rolesTitle {
+  font-family: var(--utopia-font-body);
+  font-size: var(--utopia-text-lg);
+  line-height: 1.3;
+  letter-spacing: var(--utopia-tracking-tight-lg);
+  color: var(--utopia-text-black);
+}
+
+.rolesList {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  width: 100%;
+}
+
+.roleCard {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 20px;
+  border-radius: var(--utopia-radius-sm);
+  background: #ebdfd2;
+}
+
+.roleHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.roleTitle {
+  font-family: var(--utopia-font-body);
+  font-size: 22px;
+  line-height: 1.3;
+  letter-spacing: -0.22px;
+  color: var(--utopia-text-black);
+  text-transform: capitalize;
+}
+
+.rolePill {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 32px;
+  padding: 4px 18px;
+  border-radius: 12px;
+  background: rgba(249, 245, 234, 0.8);
+  font-family: var(--utopia-font-body);
+  font-size: 13px;
+  line-height: 1.3;
+  letter-spacing: -0.13px;
+  color: var(--utopia-text-black);
+  text-transform: capitalize;
+}
+
+.roleMeta {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+}
+
+.roleIcons {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  flex-shrink: 0;
+  min-height: 46px;
+}
+
+.roleDetails {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  font-family: var(--utopia-font-body);
+  font-size: var(--utopia-text-sm);
+  line-height: 1.3;
+  letter-spacing: var(--utopia-tracking-tight-xs);
+  color: var(--utopia-text-black);
+}
+
+.roleLabel {
+  color: var(--utopia-text-muted);
+}
+
+.showMore {
+  align-self: flex-start;
+  padding: 11px 24px;
+  border: none;
+  border-radius: var(--utopia-radius-sm);
+  background: var(--utopia-dock-bg);
+  font-family: var(--utopia-font-body);
+  font-size: var(--utopia-text-md);
+  line-height: 18px;
+  letter-spacing: var(--utopia-tracking-tight-md);
+  color: var(--utopia-text-black);
+  cursor: pointer;
+}
+
+.showMore:hover {
+  opacity: 0.85;
+}
+
+/* ── Teams ── */
+
+.teams {
+  padding-bottom: clamp(64px, 10vw, 120px);
+}
+
+.teamsIntro {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  width: 100%;
+  max-width: var(--utopia-content-narrow);
+  margin: 0 auto 64px;
+  text-align: center;
+}
+
+.teamsCopy {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+}
+
+.teamsCopy .bodySm {
+  text-wrap: balance;
+}
+
+.teamsGrid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 20px;
+  width: 100%;
+}
+
+@media (min-width: 640px) {
+  .teamsGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 1024px) {
+  .teamsGrid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.teamCard {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.teamImageWrap {
+  position: relative;
+  width: 100%;
+  height: 160px;
+  border-radius: var(--utopia-radius-sm);
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.teamImageWrap::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: rgba(92, 41, 35, 0.15);
+  pointer-events: none;
+  z-index: 1;
+}
+
+.teamImage {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center center;
+}
+
+.teamInfo {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 16px;
+  width: 100%;
+}
+
+.teamName {
+  font-family: var(--utopia-font-body);
+  font-size: var(--utopia-text-lg);
+  line-height: 1.3;
+  letter-spacing: var(--utopia-tracking-tight-lg);
+  color: var(--utopia-text-black);
+  white-space: nowrap;
+}
+
+.teamPositions {
+  font-family: var(--utopia-font-body);
+  font-size: 13px;
+  line-height: 1.3;
+  letter-spacing: -0.13px;
+  color: rgba(0, 0, 0, 0.4);
+  white-space: nowrap;
+}
+
+/* ── Values ── */
+
+.values {
+  padding-top: clamp(48px, 10vw, 120px);
+  padding-bottom: clamp(48px, 10vw, 120px);
+}
+
+.valuesInner {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.valuesHero {
+  position: relative;
+  width: 100%;
+  height: clamp(280px, 50vw, 478px);
+  border-radius: var(--utopia-radius-sm);
+  overflow: hidden;
+  background: #c5c2b8;
+}
+
+.valuesHeroImage {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center center;
+  z-index: 0;
+}
+
+.valuesHeroOverlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.2);
+  z-index: 1;
+  pointer-events: none;
+}
+
+.valuesHeroContent {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  padding: 24px;
+  text-align: center;
+  color: var(--utopia-text-inverse);
+}
+
+.valuesHeroTitle {
+  font-family: var(--utopia-font-display);
+  font-weight: 300;
+  font-size: clamp(28px, 5vw, 38px);
+  line-height: 1.2;
+  letter-spacing: -1.14px;
+}
+
+.valuesHeroDescription {
+  font-family: var(--utopia-font-body);
+  font-size: var(--utopia-text-md);
+  line-height: 1.3;
+  letter-spacing: var(--utopia-tracking-tight-md);
+  max-width: 385px;
+  text-wrap: balance;
+}
+
+.valuesRow {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 20px;
+}
+
+@media (min-width: 768px) {
+  .valuesRowTwo {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .valuesRowThree {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.valueCard {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding: 20px 20px 28px;
+  border-radius: var(--utopia-radius-sm);
+  background: #ebdfd2;
+}
+
+.valueIcon {
+  width: 54px;
+  height: 56px;
+  object-fit: contain;
+}
+
+.valueTitle {
+  font-family: var(--utopia-font-body);
+  font-size: var(--utopia-text-lg);
+  line-height: 1.3;
+  letter-spacing: var(--utopia-tracking-tight-lg);
+  color: var(--utopia-text-black);
+}
+
+.valueDescription {
+  font-family: var(--utopia-font-body);
+  font-size: 13px;
+  line-height: 1.3;
+  letter-spacing: -0.13px;
+  color: rgba(0, 0, 0, 0.4);
+}
+
+/* ── Work carousel ── */
+
+.work {
+  position: relative;
+  background: #5c291d;
+  padding: clamp(64px, 10vw, 120px) 0;
+  overflow: hidden;
+}
+
+.workInner {
+  position: relative;
+}
+
+.workHeader {
+  position: relative;
+  margin-bottom: 36px;
+}
+
+.workTitle {
+  font-family: var(--utopia-font-display);
+  font-weight: 400;
+  font-size: clamp(28px, 5vw, 38px);
+  line-height: 1.2;
+  letter-spacing: -1.14px;
+  color: var(--utopia-bg-cream);
+  text-align: center;
+  max-width: 494px;
+  margin: 0 auto;
+}
+
+.workNav {
+  display: none;
+  gap: 8px;
+  position: absolute;
+  top: 0;
+  right: 0;
+}
+
+@media (min-width: 1024px) {
+  .workNav {
+    display: flex;
+  }
+}
+
+.workNavBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border: none;
+  border-radius: var(--utopia-radius-sm);
+  cursor: pointer;
+  transition: opacity var(--utopia-transition-fast);
+}
+
+.workNavBtnActive {
+  background: rgba(249, 245, 234, 0.6);
+  opacity: 1;
+}
+
+.workNavBtnInactive {
+  background: var(--utopia-dock-bg);
+  opacity: 0.4;
+  cursor: default;
+}
+
+.workNavBtnActive:hover {
+  opacity: 0.85;
+}
+
+.workNavChevronLeft {
+  transform: rotate(180deg);
+}
+
+.workTrackWrap {
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+
+.workTrackWrap::-webkit-scrollbar {
+  display: none;
+}
+
+.workTrack {
+  display: flex;
+  gap: 20px;
+  width: max-content;
+  padding-bottom: 4px;
+}
+
+.workSlide {
+  position: relative;
+  flex-shrink: 0;
+  width: min(326px, calc(100vw - 32px));
+  height: 320px;
+  border-radius: var(--utopia-radius-sm);
+  overflow: hidden;
+  scroll-snap-align: start;
+}
+
+.workSlideImage {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center center;
+}
+
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ── CTA ── */
+
+.cta {
+  background: #ebdfd2;
+  padding: clamp(56px, 10vw, 80px) var(--utopia-content-inset);
+}
+
+.ctaContent {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 30px;
+  text-align: center;
+}
+
+.ctaCopy {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.ctaButton {
+  padding: 11px 24px;
+  border: none;
+  border-radius: var(--utopia-radius-sm);
+  background: rgba(249, 245, 234, 0.8);
+  font-family: var(--utopia-font-body);
+  font-size: var(--utopia-text-md);
+  line-height: 18px;
+  letter-spacing: var(--utopia-tracking-tight-md);
+  color: var(--utopia-text-black);
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.ctaButton:hover {
+  opacity: 0.85;
+}

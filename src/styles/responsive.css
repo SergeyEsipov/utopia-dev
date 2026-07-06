@@ -1,0 +1,42 @@
+/**
+ * Layout tokens — mobile Figma sizes, modest tablet bump, desktop full.
+ */
+
+:root {
+  --utopia-content-inset: 16px;
+  --utopia-layout-max: 378px;
+  --utopia-visual-width: 378px;
+  --utopia-content-narrow: 346px;
+  --utopia-content-medium: 378px;
+  --utopia-content-wide: 378px;
+  --utopia-nav-pill-width: 314px;
+  --utopia-dock-max: min(calc(100% - 20px), 358px);
+  --utopia-opening-frame-height: 732px;
+}
+
+@media (min-width: 640px) and (max-width: 1023px) {
+  :root {
+    --utopia-content-inset: clamp(20px, 4vw, 40px);
+    --utopia-layout-max: min(480px, calc(100vw - 40px));
+    --utopia-visual-width: min(480px, calc(100vw - 40px));
+    --utopia-content-narrow: min(420px, calc(100vw - 64px));
+    --utopia-content-medium: min(480px, calc(100vw - 40px));
+    --utopia-content-wide: min(480px, calc(100vw - 40px));
+    --utopia-dock-max: min(calc(100vw - 40px), 480px);
+    --utopia-opening-frame-height: 760px;
+  }
+}
+
+@media (min-width: 1024px) {
+  :root {
+    --utopia-content-inset: 24px;
+    --utopia-layout-max: 1440px;
+    --utopia-visual-width: 996px;
+    --utopia-content-narrow: 589px;
+    --utopia-content-medium: 794px;
+    --utopia-content-wide: 996px;
+    --utopia-nav-pill-width: 335px;
+    --utopia-dock-max: 358px;
+    --utopia-opening-frame-height: 783px;
+  }
+}

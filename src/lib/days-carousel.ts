@@ -6,7 +6,9 @@ export type DaysSlide = {
 };
 
 export const DAYS_AUTOPLAY_MS = 5000;
-export const DAYS_TRANSITION_MS = 700;
+export const DAYS_TRANSITION_MS = 900;
+export const DAYS_CAPTION_MS = 650;
+export const DAYS_EASE = "cubic-bezier(0.22, 1, 0.36, 1)";
 
 export const daysSlides: DaysSlide[] = [
   {

@@ -2,14 +2,13 @@
 
 import Image from "next/image";
 import { Heading, Text } from "@/design-system/components";
-import { daysSlides } from "@/lib/days-carousel";
+import { daysSlides, DAYS_AUTOPLAY_MS, DAYS_TRANSITION_MS } from "@/lib/days-carousel";
 import { images } from "@/lib/media";
 import { useDaysCarousel } from "./useDaysCarousel";
 import styles from "./days-section.module.css";
 
 export function DaysSection() {
   const {
-    slide,
     layouts,
     stageHeight,
     isDragging,
@@ -30,7 +29,15 @@ export function DaysSection() {
         Private World
       </Heading>
 
-      <div className={styles.carousel}>
+      <div
+        className={styles.carousel}
+        style={
+          {
+            "--days-autoplay-ms": `${DAYS_AUTOPLAY_MS}ms`,
+            "--days-transition-ms": `${DAYS_TRANSITION_MS}ms`,
+          } as React.CSSProperties
+        }
+      >
         <div className={styles.trackWrap}>
           <div
             className={[styles.stage, isDragging ? styles.stageDragging : ""]
@@ -40,17 +47,13 @@ export function DaysSection() {
             {...swipeHandlers}
           >
             <div className={styles.track} style={{ height: stageHeight }}>
-              {daysSlides.map((item, i) => {
-                const isNext =
-                  i === (activeIndex + 1) % daysSlides.length;
-
-                return (
+              {daysSlides.map((item, i) => (
                 <article
                   key={item.id}
                   className={[
                     styles.card,
                     layouts[i]?.active ? styles.cardActive : "",
-                    layouts[i]?.active || isNext ? styles.cardTopFade : "",
+                    layouts[i]?.active ? styles.cardTopFade : "",
                   ]
                     .filter(Boolean)
                     .join(" ")}
@@ -66,33 +69,47 @@ export function DaysSection() {
                     priority={i === 0}
                   />
                 </article>
-                );
-              })}
+              ))}
             </div>
 
             <button
               type="button"
               className={[styles.hit, styles.hitPrev].filter(Boolean).join(" ")}
               aria-label="Previous slide"
-              onClick={goPrev}
+              onClick={() => goPrev()}
             />
             <button
               type="button"
               className={[styles.hit, styles.hitNext].filter(Boolean).join(" ")}
               aria-label="Next slide"
-              onClick={goNext}
+              onClick={() => goNext()}
             />
           </div>
         </div>
 
         <div className={styles.caption}>
           <div className={styles.captionText}>
-            <Text variant="lg" className={styles.captionTitle}>
-              {slide.title}
-            </Text>
-            <Text variant="base" className={styles.captionDesc}>
-              {slide.description}
-            </Text>
+            {daysSlides.map((item, i) => (
+              <div
+                key={item.id}
+                className={[
+                  styles.captionLayer,
+                  i === activeIndex
+                    ? styles.captionLayerActive
+                    : styles.captionLayerInactive,
+                ]
+                  .filter(Boolean)
+                  .join(" ")}
+                aria-hidden={i !== activeIndex}
+              >
+                <Text variant="lg" className={styles.captionTitle}>
+                  {item.title}
+                </Text>
+                <Text variant="base" className={styles.captionDesc}>
+                  {item.description}
+                </Text>
+              </div>
+            ))}
           </div>
 
           <div
@@ -100,25 +117,31 @@ export function DaysSection() {
             role="tablist"
             aria-label="Carousel slides"
           >
-            {daysSlides.map((item, i) =>
-              i === activeIndex ? (
-                <div key={item.id} className={styles.progressItemActive}>
-                  <div className={styles.progressTrack}>
-                    <div key={autoplayKey} className={styles.progressFill} />
-                  </div>
-                </div>
-              ) : (
+            {daysSlides.map((item, i) => {
+              const isActive = i === activeIndex;
+              return (
                 <button
                   key={item.id}
                   type="button"
                   role="tab"
-                  aria-selected={false}
-                  className={styles.progressDot}
-                  onClick={() => goTo(i)}
+                  aria-selected={isActive}
+                  className={[
+                    styles.progressItem,
+                    isActive ? styles.progressItemActive : "",
+                  ]
+                    .filter(Boolean)
+                    .join(" ")}
+                  onClick={() => goTo(i, "selection")}
                   aria-label={item.title}
-                />
-              ),
-            )}
+                >
+                  <span className={styles.progressTrack}>
+                    {isActive ? (
+                      <span key={autoplayKey} className={styles.progressFill} />
+                    ) : null}
+                  </span>
+                </button>
+              );
+            })}
           </div>
         </div>
       </div>

@@ -26,4 +26,6 @@ export const figmaNodes = {
     dock: "173:1888",
     nav: "173:1965",
   },
+
+  careersPage: "173:1376",
 } as const;

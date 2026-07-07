@@ -325,12 +325,51 @@ export function HeroMobileCarouselRoot({ children }: { children: ReactNode }) {
       finishScroll();
     };
 
+    let touchStartX = 0;
+    let touchStartY = 0;
+    let touchAxis: "x" | "y" | null = null;
+
+    const resetTouchAxis = () => {
+      touchAxis = null;
+      track.style.overflowX = "";
+    };
+
+    const onTouchStart = (event: TouchEvent) => {
+      if (event.touches.length !== 1) return;
+      touchStartX = event.touches[0].clientX;
+      touchStartY = event.touches[0].clientY;
+      touchAxis = null;
+      track.style.overflowX = "";
+    };
+
+    const onTouchMove = (event: TouchEvent) => {
+      if (event.touches.length !== 1 || touchAxis) return;
+
+      const dx = event.touches[0].clientX - touchStartX;
+      const dy = event.touches[0].clientY - touchStartY;
+      if (Math.abs(dx) < 10 && Math.abs(dy) < 10) return;
+
+      touchAxis = Math.abs(dy) > Math.abs(dx) ? "y" : "x";
+      if (touchAxis === "y") {
+        track.style.overflowX = "hidden";
+      }
+    };
+
     track.addEventListener("scroll", onScrollWithFallback, { passive: true });
     track.addEventListener("scrollend", onScrollEnd);
+    track.addEventListener("touchstart", onTouchStart, { passive: true });
+    track.addEventListener("touchmove", onTouchMove, { passive: true });
+    track.addEventListener("touchend", resetTouchAxis, { passive: true });
+    track.addEventListener("touchcancel", resetTouchAxis, { passive: true });
 
     return () => {
       track.removeEventListener("scroll", onScrollWithFallback);
       track.removeEventListener("scrollend", onScrollEnd);
+      track.removeEventListener("touchstart", onTouchStart);
+      track.removeEventListener("touchmove", onTouchMove);
+      track.removeEventListener("touchend", resetTouchAxis);
+      track.removeEventListener("touchcancel", resetTouchAxis);
+      resetTouchAxis();
       if (scrollEndTimerRef.current) {
         clearTimeout(scrollEndTimerRef.current);
       }

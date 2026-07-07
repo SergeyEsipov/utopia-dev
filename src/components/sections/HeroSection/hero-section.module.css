@@ -67,7 +67,45 @@
   flex-direction: column;
   align-items: center;
   height: 100%;
-  padding-bottom: 62px;
+  padding-bottom: var(--utopia-dock-offset);
+}
+
+@media (max-width: 1023px) {
+  .logoWrap {
+    flex-shrink: 0;
+  }
+
+  .content {
+    flex: 1;
+    min-height: 0;
+    margin-top: clamp(20px, 5vh, 62px);
+    justify-content: flex-end;
+    gap: clamp(16px, 3vh, 32px);
+  }
+
+  .cardsTrack {
+    flex: 1 1 auto;
+    min-height: 240px;
+    max-height: var(--utopia-hero-card-height);
+    height: auto;
+  }
+
+  .cardsSlide {
+    height: 100%;
+    display: flex;
+    align-items: stretch;
+  }
+
+  .cardSm,
+  .cardMd {
+    width: 314px;
+    height: 100%;
+    max-height: var(--utopia-hero-card-height);
+  }
+
+  .card {
+    height: 100%;
+  }
 }
 
 @media (min-width: 1024px) {
@@ -169,7 +207,7 @@
   overscroll-behavior-x: contain;
   -webkit-overflow-scrolling: touch;
   scrollbar-width: none;
-  touch-action: pan-x;
+  touch-action: auto;
   visibility: hidden;
 }
 

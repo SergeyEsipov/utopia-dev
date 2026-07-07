@@ -11,8 +11,12 @@
   --utopia-content-wide: 378px;
   --utopia-nav-pill-width: 314px;
   --utopia-dock-max: min(calc(100% - 20px), 358px);
-  --utopia-viewport-height: 100dvh;
+  --utopia-viewport-height: 100svh;
   --utopia-opening-frame-height: var(--utopia-viewport-height);
+  --utopia-dock-offset: calc(
+    12px + var(--utopia-dock-height) + var(--utopia-space-5) +
+      env(safe-area-inset-bottom, 0px)
+  );
 }
 
 @media (min-width: 640px) and (max-width: 1023px) {

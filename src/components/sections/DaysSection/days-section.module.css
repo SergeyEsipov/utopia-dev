@@ -3,12 +3,9 @@
   z-index: 2;
   display: flex;
   flex-direction: column;
-  justify-content: center;
   gap: 30px;
   width: 100%;
-  min-height: var(--utopia-viewport-height);
-  padding: var(--utopia-section-padding-y) 0 var(--utopia-section-padding-y)
-    var(--utopia-space-4);
+  padding: var(--utopia-section-padding-y) var(--utopia-space-4);
   box-sizing: border-box;
   background: var(--utopia-bg-cream);
   overflow: hidden;

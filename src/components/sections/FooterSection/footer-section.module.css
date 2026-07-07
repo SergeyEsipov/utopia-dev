@@ -8,9 +8,7 @@
 .mobile {
   display: flex;
   flex-direction: column;
-  justify-content: center;
   gap: 40px;
-  min-height: var(--utopia-viewport-height);
   padding: 32px;
   box-sizing: border-box;
 }

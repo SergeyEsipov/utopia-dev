@@ -14,28 +14,28 @@ export function HeroSection() {
       <section className={styles.hero} aria-label="Hero">
         <div className={styles.heroMedia}>
           <HeroMobileBackgroundLayer />
-        </div>
 
-        <div className={styles.inner}>
-          <div className={styles.logoWrap}>
-            <Image
-              src={images.logo}
-              alt="Utopia"
-              width={100}
-              height={114}
-              priority
-              className={styles.logo}
-            />
-          </div>
+          <div className={styles.inner}>
+            <div className={styles.logoWrap}>
+              <Image
+                src={images.logo}
+                alt="Utopia"
+                width={100}
+                height={114}
+                priority
+                className={styles.logo}
+              />
+            </div>
 
-          <div className={styles.content}>
-            <Heading variant="hero" as="h1" inverse className={styles.title}>
-              It&apos;s all yours
-            </Heading>
+            <div className={styles.content}>
+              <Heading variant="hero" as="h1" inverse className={styles.title}>
+                It&apos;s all yours
+              </Heading>
 
-            <Button variant="primary" className={styles.desktopCta}>
-              Request a stay
-            </Button>
+              <Button variant="primary" className={styles.desktopCta}>
+                Request a stay
+              </Button>
+            </div>
 
             <HeroMobileCarouselTrack />
           </div>

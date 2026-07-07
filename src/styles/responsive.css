@@ -17,6 +17,14 @@
     12px + var(--utopia-dock-height) + var(--utopia-space-5) +
       env(safe-area-inset-bottom, 0px)
   );
+  /* Figma mobile hero (173:1683): logo 10+114, title gap 48, title 29, cards gap 32, dock reserve */
+  --utopia-hero-mobile-chrome: calc(
+    10px + 114px + 48px + 29px + 32px + var(--utopia-dock-offset)
+  );
+  --utopia-hero-card-height-mobile: min(
+    var(--utopia-hero-card-height),
+    max(240px, calc(var(--utopia-viewport-height) - var(--utopia-hero-mobile-chrome)))
+  );
 }
 
 @media (min-width: 640px) and (max-width: 1023px) {

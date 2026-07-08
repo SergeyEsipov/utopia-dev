@@ -13,21 +13,17 @@ import styles from "./ecosystem-section.module.css";
 
 type EcosystemBackgroundProps = {
   bgMix: HeroBackgroundMix;
-  isAnimating: boolean;
 };
 
 export function EcosystemBackground({
   bgMix,
-  isAnimating,
 }: EcosystemBackgroundProps) {
   const layers = useMemo(
     () => resolveHeroBackgroundRenderLayers(bgMix, ecosystemSlides.length),
     [bgMix],
   );
 
-  const transitionStyle = isAnimating
-    ? "none"
-    : `opacity ${HERO_BG_CROSSFADE_MS}ms ${HERO_BG_CROSSFADE_EASING}`;
+  const transitionStyle = `opacity ${HERO_BG_CROSSFADE_MS}ms ${HERO_BG_CROSSFADE_EASING}`;
 
   return (
     <div className={styles.bgStack} aria-hidden>

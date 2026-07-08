@@ -16,11 +16,11 @@ export function EcosystemSection() {
     slideIndex,
     slide,
     bgMix,
-    isAnimating,
     categoryLabels,
     goNext,
     goPrev,
     goToCategory,
+    swipeHandlers,
   } = useEcosystemCarousel();
 
   const categoryProgress = getCategoryProgressRange(categoryIndex, slideIndex);
@@ -55,9 +55,10 @@ export function EcosystemSection() {
         />
 
         <div className={styles.visual}>
-          <EcosystemBackground bgMix={bgMix} isAnimating={isAnimating} />
-
-          <div className={styles.gradient} />
+          <div className={styles.swipeSurface} {...swipeHandlers}>
+            <EcosystemBackground bgMix={bgMix} />
+            <div className={styles.gradient} />
+          </div>
 
           <CategoryTabs
             items={categoryLabels}

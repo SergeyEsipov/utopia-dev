@@ -20,7 +20,7 @@ export function OpeningSection() {
     loopIndex,
     slide,
     allSlides,
-    trackOffsetPx,
+    trackRef,
     isDragging,
     loopJumping,
     goNext,
@@ -38,6 +38,7 @@ export function OpeningSection() {
           {...swipeHandlers}
         >
           <div
+            ref={trackRef}
             className={[
               styles.track,
               isDragging ? styles.trackDragging : "",
@@ -45,7 +46,6 @@ export function OpeningSection() {
             ]
               .filter(Boolean)
               .join(" ")}
-            style={{ transform: `translate3d(${trackOffsetPx}px, 0, 0)` }}
           >
             {allSlides.map((item, i) => {
               const slideIndex = normalizeOpeningSlideIndex(i);

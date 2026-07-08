@@ -1,0 +1,194 @@
+- generic [active] [ref=e1]:
+  - banner [ref=e2]:
+    - generic [ref=e3]:
+      - generic [ref=e4]: Destinations
+      - generic [ref=e5]: "|"
+      - navigation "Destination categories" [ref=e6]:
+        - link "Tropical" [ref=e7] [cursor=pointer]:
+          - /url: /404
+        - link "Urban" [ref=e8] [cursor=pointer]:
+          - /url: /404
+        - link "Alpine" [ref=e9] [cursor=pointer]:
+          - /url: /404
+    - link "Utopia home" [ref=e10] [cursor=pointer]:
+      - /url: /
+      - img "Utopia" [ref=e11]
+    - navigation "Site links" [ref=e12]:
+      - link "About" [ref=e13] [cursor=pointer]:
+        - /url: /404
+      - link "Careers" [ref=e14] [cursor=pointer]:
+        - /url: /careers
+  - main [ref=e15]:
+    - region "Hero" [ref=e16]:
+      - generic [ref=e19]:
+        - img "Utopia" [ref=e21]
+        - generic:
+          - heading "It's all yours" [level=1]
+          - button "Request a stay" [ref=e22] [cursor=pointer]
+        - generic [ref=e23]:
+          - generic "Destinations carousel" [ref=e24]:
+            - button "Go to Roca, Costa Rica" [ref=e25] [cursor=pointer]:
+              - generic [ref=e28]: Roca, Costa Rica
+            - button "Go to Cabarete, Dominican Republic" [ref=e29] [cursor=pointer]:
+              - generic [ref=e32]: Cabarete, Dominican Republic
+            - button "Go to Flora, Costa Rica" [ref=e33] [cursor=pointer]:
+              - generic [ref=e36]: Flora, Costa Rica
+            - button "Go to Barcelona, Spain" [ref=e37] [cursor=pointer]:
+              - generic [ref=e40]: Barcelona, Spain
+            - button "Go to Dubai, UAE" [ref=e41] [cursor=pointer]:
+              - generic [ref=e44]: Dubai, UAE
+            - button "Go to Cape Town, South Africa" [ref=e45] [cursor=pointer]:
+              - generic [ref=e48]: Cape Town, South Africa
+            - button "Go to Jericoacoara, Brazil" [ref=e49] [cursor=pointer]:
+              - generic [ref=e52]: Jericoacoara, Brazil
+            - generic [ref=e53]:
+              - generic:
+                - generic:
+                  - generic: Roca, Costa Rica
+            - button "Go to Cabarete, Dominican Republic" [ref=e54] [cursor=pointer]:
+              - generic [ref=e57]: Cabarete, Dominican Republic
+            - button "Go to Flora, Costa Rica" [ref=e58] [cursor=pointer]:
+              - generic [ref=e61]: Flora, Costa Rica
+            - button "Go to Barcelona, Spain" [ref=e62] [cursor=pointer]:
+              - generic [ref=e65]: Barcelona, Spain
+            - button "Go to Dubai, UAE" [ref=e66] [cursor=pointer]:
+              - generic [ref=e69]: Dubai, UAE
+            - button "Go to Cape Town, South Africa" [ref=e70] [cursor=pointer]:
+              - generic [ref=e73]: Cape Town, South Africa
+            - button "Go to Jericoacoara, Brazil" [ref=e74] [cursor=pointer]:
+              - generic [ref=e77]: Jericoacoara, Brazil
+            - button "Go to Roca, Costa Rica" [ref=e78] [cursor=pointer]:
+              - generic [ref=e81]: Roca, Costa Rica
+            - button "Go to Cabarete, Dominican Republic" [ref=e82] [cursor=pointer]:
+              - generic [ref=e85]: Cabarete, Dominican Republic
+            - button "Go to Flora, Costa Rica" [ref=e86] [cursor=pointer]:
+              - generic [ref=e89]: Flora, Costa Rica
+            - button "Go to Barcelona, Spain" [ref=e90] [cursor=pointer]:
+              - generic [ref=e93]: Barcelona, Spain
+            - button "Go to Dubai, UAE" [ref=e94] [cursor=pointer]:
+              - generic [ref=e97]: Dubai, UAE
+            - button "Go to Cape Town, South Africa" [ref=e98] [cursor=pointer]:
+              - generic [ref=e101]: Cape Town, South Africa
+            - button "Go to Jericoacoara, Brazil" [ref=e102] [cursor=pointer]:
+              - generic [ref=e105]: Jericoacoara, Brazil
+          - button "Previous destination" [ref=e106] [cursor=pointer]
+          - button "Next destination" [ref=e107] [cursor=pointer]
+    - region "Ecosystem" [ref=e108]:
+      - generic [ref=e109]:
+        - heading "Best Spots. Unique Design. Unmatched Service." [level=2] [ref=e110]
+        - paragraph [ref=e111]: Ultra-luxury private estates for groups and families in the world's ultimate destinations for kitesurfing, surfing, and skiing.
+      - generic [ref=e112]:
+        - tablist [ref=e113]:
+          - tab "Tropical" [selected] [ref=e114] [cursor=pointer]: Tropical
+          - tab "Urban" [ref=e117] [cursor=pointer]: Urban
+          - tab "Alpine" [ref=e119] [cursor=pointer]: Alpine
+        - generic [ref=e125]:
+          - button "Previous" [ref=e126] [cursor=pointer]
+          - generic [ref=e129]: Jericoacoara, Brazil
+          - button "Next" [ref=e130] [cursor=pointer]
+    - region "Opening" [ref=e132]:
+      - generic [ref=e133]:
+        - generic:
+          - generic:
+            - paragraph: Opening in 2027
+            - heading "Utopia - Jericoacoara" [level=2]
+            - paragraph: Brazil's ultimate kitesurfing mecca. Where dramatic white dunes meet an unmatched, laid-back vibe.
+          - button "Be Among the First" [ref=e154] [cursor=pointer]:
+            - generic [ref=e155]: Be Among the First
+        - generic [ref=e157]:
+          - button "Previous" [ref=e158] [cursor=pointer]
+          - generic [ref=e161]: Kitesurfing
+          - button "Next" [ref=e162] [cursor=pointer]
+    - region "Private World" [ref=e164]:
+      - heading "Discover Utopia's Private World" [level=2] [ref=e165]:
+        - text: Discover Utopia's
+        - text: Private World
+      - generic [ref=e166]:
+        - generic [ref=e168]:
+          - generic [ref=e169]:
+            - article [ref=e170] [cursor=pointer]
+            - article [ref=e171]
+            - button [ref=e172] [cursor=pointer]
+            - article
+          - button "Previous slide" [ref=e173] [cursor=pointer]
+          - button "Next slide" [ref=e174] [cursor=pointer]
+        - generic [ref=e175]:
+          - generic [ref=e176]:
+            - generic [ref=e177]:
+              - paragraph [ref=e178]: Exclusively Yours
+              - paragraph [ref=e179]: We do not book rooms — we hand over keys to entire estates.
+            - generic:
+              - paragraph: Hyper-Personal
+              - paragraph: We curate a dedicated team for your stay — from master instructors and specialized sports gear to local guides.
+            - generic:
+              - paragraph: Beyond Seven-Star Service
+              - paragraph: Private chefs, world-class gastronomy, and seamless entertainment, delivered flawlessly.
+          - tablist "Carousel slides" [ref=e180]:
+            - tab "Exclusively Yours" [selected] [ref=e181]
+            - tab "Hyper-Personal" [ref=e183] [cursor=pointer]
+            - tab "Beyond Seven-Star Service" [ref=e185] [cursor=pointer]
+    - generic [ref=e188]:
+      - generic [ref=e189]:
+        - generic [ref=e190]:
+          - heading "Tropical" [level=3] [ref=e191]
+          - list [ref=e192]:
+            - listitem [ref=e193]:
+              - link "Jericoacoara, Brazil" [ref=e194] [cursor=pointer]:
+                - /url: /404
+            - listitem [ref=e195]:
+              - link "Flora, Costa Rica" [ref=e196] [cursor=pointer]:
+                - /url: /404
+            - listitem [ref=e197]:
+              - link "Prea, Brazil" [ref=e198] [cursor=pointer]:
+                - /url: /404
+            - listitem [ref=e199]:
+              - link "Roca, Costa Rica" [ref=e200] [cursor=pointer]:
+                - /url: /404
+            - listitem [ref=e201]:
+              - link "Cabarete, Dominican Republic" [ref=e202] [cursor=pointer]:
+                - /url: /404
+        - generic [ref=e203]:
+          - heading "Urban" [level=3] [ref=e204]
+          - list [ref=e205]:
+            - listitem [ref=e206]:
+              - link "Dubai, UAE" [ref=e207] [cursor=pointer]:
+                - /url: /404
+            - listitem [ref=e208]:
+              - link "Barcelona, Spain" [ref=e209] [cursor=pointer]:
+                - /url: /404
+            - listitem [ref=e210]:
+              - link "Cape Town, South Africa" [ref=e211] [cursor=pointer]:
+                - /url: /404
+        - generic [ref=e212]:
+          - heading "Alpine" [level=3] [ref=e213]
+          - list [ref=e214]:
+            - listitem [ref=e215]:
+              - link "Coming soon" [ref=e216] [cursor=pointer]:
+                - /url: /404
+        - list [ref=e218]:
+          - listitem [ref=e219]:
+            - link "Experiences" [ref=e220] [cursor=pointer]:
+              - /url: /404
+          - listitem [ref=e221]:
+            - link "Private Jet" [ref=e222] [cursor=pointer]:
+              - /url: /404
+          - listitem [ref=e223]:
+            - link "Superyacht" [ref=e224] [cursor=pointer]:
+              - /url: /404
+        - list [ref=e226]:
+          - listitem [ref=e227]:
+            - link "About" [ref=e228] [cursor=pointer]:
+              - /url: /404
+          - listitem [ref=e229]:
+            - link "Careers" [ref=e230] [cursor=pointer]:
+              - /url: /careers
+      - button "Scroll to top" [ref=e231] [cursor=pointer]
+      - generic [ref=e234]:
+        - paragraph [ref=e235]: Copyright © 2026 Utopia. All Rights Reserved
+        - link "Terms and conditions" [ref=e236] [cursor=pointer]:
+          - /url: /404
+        - link "Privacy policy" [ref=e237] [cursor=pointer]:
+          - /url: /404
+  - button "Open Next.js Dev Tools" [ref=e243] [cursor=pointer]:
+    - img [ref=e244]
+  - alert [ref=e247]

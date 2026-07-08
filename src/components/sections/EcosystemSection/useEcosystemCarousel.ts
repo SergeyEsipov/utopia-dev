@@ -13,6 +13,10 @@ import {
 } from "@/lib/hero-carousel";
 import { triggerHaptic } from "@/lib/haptics";
 
+const SWIPE_MIN_X = 28;
+const SWIPE_LOCK_X = 8;
+const SWIPE_LOCK_Y = 8;
+
 type CarouselState = {
   globalIndex: number;
   categoryIndex: number;
@@ -45,17 +49,15 @@ function stateFromGlobalIndex(
   };
 }
 
-function crossfadeBlend(progress: number): number {
-  if (progress <= 0) return 0;
-  if (progress >= 1) return 1;
-  return 0.001 + progress * 0.997;
-}
-
 export function useEcosystemCarousel() {
   const [state, setState] = useState(() => stateFromGlobalIndex(0));
   const stateRef = useRef(state);
   const slideTimerRef = useRef<number | null>(null);
+  const crossfadeTimerRef = useRef<number | null>(null);
   const crossfadeRafRef = useRef<number | null>(null);
+  const pointerRef = useRef<number | null>(null);
+  const startRef = useRef({ x: 0, y: 0 });
+  const gestureRef = useRef({ locked: false, horizontal: false });
 
   const commitState = useCallback((next: CarouselState) => {
     stateRef.current = next;
@@ -72,13 +74,16 @@ export function useEcosystemCarousel() {
       if (haptic === "navigate") triggerHaptic("navigate");
       if (haptic === "selection") triggerHaptic("selection");
 
+      if (crossfadeTimerRef.current !== null) {
+        window.clearTimeout(crossfadeTimerRef.current);
+        crossfadeTimerRef.current = null;
+      }
       if (crossfadeRafRef.current !== null) {
         cancelAnimationFrame(crossfadeRafRef.current);
         crossfadeRafRef.current = null;
       }
 
       const from = stateRef.current.globalIndex;
-      const startedAt = performance.now();
       const targetState = stateFromGlobalIndex(
         wrapped,
         {
@@ -91,33 +96,29 @@ export function useEcosystemCarousel() {
 
       commitState(targetState);
 
-      const step = (now: number) => {
-        const progress = Math.min((now - startedAt) / HERO_BG_CROSSFADE_MS, 1);
-
-        if (progress >= 1) {
+      crossfadeRafRef.current = window.requestAnimationFrame(() => {
+        crossfadeRafRef.current = window.requestAnimationFrame(() => {
+          crossfadeRafRef.current = null;
           commitState({
             ...stateRef.current,
-            bgMix: { from: wrapped, to: wrapped, blend: 0 },
-            isAnimating: false,
+            isAnimating: true,
+            bgMix: {
+              from,
+              to: wrapped,
+              blend: 1,
+            },
           });
-          crossfadeRafRef.current = null;
-          return;
-        }
+        });
+      });
 
+      crossfadeTimerRef.current = window.setTimeout(() => {
+        crossfadeTimerRef.current = null;
         commitState({
           ...stateRef.current,
-          isAnimating: true,
-          bgMix: {
-            from,
-            to: wrapped,
-            blend: crossfadeBlend(progress),
-          },
+          bgMix: { from: wrapped, to: wrapped, blend: 0 },
+          isAnimating: false,
         });
-
-        crossfadeRafRef.current = requestAnimationFrame(step);
-      };
-
-      crossfadeRafRef.current = requestAnimationFrame(step);
+      }, HERO_BG_CROSSFADE_MS);
     },
     [commitState],
   );
@@ -142,6 +143,61 @@ export function useEcosystemCarousel() {
     [advanceTo],
   );
 
+  const onPointerDown = useCallback((event: React.PointerEvent<HTMLElement>) => {
+    if (event.pointerType === "mouse" && event.button !== 0) return;
+
+    pointerRef.current = event.pointerId;
+    startRef.current = { x: event.clientX, y: event.clientY };
+    gestureRef.current = { locked: false, horizontal: false };
+    event.currentTarget.setPointerCapture(event.pointerId);
+  }, []);
+
+  const onPointerMove = useCallback((event: React.PointerEvent<HTMLElement>) => {
+    if (pointerRef.current !== event.pointerId) return;
+
+    const dx = event.clientX - startRef.current.x;
+    const dy = event.clientY - startRef.current.y;
+    const absX = Math.abs(dx);
+    const absY = Math.abs(dy);
+
+    if (!gestureRef.current.locked && (absX > SWIPE_LOCK_X || absY > SWIPE_LOCK_Y)) {
+      gestureRef.current.locked = true;
+      gestureRef.current.horizontal = absX > absY * 1.1;
+    }
+
+    if (!gestureRef.current.horizontal) return;
+
+    event.preventDefault();
+  }, []);
+
+  const onPointerEnd = useCallback(
+    (event: React.PointerEvent<HTMLElement>) => {
+      if (pointerRef.current !== event.pointerId) return;
+
+      const dx = event.clientX - startRef.current.x;
+      const dy = event.clientY - startRef.current.y;
+      const absX = Math.abs(dx);
+      const absY = Math.abs(dy);
+
+      if (
+        gestureRef.current.horizontal &&
+        absX >= SWIPE_MIN_X &&
+        absX > absY
+      ) {
+        if (dx < 0) goNext();
+        else goPrev();
+      }
+
+      if (event.currentTarget.hasPointerCapture(event.pointerId)) {
+        event.currentTarget.releasePointerCapture(event.pointerId);
+      }
+
+      pointerRef.current = null;
+      gestureRef.current = { locked: false, horizontal: false };
+    },
+    [goNext, goPrev],
+  );
+
   useEffect(() => {
     slideTimerRef.current = window.setTimeout(() => {
       advanceTo(stateRef.current.globalIndex + 1, false);
@@ -157,6 +213,9 @@ export function useEcosystemCarousel() {
 
   useEffect(() => {
     return () => {
+      if (crossfadeTimerRef.current !== null) {
+        window.clearTimeout(crossfadeTimerRef.current);
+      }
       if (crossfadeRafRef.current !== null) {
         cancelAnimationFrame(crossfadeRafRef.current);
       }
@@ -180,5 +239,11 @@ export function useEcosystemCarousel() {
     goNext,
     goPrev,
     goToCategory,
+    swipeHandlers: {
+      onPointerDown,
+      onPointerMove,
+      onPointerUp: onPointerEnd,
+      onPointerCancel: onPointerEnd,
+    },
   };
 }

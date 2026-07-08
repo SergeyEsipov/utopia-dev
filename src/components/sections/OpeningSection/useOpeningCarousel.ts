@@ -26,18 +26,29 @@ const SWIPE_LOCK_Y = 8;
 export function useOpeningCarousel(
   slidesRef: RefObject<HTMLElement | null>,
 ) {
+  const trackRef = useRef<HTMLDivElement | null>(null);
   const [loopIndex, setLoopIndex] = useState(OPENING_START_INDEX);
   const [slideWidth, setSlideWidth] = useState(0);
-  const [dragPx, setDragPx] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
   const [loopJumping, setLoopJumping] = useState(false);
   const loopIndexRef = useRef(loopIndex);
+  const slideWidthRef = useRef(slideWidth);
+  const dragPxRef = useRef(0);
+  const dragRafRef = useRef<number | null>(null);
   const pointerRef = useRef<number | null>(null);
   const startRef = useRef({ x: 0, y: 0 });
   const gestureRef = useRef({ locked: false, horizontal: false });
 
   const index = normalizeOpeningSlideIndex(loopIndex);
   loopIndexRef.current = loopIndex;
+  slideWidthRef.current = slideWidth;
+
+  const applyTransform = useCallback((loopIdx: number, drag: number) => {
+    const track = trackRef.current;
+    const width = slideWidthRef.current;
+    if (!track || width <= 0) return;
+    track.style.transform = `translate3d(${-(loopIdx * width) + drag}px, 0, 0)`;
+  }, []);
 
   useLayoutEffect(() => {
     const el = slidesRef.current;
@@ -51,11 +62,18 @@ export function useOpeningCarousel(
     return () => ro.disconnect();
   }, [slidesRef]);
 
+  useLayoutEffect(() => {
+    if (!isDragging) {
+      dragPxRef.current = 0;
+      applyTransform(loopIndex, 0);
+    }
+  }, [applyTransform, isDragging, loopIndex, slideWidth]);
+
   const goTo = useCallback((nextLoopIndex: number, kind: HapticKind | false = "navigate") => {
     if (nextLoopIndex !== loopIndexRef.current && kind !== false) triggerHaptic(kind);
-    setLoopIndex(nextLoopIndex);
-    setDragPx(0);
+    dragPxRef.current = 0;
     setIsDragging(false);
+    setLoopIndex(nextLoopIndex);
   }, []);
 
   const goNext = useCallback(
@@ -110,8 +128,14 @@ export function useOpeningCarousel(
     if (!gestureRef.current.horizontal) return;
 
     event.preventDefault();
-    setDragPx(dx);
-  }, []);
+    dragPxRef.current = dx;
+    if (dragRafRef.current !== null) return;
+
+    dragRafRef.current = window.requestAnimationFrame(() => {
+      dragRafRef.current = null;
+      applyTransform(loopIndexRef.current, dragPxRef.current);
+    });
+  }, [applyTransform]);
 
   const onPointerEnd = useCallback(
     (event: React.PointerEvent<HTMLElement>) => {
@@ -126,8 +150,9 @@ export function useOpeningCarousel(
         if (dx < 0) goNext("success");
         else goPrev("success");
       } else {
-        setDragPx(0);
+        dragPxRef.current = 0;
         setIsDragging(false);
+        applyTransform(loopIndexRef.current, 0);
       }
 
       if (event.currentTarget.hasPointerCapture(event.pointerId)) {
@@ -137,8 +162,16 @@ export function useOpeningCarousel(
       pointerRef.current = null;
       gestureRef.current = { locked: false, horizontal: false };
     },
-    [goNext, goPrev],
+    [applyTransform, goNext, goPrev],
   );
+
+  useEffect(() => {
+    return () => {
+      if (dragRafRef.current !== null) {
+        window.cancelAnimationFrame(dragRafRef.current);
+      }
+    };
+  }, []);
 
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
@@ -162,9 +195,6 @@ export function useOpeningCarousel(
     return () => window.removeEventListener("keydown", onKeyDown);
   }, [goNext, goPrev]);
 
-  const trackOffsetPx =
-    slideWidth > 0 ? -(loopIndex * slideWidth) + dragPx : 0;
-
   const allSlides = Array.from({ length: OPENING_LOOP_COPIES }, () => openingSlides).flat();
 
   return {
@@ -173,8 +203,7 @@ export function useOpeningCarousel(
     slide: openingSlides[index],
     allSlides,
     slideWidth,
-    trackOffsetPx,
-    dragPx,
+    trackRef,
     isDragging,
     loopJumping,
     goNext,

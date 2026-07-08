@@ -17,6 +17,7 @@ export function DaysSection() {
     goTo,
     goNext,
     goPrev,
+    registerActiveCard,
     swipeHandlers,
   } = useDaysCarousel();
 
@@ -53,6 +54,7 @@ export function DaysSection() {
                 return (
                 <article
                   key={card.key}
+                  ref={(node) => registerActiveCard(node, card.active)}
                   className={[
                     styles.card,
                     card.active ? styles.cardActive : "",

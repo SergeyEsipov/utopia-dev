@@ -20,12 +20,12 @@ export const heroCarouselDestinations: HeroDestination[] = [
   {
     id: "roca",
     label: "Roca, Costa Rica",
-    bg: "/assets/opt/enhanced_hero-bg-roca.jpg",
+    bg: "/assets/hero-bg-roca.png",
   },
   {
     id: "cabarete",
     label: "Cabarete, Dominican Republic",
-    bg: "/assets/opt/enhanced_hero-bg-cabarete.jpg",
+    bg: "/assets/hero-bg-cabarete.png",
   },
   {
     id: "flora",
@@ -35,7 +35,7 @@ export const heroCarouselDestinations: HeroDestination[] = [
   {
     id: "barcelona",
     label: "Barcelona, Spain",
-    bg: "/assets/opt/enhanced_hero-bg-barcelona-urban.jpg",
+    bg: "/assets/hero-bg-barcelona-urban.png",
   },
   {
     id: "dubai",
@@ -50,7 +50,7 @@ export const heroCarouselDestinations: HeroDestination[] = [
   {
     id: "jericoacoara",
     label: "Jericoacoara, Brazil",
-    bg: "/assets/opt/enhanced_hero-bg-jericoacoara-suite.jpg",
+    bg: "/assets/hero-bg-jericoacoara-suite.png",
   },
 ];
 
@@ -58,6 +58,12 @@ export const HERO_DESTINATION_COUNT = heroCarouselDestinations.length;
 
 export const HERO_CARD_WIDTH = 314;
 export const HERO_CARD_GAP = 22;
+export const HERO_CARD_SLOT_DESKTOP = 590;
+export const HERO_CARD_SIDE_WIDTH_DESKTOP = 472;
+export const HERO_CARD_SIDE_SHIFT_DESKTOP =
+  (HERO_CARD_SLOT_DESKTOP - HERO_CARD_SIDE_WIDTH_DESKTOP) / 2;
+export const HERO_CARD_GAP_DESKTOP = 40;
+export const HERO_DESKTOP_BREAKPOINT_PX = 1024;
 export const HERO_START_DESTINATION_INDEX = 0;
 export const HERO_LOOP_COPIES = 3;
 export const HERO_BG_CROSSFADE_MS = 550;
@@ -127,6 +133,32 @@ export function getScrollLeftForSlide(
   return slideCenter - viewportCenter;
 }
 
+export function getScrollLeftForSlideElement(
+  trackClientWidth: number,
+  slideOffsetLeft: number,
+  slideOffsetWidth: number,
+): number {
+  const slideCenter = slideOffsetLeft + slideOffsetWidth / 2;
+  return slideCenter - trackClientWidth / 2;
+}
+
+export function getScrollLeftForSlideNode(
+  track: HTMLElement,
+  slide: HTMLElement,
+): number {
+  const trackRect = track.getBoundingClientRect();
+  const slideRect = slide.getBoundingClientRect();
+  const slideCenter = slideRect.left + slideRect.width / 2;
+  const trackCenter = trackRect.left + trackRect.width / 2;
+  return track.scrollLeft + (slideCenter - trackCenter);
+}
+
+export type HeroSlideOffset = {
+  offsetLeft: number;
+  offsetWidth: number;
+  centerX: number;
+};
+
 /** Inverse of getScrollLeftForSlide — raw fractional slide index from scroll position */
 export function getRawSlideIndexFromScroll(
   scrollLeft: number,
@@ -139,6 +171,59 @@ export function getRawSlideIndexFromScroll(
   const slideCenterOffset =
     scrollLeft + viewportCenter - paddingLeft - cardWidth / 2;
   return slideCenterOffset / stride;
+}
+
+export function getRawSlideIndexFromSlideElements(
+  scrollLeft: number,
+  trackClientWidth: number,
+  slideOffsets: readonly HeroSlideOffset[],
+): number {
+  if (slideOffsets.length === 0) return 0;
+
+  const viewportCenter = scrollLeft + trackClientWidth / 2;
+
+  return getRawSlideIndexFromSlideCenters(
+    viewportCenter,
+    slideOffsets.map((slide) => slide.centerX),
+  );
+}
+
+export function getRawSlideIndexFromSlideCenters(
+  viewportCenter: number,
+  slideCenters: readonly number[],
+): number {
+  if (slideCenters.length === 0) return 0;
+
+  if (viewportCenter <= slideCenters[0]) {
+    return 0;
+  }
+
+  for (let i = 0; i < slideCenters.length - 1; i++) {
+    const currentCenter = slideCenters[i];
+    const nextCenter = slideCenters[i + 1];
+
+    if (viewportCenter >= currentCenter && viewportCenter <= nextCenter) {
+      if (nextCenter === currentCenter) return i;
+      return i + (viewportCenter - currentCenter) / (nextCenter - currentCenter);
+    }
+  }
+
+  return slideCenters.length - 1;
+}
+
+export function getRawSlideIndexFromSlideNodes(
+  track: HTMLElement,
+  slides: readonly HTMLElement[],
+): number {
+  if (slides.length === 0) return 0;
+
+  const trackRect = track.getBoundingClientRect();
+  const viewportCenter = trackRect.left + trackRect.width / 2;
+  const slideCenters = slides.map(
+    (slide) => slide.getBoundingClientRect().left + slide.getBoundingClientRect().width / 2,
+  );
+
+  return getRawSlideIndexFromSlideCenters(viewportCenter, slideCenters);
 }
 
 /** Keeps the carousel in the middle loop copy for infinite scroll */

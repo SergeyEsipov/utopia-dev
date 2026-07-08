@@ -13,7 +13,10 @@ import {
   destinationProgressFromSlideIndex,
   getBackgroundMixFromRawSlideIndex,
   getRawSlideIndexFromScroll,
+  getRawSlideIndexFromSlideCenters,
+  getRawSlideIndexFromSlideElements,
   getScrollLeftForSlide,
+  getScrollLeftForSlideElement,
   heroCarouselDestinations,
   heroCarouselSlides,
   normalizeLoopSlideIndex,
@@ -104,6 +107,59 @@ describe("getRawSlideIndexFromScroll", () => {
       const raw = getRawSlideIndexFromScroll(scrollLeft, trackWidth, paddingLeft);
       assert.ok(Math.abs(raw - slide) < 1e-5, `slide ${slide}`);
     }
+  });
+});
+
+describe("desktop slide element scroll helpers", () => {
+  const trackWidth = 1392;
+  const paddingLeft = trackWidth / 2 - 295;
+  const stride = 590 + 40;
+  const slideOffsets = Array.from({ length: 21 }, (_, index) => {
+    const offsetLeft = paddingLeft + index * stride;
+    const offsetWidth = 590;
+    return {
+      offsetLeft,
+      offsetWidth,
+      centerX: offsetLeft + offsetWidth / 2,
+    };
+  });
+
+  it("centers a slide from measured offsets", () => {
+    const scrollLeft = getScrollLeftForSlideElement(
+      trackWidth,
+      slideOffsets[7].offsetLeft,
+      slideOffsets[7].offsetWidth,
+    );
+    const raw = getRawSlideIndexFromSlideElements(
+      scrollLeft,
+      trackWidth,
+      slideOffsets,
+    );
+    assert.ok(Math.abs(raw - 7) < 1e-5);
+  });
+
+  it("round-trips every slide in the middle loop copy", () => {
+    for (let slide = BASE_LENGTH; slide < BASE_LENGTH * 2; slide++) {
+      const scrollLeft = getScrollLeftForSlideElement(
+        trackWidth,
+        slideOffsets[slide].offsetLeft,
+        slideOffsets[slide].offsetWidth,
+      );
+      const raw = getRawSlideIndexFromSlideElements(
+        scrollLeft,
+        trackWidth,
+        slideOffsets,
+      );
+      assert.ok(Math.abs(raw - slide) < 1e-5, `slide ${slide}`);
+    }
+  });
+
+  it("interpolates between slide centers", () => {
+    const between = getRawSlideIndexFromSlideCenters(
+      slideOffsets[7].centerX + stride / 2,
+      slideOffsets.map((slide) => slide.centerX),
+    );
+    assert.ok(Math.abs(between - 7.5) < 1e-5);
   });
 });
 

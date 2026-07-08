@@ -33,7 +33,8 @@
   .cardsTrack {
     flex-shrink: 0;
     width: 100%;
-    margin-top: auto;
+    position: relative;
+    z-index: 2;
   }
 }
 
@@ -80,6 +81,12 @@
   will-change: opacity;
 }
 
+@media (min-width: 1024px) {
+  .bg {
+    object-position: 50% 48%;
+  }
+}
+
 .logo {
   display: block;
 }
@@ -95,46 +102,63 @@
 }
 
 @media (max-width: 1023px) {
-  .inner {
-    justify-content: flex-start;
-  }
-
-  .logoWrap {
-    flex-shrink: 0;
-  }
-
   .content {
     flex: 0 0 auto;
-    margin-top: 48px;
-    gap: 32px;
+    /* Figma 173:1683 — logo ends ~124px, title starts at 172px (~6% of 794px frame) */
+    margin-top: clamp(
+      20px,
+      calc(var(--utopia-viewport-height) * 0.0605),
+      48px
+    );
+    gap: clamp(16px, calc(var(--utopia-viewport-height) * 0.04), 32px);
   }
 
   .cardsTrack {
-    flex: 0 0 auto;
-    height: var(--utopia-hero-card-height-mobile);
+    flex: 1 1 auto;
     min-height: 0;
+    height: auto;
     max-height: none;
     margin-top: 0;
+    align-items: center;
     overflow-y: visible;
-    padding-bottom: 8px;
-    box-sizing: content-box;
+    padding-block: clamp(4px, 1.2svh, 8px);
+    box-sizing: border-box;
+    padding-inline: calc(
+      50% - min(
+          var(--utopia-hero-card-width),
+          calc(100vw - 2 * var(--utopia-content-inset))
+        ) / 2
+    );
   }
 
   .cardsSlide {
+    flex: 0 0
+      min(
+        var(--utopia-hero-card-width),
+        calc(100vw - 2 * var(--utopia-content-inset))
+      );
     height: 100%;
     display: flex;
-    align-items: stretch;
+    align-items: center;
+    justify-content: center;
+    align-self: center;
   }
 
   .cardSm,
   .cardMd {
-    width: 314px;
-    height: 100%;
-    max-height: var(--utopia-hero-card-height-mobile);
+    height: min(var(--utopia-hero-card-height), calc(100% - 2px));
+    max-height: 100%;
+    width: auto;
+    max-width: 100%;
+    aspect-ratio: 314 / 420;
   }
 
   .card {
-    height: 100%;
+    height: min(var(--utopia-hero-card-height), calc(100% - 2px));
+    max-height: 100%;
+    width: auto;
+    max-width: 100%;
+    aspect-ratio: 314 / 420;
   }
 }
 
@@ -171,9 +195,10 @@
   .content {
     margin-top: 0;
     gap: 64px;
-    flex: 1;
+    flex: 0 0 auto;
     justify-content: flex-start;
     padding-bottom: 0;
+    pointer-events: none;
   }
 }
 
@@ -202,6 +227,7 @@
 @media (min-width: 1024px) {
   .desktopCta {
     display: inline-flex;
+    pointer-events: auto;
   }
 }
 
@@ -221,7 +247,7 @@
   overscroll-behavior-x: contain;
   -webkit-overflow-scrolling: touch;
   scrollbar-width: none;
-  touch-action: auto;
+  touch-action: pan-x pan-y;
   visibility: hidden;
 }
 
@@ -231,6 +257,14 @@
 
 .cardsTrackScrolling {
   /* sizing driven by --card-focus; transitions disabled while scrolling */
+}
+
+.cardsTrackScrolling .cardAnimated {
+  transition: none;
+}
+
+.cardsTrack[data-programmatic-scroll="true"] {
+  scroll-snap-type: none;
 }
 
 .cardsTrack::-webkit-scrollbar {
@@ -250,22 +284,80 @@
   cursor: pointer;
 }
 
+.cardsWrap {
+  position: relative;
+  width: 100%;
+}
+
+@media (max-width: 1023px) {
+  .cardsWrap {
+    flex: 1 1 auto;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .cardsTrack {
+    flex: 1 1 auto;
+  }
+}
+
+.hit {
+  display: none;
+}
+
+@media (min-width: 1024px) {
+  .cardsWrap {
+    flex-shrink: 0;
+    width: 100%;
+    margin-top: auto;
+    z-index: 2;
+  }
+
+  .cardsTrack {
+    margin-top: 0;
+  }
+
+  .hit {
+    display: block;
+    position: absolute;
+    top: 0;
+    z-index: 3;
+    width: 28%;
+    height: 100%;
+    padding: 0;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+  }
+
+  .hitPrev {
+    left: 0;
+  }
+
+  .hitNext {
+    right: 0;
+  }
+}
+
 @media (min-width: 1024px) {
   .cardsTrack {
     height: 331px;
     gap: 40px;
-    padding-inline: calc(50% - 236px);
-    padding-bottom: 48px;
-    box-sizing: content-box;
+    padding-inline: calc(50% - 295px);
     margin-top: auto;
+    align-items: center;
+    overflow-y: visible;
+    scroll-snap-type: x mandatory;
   }
 
   .cardsSlide {
-    flex: 0 0 472px;
+    flex: 0 0 590px;
     display: flex;
-    align-items: flex-end;
+    align-items: center;
     justify-content: center;
     overflow: visible;
+    scroll-snap-align: center;
   }
 }
 
@@ -319,15 +411,26 @@
 
   .cardAnimated {
     --card-focus: 0;
+    --card-shift: 0px;
     width: calc(472px + 118px * var(--card-focus));
     height: calc(265.5px + 65.5px * var(--card-focus));
     border-radius: calc(16px + 4px * var(--card-focus));
+    transform: translateX(var(--card-shift));
     transition: var(
       --card-transition,
       width 500ms cubic-bezier(0.22, 1, 0.36, 1),
       height 500ms cubic-bezier(0.22, 1, 0.36, 1),
-      border-radius 500ms cubic-bezier(0.22, 1, 0.36, 1)
+      border-radius 500ms cubic-bezier(0.22, 1, 0.36, 1),
+      transform 500ms cubic-bezier(0.22, 1, 0.36, 1)
     );
+  }
+
+  .cardFeatured {
+    pointer-events: none;
+  }
+
+  .cardsSlideClickable {
+    pointer-events: auto;
   }
 }
 

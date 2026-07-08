@@ -19,6 +19,8 @@ import {
 import { triggerHaptic, type HapticKind } from "@/lib/haptics";
 
 const SWIPE_THRESHOLD = 40;
+const SWIPE_LOCK_X = 8;
+const SWIPE_LOCK_Y = 8;
 const MOBILE_ENTER_MS = 620;
 const ENTER_OPACITY_MS = 360;
 
@@ -108,12 +110,17 @@ function getSlotStyle(
 export function useDaysCarousel() {
   const [activePosition, setActivePosition] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
-  const [dragX, setDragX] = useState(0);
   const [autoplayKey, setAutoplayKey] = useState(0);
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [departingPosition, setDepartingPosition] = useState<number | null>(null);
+  const activeCardRef = useRef<HTMLElement | null>(null);
+  const activeBaseTransformRef = useRef("");
+  const cardsRef = useRef<CarouselCard[]>([]);
+  const dragXRef = useRef(0);
+  const dragRafRef = useRef<number | null>(null);
   const pointerRef = useRef<number | null>(null);
-  const startXRef = useRef(0);
+  const startRef = useRef({ x: 0, y: 0 });
+  const gestureRef = useRef({ locked: false, horizontal: false });
   const activePositionRef = useRef(activePosition);
   const transitioningRef = useRef(false);
   const transitionTimerRef = useRef<number | null>(null);
@@ -126,13 +133,40 @@ export function useDaysCarousel() {
     activePositionRef.current = activePosition;
   }, [activePosition]);
 
+  const cancelTransition = useCallback(() => {
+    if (transitionTimerRef.current !== null) {
+      window.clearTimeout(transitionTimerRef.current);
+      transitionTimerRef.current = null;
+    }
+    transitioningRef.current = false;
+    setIsTransitioning(false);
+    setDepartingPosition(null);
+  }, []);
+
+  const applyActiveCardDrag = useCallback(() => {
+    const card = activeCardRef.current;
+    if (!card) return;
+
+    const dx = dragXRef.current;
+    const base = activeBaseTransformRef.current;
+    card.style.transform = dx
+      ? `translate3d(${dx}px, 0, 0) ${base}`
+      : base;
+  }, []);
+
+  const resetActiveCardDrag = useCallback(() => {
+    dragXRef.current = 0;
+    applyActiveCardDrag();
+  }, [applyActiveCardDrag]);
+
   const goToPosition = useCallback(
     (targetPosition: number, kind: HapticKind | false = false) => {
       const currentPosition = activePositionRef.current;
-      if (targetPosition === currentPosition || transitioningRef.current) return;
+      if (targetPosition === currentPosition) return;
 
       if (transitionTimerRef.current !== null) {
         window.clearTimeout(transitionTimerRef.current);
+        transitionTimerRef.current = null;
       }
 
       activePositionRef.current = targetPosition;
@@ -141,7 +175,7 @@ export function useDaysCarousel() {
       setIsTransitioning(true);
       if (kind !== false) triggerHaptic(kind);
       setActivePosition(targetPosition);
-      setDragX(0);
+      dragXRef.current = 0;
       setIsDragging(false);
       setAutoplayKey((k) => k + 1);
 
@@ -190,42 +224,78 @@ export function useDaysCarousel() {
       if (transitionTimerRef.current !== null) {
         window.clearTimeout(transitionTimerRef.current);
       }
+      if (dragRafRef.current !== null) {
+        window.cancelAnimationFrame(dragRafRef.current);
+      }
     };
   }, []);
 
   const onPointerDown = useCallback((event: React.PointerEvent<HTMLElement>) => {
     if (event.pointerType === "mouse" && event.button !== 0) return;
-    if (transitioningRef.current) return;
+
+    cancelTransition();
     pointerRef.current = event.pointerId;
-    startXRef.current = event.clientX;
+    startRef.current = { x: event.clientX, y: event.clientY };
+    gestureRef.current = { locked: false, horizontal: false };
+
+    const active = cardsRef.current.find((card) => card.active);
+    activeBaseTransformRef.current =
+      typeof active?.style.transform === "string" ? active.style.transform : "";
+
     setIsDragging(true);
     event.currentTarget.setPointerCapture(event.pointerId);
-  }, []);
+  }, [cancelTransition]);
 
   const onPointerMove = useCallback((event: React.PointerEvent<HTMLElement>) => {
     if (pointerRef.current !== event.pointerId) return;
-    setDragX(event.clientX - startXRef.current);
-  }, []);
+
+    const dx = event.clientX - startRef.current.x;
+    const dy = event.clientY - startRef.current.y;
+    const absX = Math.abs(dx);
+    const absY = Math.abs(dy);
+
+    if (!gestureRef.current.locked && (absX > SWIPE_LOCK_X || absY > SWIPE_LOCK_Y)) {
+      gestureRef.current.locked = true;
+      gestureRef.current.horizontal = absX > absY * 1.1;
+    }
+
+    if (!gestureRef.current.horizontal) return;
+
+    event.preventDefault();
+    dragXRef.current = dx;
+    if (dragRafRef.current !== null) return;
+
+    dragRafRef.current = window.requestAnimationFrame(() => {
+      dragRafRef.current = null;
+      applyActiveCardDrag();
+    });
+  }, [applyActiveCardDrag]);
 
   const onPointerEnd = useCallback(
     (event: React.PointerEvent<HTMLElement>) => {
       if (pointerRef.current !== event.pointerId) return;
 
-      const dx = event.clientX - startXRef.current;
-      if (Math.abs(dx) >= SWIPE_THRESHOLD) {
+      const dx = event.clientX - startRef.current.x;
+      const dy = event.clientY - startRef.current.y;
+      const absX = Math.abs(dx);
+      const absY = Math.abs(dy);
+
+      if (gestureRef.current.horizontal && absX >= SWIPE_THRESHOLD && absX > absY) {
         if (dx < 0) goNext("success");
         else goPrev("success");
       } else {
-        setDragX(0);
+        resetActiveCardDrag();
         setIsDragging(false);
       }
 
       if (event.currentTarget.hasPointerCapture(event.pointerId)) {
         event.currentTarget.releasePointerCapture(event.pointerId);
       }
+
       pointerRef.current = null;
+      gestureRef.current = { locked: false, horizontal: false };
     },
-    [goNext, goPrev],
+    [goNext, goPrev, resetActiveCardDrag],
   );
 
   const cards = useMemo<CarouselCard[]>(() => {
@@ -239,7 +309,6 @@ export function useDaysCarousel() {
       const next = offset === 1;
       const prev = offset === -1;
       const slotStyle = getSlotStyle(offset, isDesktop);
-      const draggedX = isDragging && active ? dragX : 0;
       const useMobileEnterTransition =
         !isDesktop && isTransitioning && !isDragging && (active || next);
       const transition: CSSProperties["transition"] =
@@ -265,9 +334,7 @@ export function useDaysCarousel() {
         clickable: next && !isTransitioning,
         style: {
           ...slotStyle,
-          transform: draggedX
-            ? `translate3d(${draggedX}px, 0, 0) ${slotStyle.transform}`
-            : slotStyle.transform,
+          transform: slotStyle.transform,
           opacity: departing ? 0 : slotStyle.opacity,
           zIndex: active ? 20 : departing ? 10 : next ? 11 : offset === 2 ? 5 : 0,
           transition,
@@ -277,11 +344,21 @@ export function useDaysCarousel() {
   }, [
     activePosition,
     departingPosition,
-    dragX,
     isDesktop,
     isDragging,
     isTransitioning,
   ]);
+
+  cardsRef.current = cards;
+
+  const registerActiveCard = useCallback(
+    (node: HTMLElement | null, active: boolean) => {
+      if (active) {
+        activeCardRef.current = node;
+      }
+    },
+    [],
+  );
 
   return {
     activeIndex,
@@ -293,6 +370,7 @@ export function useDaysCarousel() {
     goTo,
     goNext,
     goPrev,
+    registerActiveCard,
     swipeHandlers: {
       onPointerDown,
       onPointerMove,

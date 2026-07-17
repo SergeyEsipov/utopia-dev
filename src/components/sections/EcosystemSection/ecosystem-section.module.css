@@ -216,3 +216,85 @@
     max-width: 335px;
   }
 }
+
+/* Tablet band (Figma 768 frame, node 1:1026): desktop card layout
+   in a 728 column — image 648 wide, 1014-wide art center-cropped. */
+@media (min-width: 640px) and (max-width: 1023px) {
+  .section {
+    padding-bottom: 24px;
+  }
+
+  .divider {
+    display: none;
+  }
+
+  .intro {
+    max-width: 728px;
+    align-items: center;
+    text-align: center;
+    gap: 20px;
+    margin-bottom: clamp(32px, 4vh, 64px);
+    padding: clamp(48px, 8vh, 120px) 20px 0;
+  }
+
+  .heading {
+    font-size: 38px;
+    letter-spacing: -1.14px;
+    text-transform: capitalize;
+    max-width: 598px;
+  }
+
+  .subheading {
+    max-width: 466px;
+    font-size: var(--utopia-text-md);
+    letter-spacing: var(--utopia-tracking-tight-md);
+    line-height: var(--utopia-leading-normal);
+  }
+
+  .content {
+    flex: 1 1 auto;
+    min-height: 0;
+    max-width: 768px;
+    padding: 0 60px;
+    gap: clamp(20px, 3vh, 32px);
+  }
+
+  .tabsDesktop {
+    display: flex;
+    flex-shrink: 0;
+  }
+
+  .tabsMobile {
+    display: none;
+  }
+
+  .visual {
+    border-radius: 20px;
+  }
+
+  .bgStack {
+    left: 50%;
+    right: auto;
+    width: 1014px;
+    transform: translateX(-50%);
+  }
+
+  .navWrap {
+    bottom: 32px;
+    max-width: 386px;
+  }
+}
+
+/* Desktop 1920 (Figma node 1:1712): heading takes the 1920/H2 style;
+   image widens to 1014, overhanging the 996 card column 9px per side. */
+@media (min-width: 1900px) {
+  .heading {
+    font-size: 40px;
+    letter-spacing: -1.2px;
+  }
+
+  .visual {
+    width: 1014px;
+    max-width: none;
+  }
+}

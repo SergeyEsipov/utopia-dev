@@ -9,39 +9,19 @@ export interface CategoryTabsProps {
   onChange?: (index: number) => void;
   variant?: "onDark" | "onLight";
   className?: string;
-  /** 0–1 fill progress on the active tab underline */
+  /** 0–1 fill progress on the active tab underline. */
   progress?: number;
-  /** Optional animated fill start point for autoplay segments. */
-  progressStart?: number;
-  /** Optional animated fill end point for autoplay segments. */
-  progressEnd?: number;
-  progressDurationMs?: number;
-  progressAnimationKey?: string | number;
 }
 
 export function CategoryTabs({
   items,
   activeIndex = 0,
   onChange,
-  variant = "onDark",
+  variant = "onLight",
   className = "",
   progress = 0,
-  progressStart,
-  progressEnd,
-  progressDurationMs,
-  progressAnimationKey,
 }: CategoryTabsProps) {
-  const clampProgress = (value: number) => Math.min(1, Math.max(0, value));
-  const hasProgressAnimation =
-    progressStart !== undefined &&
-    progressEnd !== undefined &&
-    progressDurationMs !== undefined &&
-    progressDurationMs > 0;
-  const activeProgress = hasProgressAnimation
-    ? clampProgress(progressEnd)
-    : clampProgress(progress);
-  const activeProgressStart = clampProgress(progressStart ?? activeProgress);
-  const activeProgressEnd = clampProgress(progressEnd ?? activeProgress);
+  const clamp = (value: number) => Math.min(1, Math.max(0, value));
 
   return (
     <div
@@ -72,31 +52,18 @@ export function CategoryTabs({
           }}
         >
           {item}
+          {/* Every tab keeps a persistent fill so the outgoing tab eases to 0
+              and the incoming eases up — the CSS transition does the easing. */}
           <span
             className={styles.categoryTabTrack}
             aria-hidden
             style={
-              i === activeIndex
-                ? ({
-                    "--tab-progress": activeProgress,
-                    "--tab-progress-start": activeProgressStart,
-                    "--tab-progress-end": activeProgressEnd,
-                    "--tab-progress-duration": `${progressDurationMs ?? 0}ms`,
-                  } as React.CSSProperties)
-                : undefined
+              {
+                "--tab-progress": i === activeIndex ? clamp(progress) : 0,
+              } as React.CSSProperties
             }
           >
-            {i === activeIndex ? (
-              <span
-                key={progressAnimationKey}
-                className={[
-                  styles.categoryTabFill,
-                  hasProgressAnimation ? styles.categoryTabFillAnimated : "",
-                ]
-                  .filter(Boolean)
-                  .join(" ")}
-              />
-            ) : null}
+            <span className={styles.categoryTabFill} />
           </span>
         </button>
       ))}

@@ -1,11 +1,3 @@
-export const heroDestinations = [
-  { id: "prea", label: "Prea, Brazil", size: "sm" as const },
-  { id: "roca", label: "Roca, Costa Rica", size: "md" as const, active: true },
-  { id: "dubai", label: "Dubai, UAE", size: "sm" as const },
-] as const;
-
-export const ecosystemCategories = ["Tropical", "Urban", "Alpine"] as const;
-
 export const footerDestinations = {
   Tropical: [
     { label: "Jericoacoara, Brazil", active: true },
@@ -22,7 +14,7 @@ export const footerDestinations = {
   Alpine: [{ label: "Coming soon" }],
 };
 
-export const menuExperienceLinks = ["Private jet", "Superyacht"] as const;
+export const menuExperienceLinks = ["Experiences"] as const;
 export const menuCompanyLinks = ["About", "Careers"] as const;
 
 export const footerMobileLinks = {
@@ -35,5 +27,25 @@ export const footerDesktopLinks = {
   company: ["About", "Careers"],
 };
 
-export const navDestinations = ["Tropical", "Urban", "Alpine"] as const;
 export const navLinks = ["About", "Careers"] as const;
+
+/** Desktop nav dropdown — featured destination card (Figma 1:3270) */
+export const menuFeaturedCard = {
+  title: "Jericoacoara 2027",
+  subtitle: "Be among first to book",
+  image: "/assets/menu/nav-menu-tropical.jpg",
+} as const;
+
+/** Desktop nav dropdown — Experiences cards (Figma 1:3296 / 1:3297) */
+export const menuExperienceCards = [
+  {
+    title: "Private Aviation",
+    subtitle: "Seamless inter-sanctuary transit",
+    image: "/assets/menu/nav-menu-aviation.jpg",
+  },
+  {
+    title: "Superyacht",
+    subtitle: "Raw oceanic expeditions",
+    image: "/assets/menu/nav-menu-superyacht.jpg",
+  },
+] as const;

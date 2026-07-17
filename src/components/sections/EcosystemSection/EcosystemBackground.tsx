@@ -36,7 +36,7 @@ export function EcosystemBackground({
             alt=""
             fill
             className={styles.bgImage}
-            sizes="(max-width: 1023px) 100vw, 996px"
+            sizes="(max-width: 639px) 100vw, (max-width: 1023px) 1014px, (min-width: 1900px) 1014px, 996px"
             priority={layer.index <= 1}
             style={{
               opacity: layer.opacity,

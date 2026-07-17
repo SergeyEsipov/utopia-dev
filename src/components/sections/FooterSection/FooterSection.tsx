@@ -7,7 +7,7 @@ import {
   footerDesktopLinks,
 } from "@/lib/data";
 import { images } from "@/lib/media";
-import { NOT_FOUND_HREF, getCompanyHref } from "@/lib/routes";
+import { NOT_FOUND_HREF, TERMS_HREF, getCompanyHref } from "@/lib/routes";
 import styles from "./footer-section.module.css";
 import { FooterScrollTop } from "./FooterScrollTop";
 
@@ -42,7 +42,7 @@ export function FooterSection() {
           <Text variant="caption" muted>
             Copyright © 2026 Utopia. All Rights Reserved
           </Text>
-          <Text variant="caption" muted as="a" href={NOT_FOUND_HREF}>
+          <Text variant="caption" muted as="a" href={TERMS_HREF}>
             Terms and Conditions
           </Text>
           <Text variant="caption" muted as="a" href={NOT_FOUND_HREF}>
@@ -55,7 +55,7 @@ export function FooterSection() {
         <div className={styles.columns}>
           {(Object.keys(footerDestinations) as (keyof typeof footerDestinations)[]).map(
             (category) => (
-              <div key={category} className={styles.column}>
+              <div key={category} className={`${styles.column} ${styles.columnDest}`}>
                 <Heading variant="section" as="h3" className={styles.columnTitle}>
                   {category}
                 </Heading>
@@ -82,7 +82,7 @@ export function FooterSection() {
             ),
           )}
 
-          <div className={styles.column}>
+          <div className={`${styles.column} ${styles.columnLinks}`}>
             <ul className={styles.columnList}>
               {footerDesktopLinks.experiences.map((link) => (
                 <li key={link}>
@@ -94,7 +94,7 @@ export function FooterSection() {
             </ul>
           </div>
 
-          <div className={styles.column}>
+          <div className={`${styles.column} ${styles.columnLinks}`}>
             <ul className={styles.columnList}>
               {footerDesktopLinks.company.map((link) => (
                 <li key={link}>
@@ -105,9 +105,11 @@ export function FooterSection() {
               ))}
             </ul>
           </div>
-        </div>
 
-        <FooterScrollTop />
+          <div className={`${styles.column} ${styles.columnAction}`}>
+            <FooterScrollTop />
+          </div>
+        </div>
 
         <div className={styles.wordmarkWrap}>
           <Image
@@ -123,7 +125,7 @@ export function FooterSection() {
           <Text variant="caption" muted>
             Copyright © 2026 Utopia. All Rights Reserved
           </Text>
-          <Text variant="caption" muted as="a" href={NOT_FOUND_HREF} className={styles.legalCenter}>
+          <Text variant="caption" muted as="a" href={TERMS_HREF} className={styles.legalCenter}>
             Terms and conditions
           </Text>
           <Text variant="caption" muted as="a" href={NOT_FOUND_HREF} className={styles.legalRight}>

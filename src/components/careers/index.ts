@@ -4,3 +4,6 @@ export { CareerTeams } from "./CareerTeams";
 export { CareerValues } from "./CareerValues";
 export { CareerWorkCarousel } from "./CareerWorkCarousel";
 export { CareerCta } from "./CareerCta";
+export { JobHero } from "./JobHero";
+export { JobDescription } from "./JobDescription";
+export { JobTeamUp } from "./JobTeamUp";

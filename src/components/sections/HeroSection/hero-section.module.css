@@ -6,7 +6,9 @@
   overflow: hidden;
 }
 
-@media (min-width: 1024px) {
+/* Figma tablet-768 (1:995) keeps the desktop layout system, so the desktop
+   hero treatment starts at 768 rather than 1024. */
+@media (min-width: 768px) {
   .hero {
     position: relative;
     height: auto;
@@ -60,7 +62,7 @@
   z-index: 0;
 }
 
-@media (min-width: 1024px) {
+@media (min-width: 768px) {
   .heroMedia {
     position: relative;
     inset: auto;
@@ -68,6 +70,18 @@
     min-height: 783px;
     border-radius: var(--utopia-radius-md);
     overflow: hidden;
+  }
+}
+
+/* Figma desktop-1920 hero (1:1666): section grows to 860, banner content y=72 */
+@media (min-width: 1900px) {
+  .heroMedia {
+    height: 860px;
+    min-height: 860px;
+  }
+
+  .inner {
+    padding-top: 72px;
   }
 }
 
@@ -81,14 +95,63 @@
   will-change: opacity;
 }
 
-@media (min-width: 1024px) {
+@media (min-width: 768px) {
   .bg {
     object-position: 50% 48%;
   }
 }
 
+/* Desktop/tablet hero video (desktop_v3 lazy-video adoption): poster jpg is
+   the always-ready layer beneath; the active destination's muted loop fades
+   in on top once it is actually playing. */
+.bgVideoWrap {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  pointer-events: none;
+}
+
+.bgVideo {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 50% 48%;
+  pointer-events: none;
+  z-index: 3;
+  /* Not exactly 0 — Chrome treats a fully invisible muted video as
+     "background media" and aborts play() on it to save power. 0.01 is
+     visually identical to 0 but keeps it inside the "visible" heuristic
+     (same trick as desktop_v3 .hero__bg-video). */
+  opacity: 0.01;
+  transition: opacity 550ms cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: opacity;
+  transform: translateZ(0);
+}
+
+.bgVideoVisible {
+  opacity: 1;
+}
+
 .logo {
   display: block;
+}
+
+/* Mobile hero (Figma 1:2672) keeps the leaf + UTOPIA wordmark; desktop hero
+   (Figma 1:845 logo_icon) is the 100x100 leaf mark only. */
+.logoDesktop {
+  display: none;
+}
+
+@media (min-width: 768px) {
+  .logo {
+    display: none;
+  }
+
+  .logoDesktop {
+    display: block;
+  }
 }
 
 .inner {
@@ -101,10 +164,10 @@
   padding-bottom: var(--utopia-dock-offset);
 }
 
-@media (max-width: 1023px) {
+@media (max-width: 767px) {
   .content {
     flex: 0 0 auto;
-    /* Figma 173:1683 — logo ends ~124px, title starts at 172px (~6% of 794px frame) */
+    /* logo ends ~124px, title starts at 172px (~6% of 794px frame) */
     margin-top: clamp(
       20px,
       calc(var(--utopia-viewport-height) * 0.0605),
@@ -170,6 +233,13 @@
   flex-shrink: 0;
 }
 
+@media (min-width: 768px) {
+  /* Figma 1:843 — banner starts at the leaf mark, y=48 exactly */
+  .logoWrap {
+    padding-top: 0;
+  }
+}
+
 .logoBtn {
   display: flex;
   align-items: center;
@@ -191,10 +261,11 @@
   z-index: 1;
 }
 
-@media (min-width: 1024px) {
+@media (min-width: 768px) {
   .content {
     margin-top: 0;
-    gap: 64px;
+    /* Figma Main heading section (1:847) — heading + 32px gap + CTA */
+    gap: 32px;
     flex: 0 0 auto;
     justify-content: flex-start;
     padding-bottom: 0;
@@ -209,7 +280,7 @@
   box-sizing: border-box;
 }
 
-@media (min-width: 1024px) {
+@media (min-width: 768px) {
   .title {
     font-size: 40px;
     letter-spacing: -1.2px;
@@ -224,7 +295,7 @@
   width: 262px;
 }
 
-@media (min-width: 1024px) {
+@media (min-width: 768px) {
   .desktopCta {
     display: inline-flex;
     pointer-events: auto;
@@ -289,7 +360,7 @@
   width: 100%;
 }
 
-@media (max-width: 1023px) {
+@media (max-width: 767px) {
   .cardsWrap {
     flex: 1 1 auto;
     min-height: 0;
@@ -306,7 +377,7 @@
   display: none;
 }
 
-@media (min-width: 1024px) {
+@media (min-width: 768px) {
   .cardsWrap {
     flex-shrink: 0;
     width: 100%;
@@ -340,7 +411,7 @@
   }
 }
 
-@media (min-width: 1024px) {
+@media (min-width: 768px) {
   .cardsTrack {
     height: 331px;
     gap: 40px;
@@ -358,6 +429,14 @@
     justify-content: center;
     overflow: visible;
     scroll-snap-align: center;
+  }
+}
+
+/* Figma tablet-768 (1:1010): desktop card sizes but a 32px gap, which leaves
+   the ~57px side-card peek inside each viewport edge. */
+@media (min-width: 768px) and (max-width: 1023px) {
+  .cardsTrack {
+    gap: 32px;
   }
 }
 
@@ -387,7 +466,7 @@
   height: 420px;
 }
 
-@media (min-width: 1024px) {
+@media (min-width: 768px) {
   .cardSm {
     width: 472px;
     height: 265.5px;
@@ -411,11 +490,17 @@
 
   .cardAnimated {
     --card-focus: 0;
-    --card-shift: 0px;
+    --card-side: 0;
+    /* Side cards are narrower than the featured slot; sliding them half the
+       width difference toward the centre keeps the visual gap at the
+       design's 32/40px: (590-472)/2 = 59px here, (620-496)/2 = 62px at 1920. */
+    --hero-side-shift: 59px;
     width: calc(472px + 118px * var(--card-focus));
     height: calc(265.5px + 65.5px * var(--card-focus));
     border-radius: calc(16px + 4px * var(--card-focus));
-    transform: translateX(var(--card-shift));
+    transform: translateX(
+      calc(var(--card-side) * (var(--card-focus) - 1) * var(--hero-side-shift))
+    );
     transition: var(
       --card-transition,
       width 500ms cubic-bezier(0.22, 1, 0.36, 1),
@@ -434,6 +519,43 @@
   }
 }
 
+/* Figma desktop-1920 (1:1686): featured 620x348, side cards 496x280, five
+   cards visible with ~74px peeks at the viewport edges. */
+@media (min-width: 1900px) {
+  .cardsTrack {
+    height: 348px;
+    padding-inline: calc(50% - 310px);
+  }
+
+  .cardsSlide {
+    flex-basis: 620px;
+  }
+
+  .cardSm {
+    width: 496px;
+    height: 280px;
+    border-width: 1.262px;
+    box-shadow:
+      0 13.585px 27.17px 0 rgba(0, 0, 0, 0.1),
+      0 1.698px 1.698px 0 rgba(0, 0, 0, 0.05);
+  }
+
+  .cardMd {
+    width: 620px;
+    height: 348px;
+    border-width: 1.577px;
+    box-shadow:
+      0 16.981px 33.963px 0 rgba(0, 0, 0, 0.1),
+      0 2.123px 2.123px 0 rgba(0, 0, 0, 0.05);
+  }
+
+  .cardAnimated {
+    --hero-side-shift: 62px;
+    width: calc(496px + 124px * var(--card-focus));
+    height: calc(280px + 68px * var(--card-focus));
+  }
+}
+
 .cardFeatured {
   background: transparent;
 }
@@ -448,7 +570,7 @@
   color: var(--utopia-text-inverse);
 }
 
-@media (min-width: 1024px) {
+@media (min-width: 768px) {
   .cardSm .cardCaption {
     bottom: 15px;
     left: 15px;
@@ -474,7 +596,7 @@
   white-space: nowrap;
 }
 
-@media (min-width: 1024px) {
+@media (min-width: 768px) {
   .cardSm .captionSm {
     font-size: 12.921px;
     letter-spacing: -0.1292px;
@@ -483,5 +605,29 @@
   .cardMd .captionMd {
     font-size: 16.152px;
     letter-spacing: -0.1615px;
+  }
+}
+
+@media (min-width: 1900px) {
+  .cardSm .cardCaption {
+    bottom: 15.6px;
+    left: 15.6px;
+    gap: 6.8px;
+  }
+
+  .cardMd .cardCaption {
+    bottom: 19.45px;
+    left: 19.45px;
+    gap: 8.5px;
+  }
+
+  .cardSm .captionSm {
+    font-size: 13.585px;
+    letter-spacing: -0.1359px;
+  }
+
+  .cardMd .captionMd {
+    font-size: 16px;
+    letter-spacing: -0.16px;
   }
 }

@@ -43,7 +43,7 @@ export default function DesignSystemPage() {
           Utopia UI Kit
         </Heading>
         <Text variant="sm" muted>
-          Design tokens & components from Figma · {figmaNodes.mobilePage}
+          Design tokens & components from Figma · {figmaNodes.home.mobile.page}
         </Text>
       </header>
 
@@ -255,25 +255,27 @@ export default function DesignSystemPage() {
             </tr>
           </thead>
           <tbody>
-            {Object.entries(figmaNodes.sections).map(([name, ids]) => (
-              <tr key={name}>
-                <td>{name}</td>
-                <td>
-                  <code>{ids.mobile}</code>
-                </td>
-                <td>
-                  <code>{ids.desktop}</code>
-                </td>
-                <td>
-                  <code>{sectionComponentMap[name] ?? "TBD"}</code>
-                </td>
-              </tr>
-            ))}
+            {(["hero", "ecosystem", "opening", "days", "footer"] as const).map(
+              (name) => (
+                <tr key={name}>
+                  <td>{name}</td>
+                  <td>
+                    <code>{figmaNodes.home.mobile[name]}</code>
+                  </td>
+                  <td>
+                    <code>{figmaNodes.home.desktop1440[name]}</code>
+                  </td>
+                  <td>
+                    <code>{sectionComponentMap[name] ?? "TBD"}</code>
+                  </td>
+                </tr>
+              ),
+            )}
             {Object.entries(figmaNodes.chrome).map(([name, id]) => (
               <tr key={name}>
                 <td>{name}</td>
                 <td>
-                  <code>{id}</code>
+                  <code>{Array.isArray(id) ? id.join(", ") : id}</code>
                 </td>
                 <td>
                   <code>{chromeComponentMap[name] ?? "TBD"}</code>
@@ -308,7 +310,7 @@ const sectionComponentMap: Record<string, string> = {
 };
 
 const chromeComponentMap: Record<string, string> = {
-  menu: "SiteMenu",
-  dock: "SiteDock",
-  nav: "SiteNav",
+  menuSection: "SiteMenu / SiteNav",
+  menuOverlay: "SiteMenu",
+  openMenuStates: "SiteMenu (open states)",
 };

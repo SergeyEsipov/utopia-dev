@@ -12,9 +12,10 @@ import {
   DAYS_AUTOPLAY_MS,
   DAYS_EASE,
   DAYS_TRANSITION_MS,
-  daysDesktopMetrics,
   daysMobileMetrics,
   daysSlides,
+  getDaysStackedMetrics,
+  type DaysBreakpoint,
 } from "@/lib/days-carousel";
 import { triggerHaptic, type HapticKind } from "@/lib/haptics";
 
@@ -49,26 +50,40 @@ function nearestPositionForSlide(slideIndex: number, currentPosition: number) {
   return currentPosition + delta;
 }
 
-function useIsDesktop() {
-  const [desktop, setDesktop] = useState(false);
+const DAYS_BREAKPOINT_QUERIES: ReadonlyArray<
+  readonly [Exclude<DaysBreakpoint, "mobile">, string]
+> = [
+  ["wide", "(min-width: 1900px)"],
+  ["desktop", "(min-width: 1024px)"],
+  ["tablet", "(min-width: 640px)"],
+];
+
+function useDaysBreakpoint(): DaysBreakpoint {
+  const [breakpoint, setBreakpoint] = useState<DaysBreakpoint>("mobile");
 
   useEffect(() => {
-    const mq = window.matchMedia("(min-width: 1024px)");
-    const update = () => setDesktop(mq.matches);
+    const queries = DAYS_BREAKPOINT_QUERIES.map(
+      ([name, query]) => [name, window.matchMedia(query)] as const,
+    );
+    const update = () => {
+      const match = queries.find(([, mq]) => mq.matches);
+      setBreakpoint(match ? match[0] : "mobile");
+    };
     update();
-    mq.addEventListener("change", update);
-    return () => mq.removeEventListener("change", update);
+    queries.forEach(([, mq]) => mq.addEventListener("change", update));
+    return () =>
+      queries.forEach(([, mq]) => mq.removeEventListener("change", update));
   }, []);
 
-  return desktop;
+  return breakpoint;
 }
 
 function getSlotStyle(
   offset: CarouselCard["offset"],
-  isDesktop: boolean,
+  breakpoint: DaysBreakpoint,
 ): Pick<CSSProperties, "height" | "opacity" | "transform" | "width"> {
-  if (isDesktop) {
-    const m = daysDesktopMetrics;
+  if (breakpoint !== "mobile") {
+    const m = getDaysStackedMetrics(breakpoint);
     const x =
       offset === -1
         ? -(m.inactiveW + m.gap)
@@ -113,6 +128,9 @@ export function useDaysCarousel() {
   const [autoplayKey, setAutoplayKey] = useState(0);
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [departingPosition, setDepartingPosition] = useState<number | null>(null);
+  const [isInView, setIsInView] = useState(true);
+  const sectionRef = useRef<HTMLElement | null>(null);
+  const stageRef = useRef<HTMLDivElement | null>(null);
   const activeCardRef = useRef<HTMLElement | null>(null);
   const activeBaseTransformRef = useRef("");
   const cardsRef = useRef<CarouselCard[]>([]);
@@ -124,14 +142,44 @@ export function useDaysCarousel() {
   const activePositionRef = useRef(activePosition);
   const transitioningRef = useRef(false);
   const transitionTimerRef = useRef<number | null>(null);
-  const isDesktop = useIsDesktop();
+  const breakpoint = useDaysBreakpoint();
 
   const activeIndex = wrapIndex(activePosition);
-  const metrics = isDesktop ? daysDesktopMetrics : daysMobileMetrics;
+  const metrics =
+    breakpoint === "mobile"
+      ? daysMobileMetrics
+      : getDaysStackedMetrics(breakpoint);
 
   useEffect(() => {
     activePositionRef.current = activePosition;
   }, [activePosition]);
+
+  // Pause autoplay while the section is off-screen — matches the prototype's
+  // IntersectionObserver gating and avoids advancing slides the user can't see.
+  useEffect(() => {
+    const section = sectionRef.current;
+    if (!section || !("IntersectionObserver" in window)) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => setIsInView(entry.isIntersecting),
+      { threshold: 0.2 },
+    );
+    observer.observe(section);
+    return () => observer.disconnect();
+  }, []);
+
+  // Block vertical page scroll once a horizontal swipe is locked. React's
+  // onTouchMove is passive, so preventDefault there is ignored and the page
+  // scrolls (cancelling the gesture, bug #7) — a native non-passive listener is
+  // the only thing that can stop it.
+  useEffect(() => {
+    const el = stageRef.current;
+    if (!el) return;
+    const onTouchMove = (event: TouchEvent) => {
+      if (gestureRef.current.horizontal) event.preventDefault();
+    };
+    el.addEventListener("touchmove", onTouchMove, { passive: false });
+    return () => el.removeEventListener("touchmove", onTouchMove);
+  }, []);
 
   const cancelTransition = useCallback(() => {
     if (transitionTimerRef.current !== null) {
@@ -212,12 +260,17 @@ export function useDaysCarousel() {
   );
 
   useEffect(() => {
+    // Don't auto-advance mid-gesture (it would fire goNext while the pointer is
+    // still down and captured), and honour reduced-motion by not auto-advancing.
+    if (isDragging || !isInView) return;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+
     const timer = window.setTimeout(() => {
       goNext(false);
     }, DAYS_AUTOPLAY_MS);
 
     return () => window.clearTimeout(timer);
-  }, [activePosition, autoplayKey, goNext]);
+  }, [activePosition, autoplayKey, goNext, isDragging, isInView]);
 
   useEffect(() => {
     return () => {
@@ -308,9 +361,12 @@ export function useDaysCarousel() {
       const departing = isTransitioning && departingPosition === position;
       const next = offset === 1;
       const prev = offset === -1;
-      const slotStyle = getSlotStyle(offset, isDesktop);
+      const slotStyle = getSlotStyle(offset, breakpoint);
       const useMobileEnterTransition =
-        !isDesktop && isTransitioning && !isDragging && (active || next);
+        breakpoint === "mobile" &&
+        isTransitioning &&
+        !isDragging &&
+        (active || next);
       const transition: CSSProperties["transition"] =
         useMobileEnterTransition
           ? [
@@ -343,8 +399,8 @@ export function useDaysCarousel() {
     });
   }, [
     activePosition,
+    breakpoint,
     departingPosition,
-    isDesktop,
     isDragging,
     isTransitioning,
   ]);
@@ -371,6 +427,8 @@ export function useDaysCarousel() {
     goNext,
     goPrev,
     registerActiveCard,
+    sectionRef,
+    stageRef,
     swipeHandlers: {
       onPointerDown,
       onPointerMove,

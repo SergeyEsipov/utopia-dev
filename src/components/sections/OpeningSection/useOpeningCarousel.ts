@@ -10,7 +10,6 @@ import {
 } from "react";
 import {
   OPENING_LOOP_COPIES,
-  OPENING_SLIDE_COUNT,
   OPENING_START_INDEX,
   OPENING_TRANSITION_MS,
   normalizeOpeningLoopIndex,
@@ -175,6 +174,8 @@ export function useOpeningCarousel(
 
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key !== "ArrowLeft" && event.key !== "ArrowRight") return;
+
       const target = event.target as HTMLElement | null;
       if (
         target?.closest("input, textarea, select, button, a, [role='tab']")
@@ -182,18 +183,35 @@ export function useOpeningCarousel(
         return;
       }
 
-      if (event.key === "ArrowLeft") {
-        event.preventDefault();
-        goPrev();
-      } else if (event.key === "ArrowRight") {
-        event.preventDefault();
-        goNext();
-      }
+      // Only claim the arrow keys while the section is actually on screen —
+      // otherwise this window-level handler steals them from the rest of the page.
+      const section = slidesRef.current?.closest("section");
+      if (!section) return;
+      const rect = section.getBoundingClientRect();
+      const inView = rect.top < window.innerHeight && rect.bottom > 0;
+      if (!inView) return;
+
+      event.preventDefault();
+      if (event.key === "ArrowLeft") goPrev();
+      else goNext();
     };
 
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
-  }, [goNext, goPrev]);
+  }, [goNext, goPrev, slidesRef]);
+
+  // Block vertical page scroll once a horizontal swipe is locked — React's
+  // onPointerMove is passive so its preventDefault is ignored, which let the
+  // page scroll and cancel the swipe.
+  useEffect(() => {
+    const el = slidesRef.current;
+    if (!el) return;
+    const onTouchMove = (event: TouchEvent) => {
+      if (gestureRef.current.horizontal) event.preventDefault();
+    };
+    el.addEventListener("touchmove", onTouchMove, { passive: false });
+    return () => el.removeEventListener("touchmove", onTouchMove);
+  }, [slidesRef]);
 
   const allSlides = Array.from({ length: OPENING_LOOP_COPIES }, () => openingSlides).flat();
 
@@ -219,11 +237,49 @@ export function useOpeningCarousel(
 }
 
 export function useOpeningVideo(
-  activeIndex: number,
+  activeLoopIndex: number,
   slidesRef: RefObject<HTMLElement | null>,
 ) {
+  // Indexed by loop position (one entry per rendered slide copy), NOT by
+  // canonical slide index — every copy keeps its ref so an outgoing video can
+  // always be paused, otherwise React nulls the detached ref and the previous
+  // video keeps playing off-screen.
   const videoRefs = useRef<(HTMLVideoElement | null)[]>([]);
   const visibleRef = useRef(true);
+  const reducedMotionRef = useRef(false);
+
+  const playActive = useCallback(() => {
+    if (reducedMotionRef.current || !visibleRef.current) return;
+    const video = videoRefs.current[activeLoopIndex];
+    if (!video) return;
+    // iOS ignores preload — force the fetch, then retry play() on a timer since
+    // Safari rejects muted autoplay for a not-yet-visible element (was: the clip
+    // only started after a manual swipe).
+    if (video.readyState < HTMLMediaElement.HAVE_CURRENT_DATA) video.load();
+    let attempts = 0;
+    const tryPlay = () => {
+      if (videoRefs.current[activeLoopIndex] !== video || !video.paused) return;
+      const promise = video.play();
+      if (promise?.catch)
+        promise.catch(() => {
+          if (++attempts > 12) return;
+          setTimeout(tryPlay, 300);
+        });
+    };
+    tryPlay();
+  }, [activeLoopIndex]);
+
+  useEffect(() => {
+    const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const sync = () => {
+      reducedMotionRef.current = mq.matches;
+      if (mq.matches) videoRefs.current.forEach((video) => video?.pause());
+      else playActive();
+    };
+    sync();
+    mq.addEventListener("change", sync);
+    return () => mq.removeEventListener("change", sync);
+  }, [playActive]);
 
   useEffect(() => {
     const section = slidesRef.current?.closest("section");
@@ -232,44 +288,29 @@ export function useOpeningVideo(
     const observer = new IntersectionObserver(
       ([entry]) => {
         visibleRef.current = entry.isIntersecting;
-        if (entry.isIntersecting) {
-          const video = videoRefs.current[activeIndex];
-          if (video) {
-            const promise = video.play();
-            if (promise?.catch) promise.catch(() => {});
-          }
-        } else {
-          videoRefs.current.forEach((video) => video?.pause());
-        }
+        if (entry.isIntersecting) playActive();
+        else videoRefs.current.forEach((video) => video?.pause());
       },
       { threshold: 0.35 },
     );
 
     observer.observe(section);
     return () => observer.disconnect();
-  }, [activeIndex, slidesRef]);
+  }, [playActive, slidesRef]);
 
   useEffect(() => {
     videoRefs.current.forEach((video, i) => {
       if (!video) return;
 
-      if (i === activeIndex) {
+      if (i === activeLoopIndex) {
         video.currentTime = 0;
-        if (visibleRef.current) {
-          const play = () => {
-            const promise = video.play();
-            if (promise?.catch) promise.catch(() => {});
-          };
-
-          if (video.readyState >= HTMLMediaElement.HAVE_CURRENT_DATA) play();
-          else video.addEventListener("loadeddata", play, { once: true });
-        }
+        playActive();
       } else {
         video.pause();
         video.currentTime = 0;
       }
     });
-  }, [activeIndex]);
+  }, [activeLoopIndex, playActive]);
 
   const setVideoRef = useCallback(
     (i: number) => (el: HTMLVideoElement | null) => {

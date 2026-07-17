@@ -9,3 +9,11 @@
     margin: 0 auto;
   }
 }
+
+/* 1920 design tier: sections lay out full-bleed inside a 1920 column
+   (threshold 1900px so a 1920 display with a scrollbar still qualifies) */
+@media (min-width: 1900px) {
+  .page {
+    max-width: 1920px;
+  }
+}

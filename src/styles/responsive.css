@@ -13,9 +13,11 @@
   --utopia-dock-max: min(calc(100% - 20px), 358px);
   --utopia-viewport-height: 100svh;
   --utopia-opening-frame-height: var(--utopia-viewport-height);
+  /* Stable (no env(safe-area-inset-bottom)) — that value changes as iOS Chrome
+     hides/shows its bottom toolbar, which would make the hero card jump. The
+     dock is fixed at bottom:0 and clears the safe area itself. */
   --utopia-dock-offset: calc(
-    12px + var(--utopia-dock-height) + var(--utopia-space-5) +
-      env(safe-area-inset-bottom, 0px)
+    12px + var(--utopia-dock-height) + var(--utopia-space-5)
   );
 }
 

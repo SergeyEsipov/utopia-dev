@@ -19,8 +19,9 @@ export const openingSlides: OpeningSlide[] = [
   {
     id: "kitesurfing",
     label: "Kitesurfing",
+    // No videoWebm: the design retired /assets/opt/kitesurf.webm — keeping it
+    // would make webm-capable browsers play the old clip over the new mp4 cut.
     video: "/assets/opt/kitesurf.mp4",
-    videoWebm: "/assets/opt/kitesurf.webm",
     poster: "/assets/opt/opening-kitesurf.jpg",
     layout: "kitesurf",
   },

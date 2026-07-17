@@ -349,22 +349,16 @@
   background: var(--utopia-text-inverse);
   transform: scaleX(var(--tab-progress, 0));
   transform-origin: left center;
+  /* Ease the fill to its new position on slide/tab change instead of snapping
+     (prototype: .ecosystem__tab-fill { transition: width 0.45s var(--ease-cinematic) }). */
+  transition: transform 0.45s cubic-bezier(0.4, 0, 0.2, 1);
   will-change: transform;
   z-index: 0;
 }
 
-.categoryTabFillAnimated {
-  animation: category-tab-fill var(--tab-progress-duration, 0ms) linear forwards;
-  transform: scaleX(var(--tab-progress-start, var(--tab-progress, 0)));
-}
-
-@keyframes category-tab-fill {
-  from {
-    transform: scaleX(var(--tab-progress-start, 0));
-  }
-
-  to {
-    transform: scaleX(var(--tab-progress-end, 1));
+@media (prefers-reduced-motion: reduce) {
+  .categoryTabFill {
+    transition: none;
   }
 }
 

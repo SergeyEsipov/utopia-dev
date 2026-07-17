@@ -4,6 +4,7 @@ import Image from "next/image";
 import { Heading, Text } from "@/design-system/components";
 import { daysSlides, DAYS_AUTOPLAY_MS, DAYS_CAPTION_MS, DAYS_TRANSITION_MS } from "@/lib/days-carousel";
 import { images } from "@/lib/media";
+import { useReveal } from "@/hooks/useReveal";
 import { useDaysCarousel } from "./useDaysCarousel";
 import styles from "./days-section.module.css";
 
@@ -18,18 +19,32 @@ export function DaysSection() {
     goNext,
     goPrev,
     registerActiveCard,
+    sectionRef,
+    stageRef,
     swipeHandlers,
   } = useDaysCarousel();
+  const revealRef = useReveal<HTMLElement>();
 
   return (
-    <section className={styles.section} aria-label="Private World">
-      <Heading variant="card" as="h2" className={styles.title}>
-        Discover Utopia&apos;s
-        <br />
-        Private World
-      </Heading>
+    <section
+      ref={(node) => {
+        sectionRef.current = node;
+        revealRef.current = node;
+      }}
+      data-reveal-group
+      className={styles.section}
+      aria-label="Private World"
+    >
+      <div data-reveal>
+        <Heading variant="card" as="h2" className={styles.title}>
+          Discover Utopia&apos;s
+          <br />
+          Private World
+        </Heading>
+      </div>
 
       <div
+        data-reveal
         className={styles.carousel}
         style={
           {
@@ -41,6 +56,7 @@ export function DaysSection() {
       >
         <div className={styles.trackWrap}>
           <div
+            ref={stageRef}
             className={[styles.stage, isDragging ? styles.stageDragging : ""]
               .filter(Boolean)
               .join(" ")}
@@ -66,7 +82,7 @@ export function DaysSection() {
                     .filter(Boolean)
                     .join(" ")}
                   style={card.style}
-                  aria-hidden={!card.active}
+                  aria-hidden={!card.active && !card.clickable}
                   aria-label={card.clickable ? item.title : undefined}
                   role={card.clickable ? "button" : undefined}
                   tabIndex={card.clickable ? 0 : undefined}
@@ -91,7 +107,7 @@ export function DaysSection() {
                     alt=""
                     fill
                     className={styles.cardImage}
-                    sizes="(max-width: 1023px) 276px, 386px"
+                    sizes="(max-width: 639px) 276px, (max-width: 1023px) 426px, (max-width: 1899px) 386px, 458px"
                     priority={card.offset >= 0}
                   />
                 </article>
@@ -173,7 +189,7 @@ export function DaysSection() {
         </div>
       </div>
 
-      <div className={styles.fadeEdgeDesktop} aria-hidden />
+      <div className={styles.fadeEdge} aria-hidden />
     </section>
   );
 }

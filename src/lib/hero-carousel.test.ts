@@ -1,4 +1,6 @@
 import assert from "node:assert/strict";
+import { existsSync } from "node:fs";
+import { join } from "node:path";
 import { describe, it } from "node:test";
 import {
   resolveHeroBackgroundLayers,
@@ -56,6 +58,34 @@ describe("hero carousel structure", () => {
       assert.equal(slide.bgIndex, index);
       assert.equal(slide.label, heroCarouselDestinations[index].label);
     });
+  });
+});
+
+describe("hero destination desktop media", () => {
+  it("pairs every destination with a desktop poster and its matching video", () => {
+    for (const dest of heroCarouselDestinations) {
+      assert.match(
+        dest.poster,
+        /^\/assets\/desktop\/hero-bg-[a-z-]+\.jpg$/,
+        `${dest.id} poster`,
+      );
+      assert.equal(
+        dest.video,
+        dest.poster.replace(/\.jpg$/, ".mp4"),
+        `${dest.id} video must be the mp4 twin of its poster`,
+      );
+    }
+  });
+
+  it("references media files that exist in public/", () => {
+    for (const dest of heroCarouselDestinations) {
+      for (const asset of [dest.bg, dest.poster, dest.video]) {
+        assert.ok(
+          existsSync(join(process.cwd(), "public", asset)),
+          `${dest.id}: missing ${asset}`,
+        );
+      }
+    }
   });
 });
 

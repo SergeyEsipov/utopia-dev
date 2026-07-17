@@ -1,0 +1,215 @@
+/* ── Hero ── */
+
+.hero {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: var(--utopia-space-4);
+  padding: var(--utopia-space-15) var(--utopia-content-padding-x-lg);
+}
+
+.heroTitle {
+  font-family: var(--utopia-font-display);
+  font-weight: 300;
+  font-size: 26px;
+  line-height: var(--utopia-leading-tight);
+  letter-spacing: -0.78px;
+  color: var(--utopia-text-primary);
+  max-width: 589px;
+}
+
+.heroSubtitle {
+  font-family: var(--utopia-font-body);
+  font-weight: 400;
+  font-size: var(--utopia-text-md);
+  line-height: var(--utopia-leading-normal);
+  letter-spacing: 0;
+  color: var(--utopia-text-primary);
+  max-width: 419px;
+}
+
+/* ── Document ── */
+
+.document {
+  width: 100%;
+  padding: var(--utopia-space-15) var(--utopia-content-padding-x);
+}
+
+.documentInner {
+  display: flex;
+  flex-direction: column;
+  gap: 36px;
+  width: 100%;
+  max-width: 346px;
+  margin: 0 auto;
+}
+
+.group {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--utopia-space-6);
+}
+
+.groupHeading {
+  font-family: var(--utopia-font-display);
+  font-weight: 400;
+  font-size: 26px;
+  line-height: var(--utopia-leading-tight);
+  letter-spacing: -0.78px;
+  color: var(--utopia-text-primary);
+}
+
+.subsection {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--utopia-space-4);
+  width: 100%;
+}
+
+.subsectionHeading {
+  font-family: var(--utopia-font-display);
+  font-weight: 400;
+  font-size: 22px;
+  line-height: var(--utopia-leading-tight);
+  letter-spacing: -0.66px;
+  color: var(--utopia-text-primary);
+}
+
+.chunk {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--utopia-space-2);
+  width: 100%;
+  font-family: var(--utopia-font-body);
+  font-weight: 400;
+  font-size: var(--utopia-text-base);
+  line-height: var(--utopia-leading-relaxed);
+  letter-spacing: var(--utopia-tracking-tight-sm);
+  color: var(--utopia-text-primary);
+}
+
+.lead {
+  opacity: 1;
+}
+
+.chunkBody {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  width: 100%;
+  opacity: 0.7;
+}
+
+/* Figma separates the second bullet run ("in particular…") from the
+   preceding numbered list with a blank line; other blocks sit flush. */
+.chunkBody > ol + ul {
+  margin-top: var(--utopia-space-6);
+}
+
+.bulletList {
+  list-style: disc;
+  padding-left: var(--utopia-space-6);
+}
+
+/* Numbered items render flush-left in the design (marker in the text flow). */
+.numberedList {
+  list-style: decimal inside;
+  padding-left: 0;
+}
+
+.inlineLink {
+  text-decoration: underline;
+  text-underline-position: from-font;
+}
+
+/* ── Tablet (768 frame) ── */
+
+@media (min-width: 640px) {
+  .hero {
+    gap: var(--utopia-space-5);
+    padding-top: 100px;
+    padding-bottom: 100px;
+  }
+
+  .heroTitle {
+    font-size: 40px;
+    letter-spacing: -0.8px;
+  }
+
+  .heroSubtitle {
+    font-size: var(--utopia-text-lg);
+    line-height: 1.4;
+    letter-spacing: -0.09px;
+  }
+
+  .document {
+    padding-left: var(--utopia-space-15);
+    padding-right: var(--utopia-space-15);
+  }
+
+  .documentInner {
+    gap: var(--utopia-space-15);
+    max-width: 648px;
+  }
+
+  .group {
+    gap: 36px;
+  }
+
+  .groupHeading {
+    font-size: 38px;
+    letter-spacing: -1.14px;
+  }
+
+  .subsection {
+    gap: var(--utopia-space-6);
+  }
+
+  .subsectionHeading {
+    font-size: 28px;
+    letter-spacing: -0.84px;
+  }
+
+  .chunk {
+    gap: var(--utopia-space-3);
+    font-size: var(--utopia-text-md);
+    letter-spacing: var(--utopia-tracking-tight-md);
+  }
+
+  .chunkBody > * + * {
+    margin-top: var(--utopia-space-3);
+  }
+
+  .chunkBody > ul + ol {
+    margin-top: 0;
+  }
+
+  .chunkBody > ol + ul {
+    margin-top: 48px;
+  }
+}
+
+/* ── Desktop (1440 frame) ── */
+
+@media (min-width: 1024px) {
+  .hero {
+    padding-top: 120px;
+    padding-bottom: 104px;
+  }
+
+  .document {
+    padding-top: 0;
+  }
+
+  .documentInner {
+    max-width: 794px;
+  }
+
+  .group {
+    gap: 48px;
+  }
+}

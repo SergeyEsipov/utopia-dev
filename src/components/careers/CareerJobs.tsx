@@ -1,4 +1,5 @@
 import Image from "next/image";
+import Link from "next/link";
 import {
   careerDepartments,
   careerFeaturedRoles,
@@ -55,37 +56,42 @@ export function CareerJobs() {
               </h2>
               <ul className={styles.rolesList}>
                 {careerFeaturedRoles.map((role) => (
-                  <li key={role.id} className={styles.roleCard}>
-                    <div className={styles.roleHeader}>
-                      <h3 className={styles.roleTitle}>{role.title}</h3>
-                      <span className={styles.rolePill}>{role.department}</span>
-                    </div>
-                    <div className={styles.roleMeta}>
-                      <div className={styles.roleIcons} aria-hidden>
-                        <Image
-                          src={images.careerOfficeIcon}
-                          alt=""
-                          width={15}
-                          height={15}
-                        />
-                        <Image
-                          src={images.careerRemoteIcon}
-                          alt=""
-                          width={15}
-                          height={15}
-                        />
+                  <li key={role.id}>
+                    <Link
+                      href={`/careers/${role.id}`}
+                      className={styles.roleCard}
+                    >
+                      <div className={styles.roleHeader}>
+                        <h3 className={styles.roleTitle}>{role.title}</h3>
+                        <span className={styles.rolePill}>{role.department}</span>
                       </div>
-                      <div className={styles.roleDetails}>
-                        <p>
-                          <span className={styles.roleLabel}>Office · </span>
-                          {role.office}
-                        </p>
-                        <p>
-                          <span className={styles.roleLabel}>Remote · </span>
-                          {role.remote}
-                        </p>
+                      <div className={styles.roleMeta}>
+                        <div className={styles.roleIcons} aria-hidden>
+                          <Image
+                            src={images.careerOfficeIcon}
+                            alt=""
+                            width={15}
+                            height={15}
+                          />
+                          <Image
+                            src={images.careerRemoteIcon}
+                            alt=""
+                            width={15}
+                            height={15}
+                          />
+                        </div>
+                        <div className={styles.roleDetails}>
+                          <p>
+                            <span className={styles.roleLabel}>Office · </span>
+                            {role.office}
+                          </p>
+                          <p>
+                            <span className={styles.roleLabel}>Remote · </span>
+                            {role.remote}
+                          </p>
+                        </div>
                       </div>
-                    </div>
+                    </Link>
                   </li>
                 ))}
               </ul>

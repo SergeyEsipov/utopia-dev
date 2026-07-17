@@ -13,7 +13,7 @@
   box-sizing: border-box;
 }
 
-@media (min-width: 1024px) {
+@media (min-width: 640px) {
   .mobile {
     display: none;
   }
@@ -65,30 +65,74 @@
   text-decoration: none;
 }
 
-/* ── Desktop ── */
+/* ── Tablet (640–1023, Figma 1:1101) + Desktop (≥1024, Figma 1:942 / 1:1788) ── */
 
 .desktop {
   display: none;
   position: relative;
-  padding: 100px 120px 60px;
-  min-height: var(--utopia-viewport-height);
+  padding: 60px 60px 32px;
   box-sizing: border-box;
 }
 
-@media (min-width: 1024px) {
+@media (min-width: 640px) {
   .desktop {
     display: block;
   }
 }
 
+@media (min-width: 1024px) {
+  .desktop {
+    padding: 100px 120px 32px;
+  }
+}
+
+@media (min-width: 1900px) {
+  .desktop {
+    padding: 100px 200px 32px;
+  }
+}
+
 .columns {
   display: flex;
-  gap: 20px;
+  flex-wrap: wrap;
+  column-gap: 20px;
+  row-gap: 48px;
 }
 
 .column {
-  width: 183px;
-  flex-shrink: 0;
+  min-width: 0;
+}
+
+/* Tablet: three destination columns fill row 1; link groups wrap to row 2. */
+.columnDest {
+  flex: 1 1 calc((100% - 40px) / 3);
+}
+
+.columnLinks {
+  flex: 0 0 206px;
+}
+
+/* Tablet footer has no scroll-to-top button. */
+.columnAction {
+  display: none;
+}
+
+@media (min-width: 1024px) {
+  .columns {
+    flex-wrap: nowrap;
+  }
+
+  .columnDest,
+  .columnLinks {
+    flex: 1 1 0;
+  }
+
+  .columnAction {
+    display: flex;
+    flex: 1 1 0;
+    flex-direction: column;
+    align-items: flex-end;
+  }
 }
 
 .columnTitle {
@@ -100,7 +144,7 @@
   list-style: none;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 12px;
 }
 
 .columnLink {
@@ -116,32 +160,37 @@
   color: var(--utopia-text-primary);
 }
 
+/* Experiences / About link groups — dark text, 20px pitch (Figma 1:963 / 1:1122). */
+.columnLinks .columnList {
+  gap: 20px;
+}
+
+.columnLinks .columnLink {
+  color: var(--utopia-text-primary);
+}
+
 .columnLink:hover {
   opacity: 0.7;
 }
 
-.scrollTop {
-  position: absolute;
-  top: 100px;
-  right: 120px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 40px;
-  height: 38px;
-  border: none;
-  border-radius: var(--utopia-radius-sm);
-  background: var(--utopia-dock-bg);
-  cursor: pointer;
-}
-
-.scrollTopIcon {
-  transform: rotate(-90deg);
-}
-
+/* Giant UTOPIA wordmark — 56px inset inside the content column (80px at 1920). */
 .wordmarkWrap {
   width: 100%;
-  margin-top: 147px;
+  margin-top: 48px;
+  padding: 0 56px;
+  box-sizing: border-box;
+}
+
+@media (min-width: 1024px) {
+  .wordmarkWrap {
+    margin-top: 64px;
+  }
+}
+
+@media (min-width: 1900px) {
+  .wordmarkWrap {
+    padding: 0 80px;
+  }
 }
 
 .wordmarkImage {
@@ -153,7 +202,14 @@
 .legal {
   display: grid;
   grid-template-columns: 1fr 1fr 1fr;
-  margin-top: 48px;
+  margin-top: 56px;
+  white-space: nowrap;
+}
+
+@media (min-width: 1900px) {
+  .legal {
+    margin-top: 48px;
+  }
 }
 
 .legalCenter {

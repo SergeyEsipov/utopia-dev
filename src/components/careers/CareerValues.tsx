@@ -3,6 +3,22 @@ import { careerValues } from "@/lib/career-data";
 import { images } from "@/lib/media";
 import styles from "./careers.module.css";
 
+/**
+ * Wax-seal artwork, re-exported with transparent backgrounds. The -v2 files
+ * are referenced under fresh filenames so the image-optimizer cache can never
+ * serve the stale opaque renditions generated from the original paths.
+ */
+const sealArtwork: Record<
+  (typeof careerValues.items)[number]["imageKey"],
+  string
+> = {
+  careerValueNeverSettle: "/assets/careers/value-never-settle.png",
+  careerValueDreamTeam: "/assets/careers/value-dream-team.png",
+  careerValueThinkDeeper: "/assets/careers/value-think-deeper.png",
+  careerValueGetItDone: "/assets/careers/value-get-it-done.png",
+  careerValueDeliverWow: "/assets/careers/value-deliver-wow.png",
+};
+
 export function CareerValues() {
   const [first, second, ...rest] = careerValues.items;
 
@@ -28,7 +44,7 @@ export function CareerValues() {
             {[first, second].map((value) => (
               <article key={value.id} className={styles.valueCard}>
                 <Image
-                  src={images[value.imageKey]}
+                  src={sealArtwork[value.imageKey]}
                   alt=""
                   width={54}
                   height={56}
@@ -46,7 +62,7 @@ export function CareerValues() {
             {rest.map((value) => (
               <article key={value.id} className={styles.valueCard}>
                 <Image
-                  src={images[value.imageKey]}
+                  src={sealArtwork[value.imageKey]}
                   alt=""
                   width={54}
                   height={56}

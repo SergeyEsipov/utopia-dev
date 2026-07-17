@@ -1,7 +1,12 @@
 export type HeroDestination = {
   id: string;
   label: string;
+  /** Mobile (<768px) static hero background */
   bg: string;
+  /** Desktop/tablet (>=768px) poster jpg — first frame of `video` (registry: src/lib/media.ts images.heroPoster*) */
+  poster: string;
+  /** Desktop/tablet (>=768px) 4K bg loop, fades in over `poster` (registry: src/lib/media.ts videos.heroVideo*) */
+  video: string;
 };
 
 export type HeroCarouselSlide = {
@@ -20,37 +25,51 @@ export const heroCarouselDestinations: HeroDestination[] = [
   {
     id: "roca",
     label: "Roca, Costa Rica",
-    bg: "/assets/hero-bg-roca.png",
+    bg: "/assets/opt/enhanced_hero-bg-roca.jpg",
+    poster: "/assets/desktop/hero-bg-roca.jpg",
+    video: "/assets/desktop/hero-bg-roca.mp4",
   },
   {
     id: "cabarete",
     label: "Cabarete, Dominican Republic",
-    bg: "/assets/hero-bg-cabarete.png",
+    bg: "/assets/opt/enhanced_hero-bg-cabarete.jpg",
+    poster: "/assets/desktop/hero-bg-cabarete.jpg",
+    video: "/assets/desktop/hero-bg-cabarete.mp4",
   },
   {
     id: "flora",
     label: "Flora, Costa Rica",
     bg: "/assets/opt/enhanced_hero-bg-flora.jpg",
+    poster: "/assets/desktop/hero-bg-flora.jpg",
+    video: "/assets/desktop/hero-bg-flora.mp4",
   },
   {
     id: "barcelona",
     label: "Barcelona, Spain",
-    bg: "/assets/hero-bg-barcelona-urban.png",
+    bg: "/assets/opt/enhanced_hero-bg-barcelona-urban.jpg",
+    poster: "/assets/desktop/hero-bg-barcelona.jpg",
+    video: "/assets/desktop/hero-bg-barcelona.mp4",
   },
   {
     id: "dubai",
     label: "Dubai, UAE",
     bg: "/assets/opt/hero-bg-dubai.jpg",
+    poster: "/assets/desktop/hero-bg-dubai.jpg",
+    video: "/assets/desktop/hero-bg-dubai.mp4",
   },
   {
     id: "cape-town",
     label: "Cape Town, South Africa",
     bg: "/assets/opt/hero-bg-cape-town.jpg",
+    poster: "/assets/desktop/hero-bg-capetown.jpg",
+    video: "/assets/desktop/hero-bg-capetown.mp4",
   },
   {
     id: "jericoacoara",
     label: "Jericoacoara, Brazil",
-    bg: "/assets/hero-bg-jericoacoara-suite.png",
+    bg: "/assets/opt/enhanced_hero-bg-jericoacoara-suite.jpg",
+    poster: "/assets/desktop/hero-bg-jericoacoara.jpg",
+    video: "/assets/desktop/hero-bg-jericoacoara.mp4",
   },
 ];
 
@@ -60,10 +79,19 @@ export const HERO_CARD_WIDTH = 314;
 export const HERO_CARD_GAP = 22;
 export const HERO_CARD_SLOT_DESKTOP = 590;
 export const HERO_CARD_SIDE_WIDTH_DESKTOP = 472;
+/**
+ * Side cards are narrower than the featured slot, so they slide this far
+ * toward the centre. Rendering uses the CSS var --hero-side-shift in
+ * hero-section.module.css (59px at >=768, 62px at >=1920); this constant
+ * documents the 1440 value.
+ */
 export const HERO_CARD_SIDE_SHIFT_DESKTOP =
   (HERO_CARD_SLOT_DESKTOP - HERO_CARD_SIDE_WIDTH_DESKTOP) / 2;
 export const HERO_CARD_GAP_DESKTOP = 40;
-export const HERO_DESKTOP_BREAKPOINT_PX = 1024;
+/** Figma tablet-768 (1:995) uses the desktop layout system, so the desktop hero starts at 768 */
+export const HERO_DESKTOP_BREAKPOINT_PX = 768;
+/** Background video plays at >=768 only; below that the hero stays on static images */
+export const HERO_VIDEO_BREAKPOINT_PX = 768;
 export const HERO_START_DESTINATION_INDEX = 0;
 export const HERO_LOOP_COPIES = 3;
 export const HERO_BG_CROSSFADE_MS = 550;

@@ -1,0 +1,225 @@
+{
+  "_comment": "Media files whose source is Figma (not the designers' repo \u2014 those are covered by scripts/sync-designer-media.sh). MCP asset URLs expire, so bytes are committed; to refresh, pull the node via the local figma-desktop MCP (get_design_context) and replace the file.",
+  "assets": [
+    {
+      "path": "public/assets/footer-wordmark.svg",
+      "figmaNode": null,
+      "source": "Figma export or derived file \u2014 bytes committed; locate node via src/design-system/figma/nodes.ts if refresh needed"
+    },
+    {
+      "path": "public/assets/careers/team-design.jpg",
+      "figmaNode": null,
+      "source": "legacy Figma file (kUT2mAHHQ6MvyKYJZHGHS4, now inaccessible) \u2014 bytes committed, re-export from current file if a refresh is ever needed"
+    },
+    {
+      "path": "public/assets/careers/team-finance.jpg",
+      "figmaNode": null,
+      "source": "legacy Figma file (kUT2mAHHQ6MvyKYJZHGHS4, now inaccessible) \u2014 bytes committed, re-export from current file if a refresh is ever needed"
+    },
+    {
+      "path": "public/assets/careers/team-legal.jpg",
+      "figmaNode": null,
+      "source": "legacy Figma file (kUT2mAHHQ6MvyKYJZHGHS4, now inaccessible) \u2014 bytes committed, re-export from current file if a refresh is ever needed"
+    },
+    {
+      "path": "public/assets/careers/team-operations.jpg",
+      "figmaNode": null,
+      "source": "legacy Figma file (kUT2mAHHQ6MvyKYJZHGHS4, now inaccessible) \u2014 bytes committed, re-export from current file if a refresh is ever needed"
+    },
+    {
+      "path": "public/assets/careers/team-resorts.jpg",
+      "figmaNode": null,
+      "source": "legacy Figma file (kUT2mAHHQ6MvyKYJZHGHS4, now inaccessible) \u2014 bytes committed, re-export from current file if a refresh is ever needed"
+    },
+    {
+      "path": "public/assets/careers/team-technical.jpg",
+      "figmaNode": null,
+      "source": "legacy Figma file (kUT2mAHHQ6MvyKYJZHGHS4, now inaccessible) \u2014 bytes committed, re-export from current file if a refresh is ever needed"
+    },
+    {
+      "path": "public/assets/careers/value-deliver-wow.png",
+      "figmaNode": "1:347",
+      "source": "current design file via local Dev Mode MCP"
+    },
+    {
+      "path": "public/assets/careers/value-dream-team.png",
+      "figmaNode": "1:328",
+      "source": "current design file via local Dev Mode MCP"
+    },
+    {
+      "path": "public/assets/careers/value-get-it-done.png",
+      "figmaNode": "1:341",
+      "source": "current design file via local Dev Mode MCP"
+    },
+    {
+      "path": "public/assets/careers/value-never-settle.png",
+      "figmaNode": "1:321",
+      "source": "current design file via local Dev Mode MCP"
+    },
+    {
+      "path": "public/assets/careers/value-think-deeper.png",
+      "figmaNode": "1:335",
+      "source": "current design file via local Dev Mode MCP"
+    },
+    {
+      "path": "public/assets/careers/values-hero-bg.jpg",
+      "figmaNode": null,
+      "source": "legacy Figma file (kUT2mAHHQ6MvyKYJZHGHS4, now inaccessible) \u2014 bytes committed, re-export from current file if a refresh is ever needed"
+    },
+    {
+      "path": "public/assets/careers/work-compensation-bg.jpg",
+      "figmaNode": null,
+      "source": "legacy Figma file (kUT2mAHHQ6MvyKYJZHGHS4, now inaccessible) \u2014 bytes committed, re-export from current file if a refresh is ever needed"
+    },
+    {
+      "path": "public/assets/careers/work-compensation-photo.jpg",
+      "figmaNode": null,
+      "source": "legacy Figma file (kUT2mAHHQ6MvyKYJZHGHS4, now inaccessible) \u2014 bytes committed, re-export from current file if a refresh is ever needed"
+    },
+    {
+      "path": "public/assets/careers/work-compensation.jpg",
+      "figmaNode": null,
+      "source": "legacy Figma file (kUT2mAHHQ6MvyKYJZHGHS4, now inaccessible) \u2014 bytes committed, re-export from current file if a refresh is ever needed"
+    },
+    {
+      "path": "public/assets/careers/work-guests-bg.jpg",
+      "figmaNode": null,
+      "source": "legacy Figma file (kUT2mAHHQ6MvyKYJZHGHS4, now inaccessible) \u2014 bytes committed, re-export from current file if a refresh is ever needed"
+    },
+    {
+      "path": "public/assets/careers/work-guests-photo.jpg",
+      "figmaNode": null,
+      "source": "legacy Figma file (kUT2mAHHQ6MvyKYJZHGHS4, now inaccessible) \u2014 bytes committed, re-export from current file if a refresh is ever needed"
+    },
+    {
+      "path": "public/assets/careers/work-guests.jpg",
+      "figmaNode": null,
+      "source": "legacy Figma file (kUT2mAHHQ6MvyKYJZHGHS4, now inaccessible) \u2014 bytes committed, re-export from current file if a refresh is ever needed"
+    },
+    {
+      "path": "public/assets/careers/work-locations-photo.jpg",
+      "figmaNode": null,
+      "source": "legacy Figma file (kUT2mAHHQ6MvyKYJZHGHS4, now inaccessible) \u2014 bytes committed, re-export from current file if a refresh is ever needed"
+    },
+    {
+      "path": "public/assets/careers/work-locations-photo2.jpg",
+      "figmaNode": null,
+      "source": "legacy Figma file (kUT2mAHHQ6MvyKYJZHGHS4, now inaccessible) \u2014 bytes committed, re-export from current file if a refresh is ever needed"
+    },
+    {
+      "path": "public/assets/careers/work-locations-photo3.jpg",
+      "figmaNode": null,
+      "source": "legacy Figma file (kUT2mAHHQ6MvyKYJZHGHS4, now inaccessible) \u2014 bytes committed, re-export from current file if a refresh is ever needed"
+    },
+    {
+      "path": "public/assets/careers/work-locations.jpg",
+      "figmaNode": null,
+      "source": "legacy Figma file (kUT2mAHHQ6MvyKYJZHGHS4, now inaccessible) \u2014 bytes committed, re-export from current file if a refresh is ever needed"
+    },
+    {
+      "path": "public/assets/careers/work-remote.jpg",
+      "figmaNode": null,
+      "source": "legacy Figma file (kUT2mAHHQ6MvyKYJZHGHS4, now inaccessible) \u2014 bytes committed, re-export from current file if a refresh is ever needed"
+    },
+    {
+      "path": "public/assets/careers/work-team-bg.jpg",
+      "figmaNode": null,
+      "source": "legacy Figma file (kUT2mAHHQ6MvyKYJZHGHS4, now inaccessible) \u2014 bytes committed, re-export from current file if a refresh is ever needed"
+    },
+    {
+      "path": "public/assets/careers/work-team-photo.jpg",
+      "figmaNode": null,
+      "source": "legacy Figma file (kUT2mAHHQ6MvyKYJZHGHS4, now inaccessible) \u2014 bytes committed, re-export from current file if a refresh is ever needed"
+    },
+    {
+      "path": "public/assets/careers/work-team.jpg",
+      "figmaNode": null,
+      "source": "legacy Figma file (kUT2mAHHQ6MvyKYJZHGHS4, now inaccessible) \u2014 bytes committed, re-export from current file if a refresh is ever needed"
+    },
+    {
+      "path": "public/assets/icons/career-chevron-down.svg",
+      "figmaNode": null,
+      "source": "Figma export or derived file \u2014 bytes committed; locate node via src/design-system/figma/nodes.ts if refresh needed"
+    },
+    {
+      "path": "public/assets/icons/career-office.svg",
+      "figmaNode": null,
+      "source": "Figma export or derived file \u2014 bytes committed; locate node via src/design-system/figma/nodes.ts if refresh needed"
+    },
+    {
+      "path": "public/assets/icons/career-remote.svg",
+      "figmaNode": null,
+      "source": "Figma export or derived file \u2014 bytes committed; locate node via src/design-system/figma/nodes.ts if refresh needed"
+    },
+    {
+      "path": "public/assets/icons/career-search.svg",
+      "figmaNode": null,
+      "source": "Figma export or derived file \u2014 bytes committed; locate node via src/design-system/figma/nodes.ts if refresh needed"
+    },
+    {
+      "path": "public/assets/icons/chevron.svg",
+      "figmaNode": null,
+      "source": "Figma export or derived file \u2014 bytes committed; locate node via src/design-system/figma/nodes.ts if refresh needed"
+    },
+    {
+      "path": "public/assets/icons/dock-mark.svg",
+      "figmaNode": null,
+      "source": "Figma export or derived file \u2014 bytes committed; locate node via src/design-system/figma/nodes.ts if refresh needed"
+    },
+    {
+      "path": "public/assets/icons/logo-container.svg",
+      "figmaNode": null,
+      "source": "Figma export or derived file \u2014 bytes committed; locate node via src/design-system/figma/nodes.ts if refresh needed"
+    },
+    {
+      "path": "public/assets/menu/card-chevron.svg",
+      "figmaNode": null,
+      "source": "Figma export or derived file \u2014 bytes committed; locate node via src/design-system/figma/nodes.ts if refresh needed"
+    },
+    {
+      "path": "public/assets/menu/menu-leaf.svg",
+      "figmaNode": null,
+      "source": "Figma export or derived file \u2014 bytes committed; locate node via src/design-system/figma/nodes.ts if refresh needed"
+    },
+    {
+      "path": "public/assets/menu/menu-wordmark.svg",
+      "figmaNode": null,
+      "source": "Figma export or derived file \u2014 bytes committed; locate node via src/design-system/figma/nodes.ts if refresh needed"
+    },
+    {
+      "path": "public/assets/opt/kitesurf.webm",
+      "figmaNode": null,
+      "source": "Figma export or derived file \u2014 bytes committed; locate node via src/design-system/figma/nodes.ts if refresh needed"
+    },
+    {
+      "path": "public/assets/job-opening/job-office.svg",
+      "figmaNode": "1:459",
+      "source": "current design file via local Dev Mode MCP"
+    },
+    {
+      "path": "public/assets/job-opening/job-remote.svg",
+      "figmaNode": "1:463",
+      "source": "current design file via local Dev Mode MCP"
+    },
+    {
+      "path": "public/assets/job-opening/teamup-chess.jpg",
+      "figmaNode": "1:564",
+      "source": "current design file via local Dev Mode MCP"
+    },
+    {
+      "path": "public/assets/job-opening/teamup-dot.svg",
+      "figmaNode": "1:578",
+      "source": "current design file via local Dev Mode MCP"
+    },
+    {
+      "path": "public/assets/job-opening/teamup-tablet.jpg",
+      "figmaNode": "1:567",
+      "source": "current design file via local Dev Mode MCP"
+    },
+    {
+      "path": "public/assets/job-opening/teamup-tea-room.jpg",
+      "figmaNode": "1:561",
+      "source": "current design file via local Dev Mode MCP"
+    }
+  ]
+}

@@ -20,7 +20,7 @@ export const UTOPIA_GLASS_BASE = {
 } as const;
 
 export const glassPresets = {
-  /** Dock / footer chrome — Figma `173:1888` */
+  /** Dock / footer chrome */
   dock: {
     background: "rgba(229, 218, 203, 0.8)",
     blur: "0px",

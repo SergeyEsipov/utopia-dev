@@ -44,32 +44,6 @@ function WorkSlideCard({
     );
   }
 
-  if (slide.layout === "split") {
-    return (
-      <article
-        ref={slideRef}
-        className={[styles.workSlide, styles.workSlideSplit].join(" ")}
-        aria-label={slide.title}
-      >
-        <div className={styles.workSlideMedia}>
-          <Image
-            src={images[slide.imageKey!]}
-            alt=""
-            fill
-            sizes="326px"
-            className={styles.workSlideImage}
-          />
-          {slide.badge ? (
-            <span className={styles.workSlideBadge}>{slide.badge}</span>
-          ) : null}
-        </div>
-        <div className={styles.workSlideSplitFooter}>
-          <p className={styles.workSlideFooterTitle}>{slide.title}</p>
-        </div>
-      </article>
-    );
-  }
-
   return (
     <article
       ref={slideRef}
@@ -87,6 +61,9 @@ function WorkSlideCard({
       </div>
       <div className={styles.workSlideOverlay} aria-hidden />
       <div className={styles.workSlideGradient} aria-hidden />
+      {slide.badge ? (
+        <span className={styles.workSlideBadge}>{slide.badge}</span>
+      ) : null}
       <p className={styles.workSlideTitle}>{slide.title}</p>
     </article>
   );

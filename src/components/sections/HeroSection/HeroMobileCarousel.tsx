@@ -15,7 +15,6 @@ import { Icon } from "@/design-system/components";
 import {
   HERO_CARD_GAP,
   HERO_CARD_GAP_DESKTOP,
-  HERO_CARD_SIDE_SHIFT_DESKTOP,
   HERO_CARD_SLOT_DESKTOP,
   HERO_CARD_WIDTH,
   HERO_DESKTOP_BREAKPOINT_PX,
@@ -34,6 +33,7 @@ import {
 } from "@/lib/hero-carousel";
 import { triggerHaptic } from "@/lib/haptics";
 import { HeroMobileBackground } from "./HeroMobileBackground";
+import { useHeroReducedMotion } from "./useHeroMediaQuery";
 import styles from "./hero-section.module.css";
 
 const BASE_LENGTH = heroCarouselSlides.length;
@@ -97,8 +97,21 @@ function getCardFocus(rawIndex: number, slideIndex: number) {
 
 function getCardSide(rawIndex: number, slideIndex: number) {
   const delta = slideIndex - rawIndex;
-  if (Math.abs(delta) < 0.001) return 0;
-  return delta < 0 ? -1 : 1;
+  const distance = Math.abs(delta);
+  if (distance < 0.001) return 0;
+  const sign = delta < 0 ? -1 : 1;
+  /* CSS translates side cards by --card-side * (--card-focus - 1) *
+     --hero-side-shift, where one shift is half the slot-vs-side-card width
+     difference. Cards beyond the immediate neighbour must also absorb the
+     full width difference of each slot in between, so the multiplier grows
+     1, 3, … with slot distance (keeps the 1920 five-card layout's 40px
+     gaps — Figma 1:1686 — with ~74px edge peeks). Continuous at
+     distance = 1 because focus is 0 from there on. Capped at distance 2:
+     farther cards sit outside every viewport tier, and an uncapped shift
+     could stack distant loop copies over visible cards if the track is
+     scrolled without the scroll-state handlers running (e.g. scrollIntoView
+     from focus handling). */
+  return distance <= 1 ? sign : sign * (2 * Math.min(distance, 2) - 1);
 }
 
 function easeProgrammaticScroll(t: number) {
@@ -132,7 +145,8 @@ function HeroCard({
       style={
         {
           "--card-focus": focus,
-          "--card-shift": `${side * (focus - 1) * HERO_CARD_SIDE_SHIFT_DESKTOP}px`,
+          /* translateX shift is computed in CSS from --card-side/--card-focus
+             so the 1920 tier can use its own side-card offset */
           "--card-side": side,
           "--card-transition": isScrolling ? "none" : undefined,
         } as React.CSSProperties
@@ -172,6 +186,8 @@ export function HeroMobileCarouselRoot({ children }: { children: ReactNode }) {
   );
   const [centeredSlide, setCenteredSlide] = useState(START_SLIDE);
   const [rawScrollIndex, setRawScrollIndex] = useState(START_SLIDE);
+  const [inView, setInView] = useState(false);
+  const reducedMotion = useHeroReducedMotion();
 
   const getMetrics = useCallback(() => {
     const track = trackRef.current;
@@ -311,10 +327,19 @@ export function HeroMobileCarouselRoot({ children }: { children: ReactNode }) {
         return;
       }
 
-      beginInteractiveScroll(true);
-
       const startLeft = track.scrollLeft;
       const distance = left - startLeft;
+
+      // If the target is already the current position no scroll events fire, and
+      // the interactive-scroll state is only ever cleared from those events —
+      // so snap and bail out rather than latching isScrolling on forever.
+      if (Math.abs(distance) < 1) {
+        track.scrollLeft = left;
+        return;
+      }
+
+      beginInteractiveScroll(true);
+
       const duration = Math.min(
         PROGRAMMATIC_SCROLL_MAX_MS,
         Math.max(
@@ -628,6 +653,36 @@ export function HeroMobileCarouselRoot({ children }: { children: ReactNode }) {
     };
   }, [cancelProgrammaticScroll, finishScroll, onScroll, setTrackScrollLinked]);
 
+  useEffect(() => {
+    const section = trackRef.current?.closest("section");
+    if (!section || !("IntersectionObserver" in window)) {
+      setInView(true);
+      return;
+    }
+    const observer = new IntersectionObserver(
+      ([entry]) => setInView(entry.isIntersecting),
+      { threshold: 0.2 },
+    );
+    observer.observe(section);
+    return () => observer.disconnect();
+  }, []);
+
+  // Autoplay — matches the prototype hero (desktop_v3 4s). The effect depends
+  // on `centeredSlide`, so the timer is REBASED on every slide change (manual
+  // or auto) instead of firing on a fixed cadence — otherwise a manual switch
+  // right before the tick would advance again almost immediately (bug #4).
+  // Skipped while scrolling; paused off-screen / under reduced motion.
+  useEffect(() => {
+    if (!ready || !inView || reducedMotion || isScrolling) return;
+    const interval = isDesktopHeroLayout() ? 4000 : 4500;
+    const timer = setTimeout(() => {
+      if (!userScrollIntentRef.current && !isScrollingRef.current) {
+        scrollToSlide(centeredSlideRef.current + 1, "smooth");
+      }
+    }, interval);
+    return () => clearTimeout(timer);
+  }, [ready, inView, reducedMotion, isScrolling, centeredSlide, scrollToSlide]);
+
   return (
     <HeroCarouselContext.Provider
       value={{
@@ -661,9 +716,61 @@ export function HeroMobileCarouselTrack() {
   const { trackRef, centeredSlide, rawScrollIndex, allSlides, ready, isScrolling, scrollToSlide } =
     useHeroCarousel();
 
+  // Set true while a mouse drag is in progress so the click that fires on
+  // mouseup does not also trigger a card/track step (bug #2).
+  const draggedRef = useRef(false);
+
+  // Mouse drag-to-scroll for desktop (touch already scrolls natively). Free-
+  // scrolls the snap track during the drag, then restores snap on release so
+  // the browser + existing scroll handlers settle on the nearest card.
+  useEffect(() => {
+    const track = trackRef.current;
+    if (!track) return;
+
+    let dragging = false;
+    let startX = 0;
+    let startScroll = 0;
+
+    const onDown = (event: globalThis.MouseEvent) => {
+      if (event.button !== 0) return;
+      dragging = true;
+      draggedRef.current = false;
+      startX = event.clientX;
+      startScroll = track.scrollLeft;
+      track.style.scrollSnapType = "none";
+      track.style.cursor = "grabbing";
+    };
+    const onMove = (event: globalThis.MouseEvent) => {
+      if (!dragging) return;
+      const dx = event.clientX - startX;
+      if (Math.abs(dx) > 3) draggedRef.current = true;
+      track.scrollLeft = startScroll - dx;
+      event.preventDefault();
+    };
+    const onUp = () => {
+      if (!dragging) return;
+      dragging = false;
+      track.style.scrollSnapType = "";
+      track.style.cursor = "";
+    };
+
+    track.addEventListener("mousedown", onDown);
+    window.addEventListener("mousemove", onMove);
+    window.addEventListener("mouseup", onUp);
+    return () => {
+      track.removeEventListener("mousedown", onDown);
+      window.removeEventListener("mousemove", onMove);
+      window.removeEventListener("mouseup", onUp);
+    };
+  }, [trackRef]);
+
   const handleSlideClick = useCallback(
     (index: number, event?: MouseEvent) => {
       event?.stopPropagation();
+      if (draggedRef.current) {
+        draggedRef.current = false;
+        return;
+      }
       if (index === centeredSlide) return;
       scrollToSlide(index, "smooth");
     },
@@ -682,6 +789,10 @@ export function HeroMobileCarouselTrack() {
 
   const handleTrackClick = useCallback(
     (event: MouseEvent<HTMLDivElement>) => {
+      if (draggedRef.current) {
+        draggedRef.current = false;
+        return;
+      }
       if (event.target !== event.currentTarget || !isDesktopHeroLayout()) return;
 
       const rect = event.currentTarget.getBoundingClientRect();

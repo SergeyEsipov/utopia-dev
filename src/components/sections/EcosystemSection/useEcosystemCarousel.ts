@@ -2,7 +2,6 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
-  ECOSYSTEM_SLIDE_DURATION_MS,
   ecosystemCategoryData,
   ecosystemSlides,
   type FlatEcosystemSlide,
@@ -52,7 +51,6 @@ function stateFromGlobalIndex(
 export function useEcosystemCarousel() {
   const [state, setState] = useState(() => stateFromGlobalIndex(0));
   const stateRef = useRef(state);
-  const slideTimerRef = useRef<number | null>(null);
   const crossfadeTimerRef = useRef<number | null>(null);
   const crossfadeRafRef = useRef<number | null>(null);
   const pointerRef = useRef<number | null>(null);
@@ -198,18 +196,8 @@ export function useEcosystemCarousel() {
     [goNext, goPrev],
   );
 
-  useEffect(() => {
-    slideTimerRef.current = window.setTimeout(() => {
-      advanceTo(stateRef.current.globalIndex + 1, false);
-    }, ECOSYSTEM_SLIDE_DURATION_MS);
-
-    return () => {
-      if (slideTimerRef.current !== null) {
-        window.clearTimeout(slideTimerRef.current);
-        slideTimerRef.current = null;
-      }
-    };
-  }, [advanceTo, state.globalIndex]);
+  // No autoplay: the prototype (v3 + desktop_v3) ecosystem is a static tab
+  // navigator — it only advances on user tab/swipe/arrow input.
 
   useEffect(() => {
     return () => {

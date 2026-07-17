@@ -14,8 +14,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body>
+    // suppressHydrationWarning: browser extensions inject attributes on
+    // <html>/<body> (e.g. __gcrremoteframetoken from a recorder extension)
+    // before React hydrates, which is otherwise flagged as a mismatch.
+    <html lang="en" suppressHydrationWarning>
+      <body suppressHydrationWarning>
         <SiteProviders>{children}</SiteProviders>
       </body>
     </html>

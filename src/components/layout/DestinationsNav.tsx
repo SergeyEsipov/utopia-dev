@@ -59,17 +59,7 @@ function DestinationGroup({
             <Heading variant="section" as="span" className={styles.label}>
               {category}
             </Heading>
-            <Icon
-              name="chevronDark"
-              size={12}
-              alt=""
-              className={[
-                styles.chevron,
-                isOpen ? styles.chevronOpen : "",
-              ]
-                .filter(Boolean)
-                .join(" ")}
-            />
+            <Icon name="chevronDark" size={12} alt="" className={styles.chevron} />
           </button>
         </div>
 

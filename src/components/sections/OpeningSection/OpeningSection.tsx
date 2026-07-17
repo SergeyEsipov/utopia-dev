@@ -6,6 +6,7 @@ import { Heading, Text, Button, NavPill } from "@/design-system/components";
 import { openingCopy, normalizeOpeningSlideIndex } from "@/lib/opening-carousel";
 import { triggerHaptic } from "@/lib/haptics";
 import { NOT_FOUND_HREF } from "@/lib/routes";
+import { useReveal } from "@/hooks/useReveal";
 import {
   useOpeningCarousel,
   useOpeningVideo,
@@ -27,10 +28,16 @@ export function OpeningSection() {
     goPrev,
     swipeHandlers,
   } = useOpeningCarousel(slidesRef);
-  const { setVideoRef } = useOpeningVideo(index, slidesRef);
+  const { setVideoRef } = useOpeningVideo(loopIndex, slidesRef);
+  const revealRef = useReveal<HTMLElement>();
 
   return (
-    <section className={styles.section} aria-label="Opening">
+    <section
+      ref={revealRef}
+      data-reveal-group
+      className={styles.section}
+      aria-label="Opening"
+    >
       <div className={styles.frame}>
         <div
           ref={slidesRef}
@@ -67,19 +74,24 @@ export function OpeningSection() {
                     .join(" ")}
                 >
                   <video
-                    ref={i === loopIndex ? setVideoRef(slideIndex) : undefined}
+                    ref={setVideoRef(i)}
                     className={styles.bgVideo}
                     muted
                     loop
                     playsInline
-                    autoPlay={i === loopIndex}
                     preload={Math.abs(slideIndex - index) <= 1 ? "auto" : "metadata"}
                     poster={item.poster}
                   >
-                    {item.videoWebm ? (
-                      <source src={item.videoWebm} type="video/webm" />
-                    ) : null}
-                    <source src={item.video} type="video/mp4" />
+                    {/* Light encodes (orig clips were 4–6 MB → too heavy to start
+                        on phones). iOS picks HEVC, everyone else H.264. */}
+                    <source
+                      src={item.video.replace(/\.mp4$/, "-mobile.hevc.mp4")}
+                      type='video/mp4; codecs="hvc1"'
+                    />
+                    <source
+                      src={item.video.replace(/\.mp4$/, "-mobile.mp4")}
+                      type="video/mp4"
+                    />
                   </video>
                 </div>
               </div>
@@ -89,7 +101,7 @@ export function OpeningSection() {
         </div>
 
         <div className={styles.content}>
-          <div className={styles.textBlock}>
+          <div className={styles.textBlock} data-reveal>
             <Text variant="md" muted className={styles.eyebrow}>
               {openingCopy.eyebrow}
             </Text>

@@ -8,7 +8,7 @@ import { useMenu } from "@/contexts/MenuContext";
 import { menuCompanyLinks, menuExperienceLinks } from "@/lib/data";
 import { images } from "@/lib/media";
 import { triggerHaptic } from "@/lib/haptics";
-import { NOT_FOUND_HREF, getCompanyHref } from "@/lib/routes";
+import { getCompanyHref } from "@/lib/routes";
 import { DestinationsNav } from "./DestinationsNav";
 import styles from "./site-menu.module.css";
 
@@ -132,18 +132,7 @@ export function SiteMenu() {
               .filter(Boolean)
               .join(" ")}
             >
-              {menuExperienceLinks.map((link) => (
-                <Link key={link} href={NOT_FOUND_HREF} className={styles.link} onClick={handleClose}>
-                  {link}
-                </Link>
-              ))}
-            </div>
-
-            <div className={[styles.linkGroup, styles.linkGroupVisible]
-              .filter(Boolean)
-              .join(" ")}
-            >
-              {menuCompanyLinks.map((link) => (
+              {[...menuExperienceLinks, ...menuCompanyLinks].map((link) => (
                 <Link key={link} href={getCompanyHref(link)} className={styles.link} onClick={handleClose}>
                   {link}
                 </Link>

@@ -31,13 +31,3 @@ export function triggerHaptic(kind: HapticKind = "light"): void {
     /* ignore unsupported / blocked vibrate */
   }
 }
-
-export function withHaptic<T extends (...args: never[]) => void>(
-  fn: T,
-  kind: HapticKind = "light",
-): T {
-  return ((...args: never[]) => {
-    triggerHaptic(kind);
-    fn(...args);
-  }) as T;
-}

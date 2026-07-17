@@ -1,9 +1,12 @@
 "use client";
 
-import { Icon } from "@/design-system/components";
+import Image from "next/image";
 import { GlassSurface } from "@/design-system/liquid-glass";
 import { triggerHaptic } from "@/lib/haptics";
 import styles from "./footer-scroll-top.module.css";
+
+/** Thin up-arrow glyph — exact asset from Figma Arrows instance (1:971 / Q_Icons). */
+const ARROW_UP_SRC = "/assets/icons/footer-arrow-up.svg";
 
 export function FooterScrollTop() {
   return (
@@ -19,7 +22,7 @@ export function FooterScrollTop() {
         window.scrollTo({ top: 0, behavior: "smooth" });
       }}
     >
-      <Icon name="chevronDark" size={16} alt="" className={styles.scrollTopIcon} />
+      <Image src={ARROW_UP_SRC} alt="" width={16} height={16} className={styles.scrollTopIcon} />
     </GlassSurface>
   );
 }

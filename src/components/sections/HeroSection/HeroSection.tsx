@@ -1,14 +1,32 @@
+"use client";
+
+import { useEffect, useState } from "react";
 import Image from "next/image";
-import { Heading, Button } from "@/design-system/components";
+import { Heading } from "@/design-system/components";
 import { images } from "@/lib/media";
 import {
   HeroMobileBackgroundLayer,
   HeroMobileCarouselRoot,
   HeroMobileCarouselTrack,
 } from "./HeroMobileCarousel";
+import { HeroRequestCta } from "./HeroRequestCta";
+import { HeroSwiperMobile } from "./HeroSwiperMobile";
 import styles from "./hero-section.module.css";
 
 export function HeroSection() {
+  // Mobile runs the Swiper rig (prototype v3); desktop keeps the card layout.
+  // SSR/first render is the desktop tree; mobile swaps in after mount.
+  const [isMobile, setIsMobile] = useState(false);
+  useEffect(() => {
+    const mq = window.matchMedia("(max-width: 767px)");
+    const sync = () => setIsMobile(mq.matches);
+    sync();
+    mq.addEventListener("change", sync);
+    return () => mq.removeEventListener("change", sync);
+  }, []);
+
+  if (isMobile) return <HeroSwiperMobile />;
+
   return (
     <HeroMobileCarouselRoot>
       <section className={styles.hero} aria-label="Hero">
@@ -17,6 +35,7 @@ export function HeroSection() {
 
           <div className={styles.inner}>
             <div className={styles.logoWrap}>
+              {/* Mobile hero (Figma 1:2672) keeps the leaf + UTOPIA wordmark */}
               <Image
                 src={images.logo}
                 alt="Utopia"
@@ -25,6 +44,16 @@ export function HeroSection() {
                 priority
                 className={styles.logo}
               />
+              {/* Desktop hero (Figma 1:845 logo_icon) is the leaf mark only —
+                  the wordmark stays in the nav bar */}
+              <Image
+                src={images.heroLogoIconDesktop}
+                alt="Utopia"
+                width={100}
+                height={100}
+                priority
+                className={styles.logoDesktop}
+              />
             </div>
 
             <div className={styles.content}>
@@ -32,9 +61,7 @@ export function HeroSection() {
                 It&apos;s all yours
               </Heading>
 
-              <Button variant="primary" className={styles.desktopCta}>
-                Request a stay
-              </Button>
+              <HeroRequestCta className={styles.desktopCta} />
             </div>
 
             <HeroMobileCarouselTrack />

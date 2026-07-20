@@ -265,6 +265,17 @@
   opacity: 0.7;
 }
 
+/* Disabled link (e.g. About — coming later). Prototype v3 menu__link--disabled. */
+.linkDisabled {
+  color: var(--utopia-text-muted);
+  pointer-events: none;
+  cursor: default;
+}
+
+.linkDisabled:hover {
+  opacity: 1;
+}
+
 .label {
   font-size: var(--utopia-text-base);
   letter-spacing: var(--utopia-tracking-tight-sm);

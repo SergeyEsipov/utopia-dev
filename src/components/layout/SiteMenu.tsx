@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { Text } from "@/design-system/components";
 import { useMenu } from "@/contexts/MenuContext";
-import { menuCompanyLinks, menuExperienceLinks } from "@/lib/data";
+import { menuLinks } from "@/lib/data";
 import { images } from "@/lib/media";
 import { triggerHaptic } from "@/lib/haptics";
 import { getCompanyHref } from "@/lib/routes";
@@ -132,11 +132,26 @@ export function SiteMenu() {
               .filter(Boolean)
               .join(" ")}
             >
-              {[...menuExperienceLinks, ...menuCompanyLinks].map((link) => (
-                <Link key={link} href={getCompanyHref(link)} className={styles.link} onClick={handleClose}>
-                  {link}
-                </Link>
-              ))}
+              {menuLinks.map((link) =>
+                "disabled" in link && link.disabled ? (
+                  <span
+                    key={link.label}
+                    className={`${styles.link} ${styles.linkDisabled}`}
+                    aria-disabled="true"
+                  >
+                    {link.label}
+                  </span>
+                ) : (
+                  <Link
+                    key={link.label}
+                    href={getCompanyHref(link.label)}
+                    className={styles.link}
+                    onClick={handleClose}
+                  >
+                    {link.label}
+                  </Link>
+                ),
+              )}
             </div>
           </nav>
         </div>

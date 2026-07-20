@@ -5,18 +5,59 @@
 
 /* ── Mobile ── */
 
+/* Figma 3882:3013 — warm beige base with a soft highlight fading in from the
+   top; container pads 60/32/36 (prototype v3, commit ab3e267). Relative +
+   overflow-hidden to host and clip the leaf clip. */
 .mobile {
-  display: flex;
-  flex-direction: column;
-  gap: 40px;
-  padding: 32px;
+  position: relative;
+  overflow: hidden;
+  padding: 60px 32px 36px;
   box-sizing: border-box;
+  background: linear-gradient(
+      180deg,
+      rgba(249, 245, 234, 0.4) 21.094%,
+      rgba(249, 245, 234, 0) 100%
+    ),
+    #f1e8dc;
 }
 
 @media (min-width: 640px) {
   .mobile {
     display: none;
   }
+}
+
+/* Figma 44:3411 — 600px-tall footer with the legal block pinned to the bottom
+   by space-between (600 − 60 top − 36 bottom = 504 of content). */
+.mobileInner {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: 504px;
+}
+
+.mobileGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 40px;
+}
+
+/* Dappled-leaf clip, flush to the footer's bottom edge, sitting under all
+   content; a soft top fade blends its upper edge into the beige base
+   (prototype v3 .footer__bg-video, commit b6ab764). */
+.mobileLeaves {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center bottom;
+  z-index: 0;
+  pointer-events: none;
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0%, #000 42%);
+  mask-image: linear-gradient(to bottom, transparent 0%, #000 42%);
 }
 
 .mobileBlock {
@@ -53,6 +94,13 @@
 .mobilePageLink {
   text-decoration: none;
   color: inherit;
+}
+
+/* About — disabled (coming later). Prototype v3 footer__link--disabled. */
+.mobilePageLinkDisabled {
+  color: var(--utopia-text-muted);
+  pointer-events: none;
+  cursor: default;
 }
 
 .mobileLegal {

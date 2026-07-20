@@ -4,9 +4,10 @@ import { images } from "@/lib/media";
 import styles from "./careers.module.css";
 
 /**
- * Wax-seal artwork, re-exported with transparent backgrounds. The -v2 files
- * are referenced under fresh filenames so the image-optimizer cache can never
- * serve the stale opaque renditions generated from the original paths.
+ * Wax-seal artwork — small (112px) transparent PNGs. Rendered `unoptimized`
+ * so the browser loads the raw transparent file directly; the Next image
+ * optimizer had cached an opaque (black-flattened) WebP derivative that kept
+ * showing a black square behind the seal.
  */
 const sealArtwork: Record<
   (typeof careerValues.items)[number]["imageKey"],
@@ -49,6 +50,7 @@ export function CareerValues() {
                   width={54}
                   height={56}
                   className={styles.valueIcon}
+                  unoptimized
                 />
                 <div>
                   <h3 className={styles.valueTitle}>{value.title}</h3>
@@ -67,6 +69,7 @@ export function CareerValues() {
                   width={54}
                   height={56}
                   className={styles.valueIcon}
+                  unoptimized
                 />
                 <div>
                   <h3 className={styles.valueTitle}>{value.title}</h3>

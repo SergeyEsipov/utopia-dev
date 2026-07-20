@@ -14,13 +14,16 @@ export const footerDestinations = {
   Alpine: [{ label: "Coming soon" }],
 };
 
-export const menuExperienceLinks = ["Experiences"] as const;
-export const menuCompanyLinks = ["About", "Careers"] as const;
-
-export const footerMobileLinks = {
-  experiences: menuExperienceLinks,
-  company: menuCompanyLinks,
-};
+/**
+ * Mobile footer + slide-menu links. Prototype v3 (Figma 3882:3013,
+ * commits ab3e267 / b6ab764): "Experiences" renamed to "Contact", order
+ * Contact → Careers → About, and About is disabled (coming later).
+ */
+export const menuLinks = [
+  { label: "Contact" },
+  { label: "Careers" },
+  { label: "About", disabled: true },
+] as const;
 
 export const footerDesktopLinks = {
   experiences: ["Experiences", "Private Jet", "Superyacht"],

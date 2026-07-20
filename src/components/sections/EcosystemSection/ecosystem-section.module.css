@@ -298,3 +298,28 @@
     max-width: none;
   }
 }
+
+/* ── Desktop ≥1024: slide up over the pinned hero (prototype desktop_v5) ──
+   The hero pins for a 60vh runway; this section eats that runway with a
+   negative margin so it rides up over the hero in normal document flow,
+   its rounded top edge squaring off (.sectionFlush, set by useHandoffFlush)
+   once it lands against the top of the viewport.
+
+   Last in the file so it beats the ≥1024 / ≥1900 rules above. */
+@media (min-width: 1024px) {
+  .section {
+    position: relative;
+    z-index: 2;
+    margin-top: -60vh;
+    border-radius: 40px 40px 0 0;
+    overflow: hidden;
+    /* Full-bleed like the hero it slides over, so the rounded edge spans the
+       viewport rather than the 1440 .page column. Inner content stays centred. */
+    width: 100vw;
+    margin-left: calc(50% - 50vw);
+  }
+
+  .sectionFlush {
+    border-radius: 0;
+  }
+}

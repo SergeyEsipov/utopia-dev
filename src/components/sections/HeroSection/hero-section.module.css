@@ -631,3 +631,67 @@
     letter-spacing: -0.16px;
   }
 }
+
+/* ── Desktop ≥1024: hero → destinations handoff (prototype desktop_v5) ──
+   The hero pins for a 60vh runway (160vh pin − 100vh hero): its foreground
+   fades out and the media retreats slightly while the ecosystem section
+   slides over it in normal document flow. Progress is written into the
+   --hero-* vars by useHeroSettle; the values below are the resting state,
+   so with JS off (or reduced motion) the hero simply renders normally.
+
+   Deliberately last in the file: it has to beat the ≥768 inset-card rules
+   and the ≥1900 fixed heights above, which share its specificity.
+
+   Figma 17.07 (44:4510) drops the 24px inset + radius the 13.07 design had
+   — the desktop hero is full-bleed. Tablet 768–1023 is untouched here. */
+@media (min-width: 1024px) {
+  .heroPin {
+    position: relative;
+    height: 160vh;
+    background: var(--utopia-bg-cream);
+    /* Break out of the centred .page column (max-width 1440/1920): the v5
+       hero is full-bleed, sitting directly on the body. */
+    width: 100vw;
+    margin-left: calc(50% - 50vw);
+  }
+
+  .hero {
+    --hero-main-opacity: 1;
+    --hero-cards-opacity: 1;
+    --hero-retreat-y: 0vh;
+    --hero-media-scale: 1;
+    --hero-main-y: 0px;
+    --hero-cards-y: 0px;
+
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    min-height: 600px;
+    padding: 0;
+    overflow: hidden;
+    z-index: 1;
+  }
+
+  .heroMedia {
+    height: 100%;
+    min-height: 0;
+    border-radius: 0;
+  }
+
+  .bgWrap {
+    transform: translate3d(0, var(--hero-retreat-y), 0)
+      scale(var(--hero-media-scale));
+    transform-origin: center center;
+  }
+
+  .logoWrap,
+  .content {
+    opacity: var(--hero-main-opacity);
+    transform: translate3d(0, var(--hero-main-y), 0);
+  }
+
+  .cardsTrack {
+    opacity: var(--hero-cards-opacity);
+    transform: translate3d(0, var(--hero-cards-y), 0);
+  }
+}

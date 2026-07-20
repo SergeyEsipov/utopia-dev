@@ -3,51 +3,66 @@ import { Heading, Text } from "@/design-system/components";
 import { DestinationsNav } from "@/components/layout/DestinationsNav";
 import {
   footerDestinations,
-  footerMobileLinks,
+  menuLinks,
   footerDesktopLinks,
 } from "@/lib/data";
 import { images } from "@/lib/media";
 import { NOT_FOUND_HREF, TERMS_HREF, getCompanyHref } from "@/lib/routes";
 import styles from "./footer-section.module.css";
 import { FooterScrollTop } from "./FooterScrollTop";
+import { FooterLeaves } from "./FooterLeaves";
 
 export function FooterSection() {
   return (
     <footer className={styles.footer}>
       <div className={styles.mobile}>
-        <div className={styles.mobileBlock}>
-          <Text variant="base" className={styles.mobileLabel}>
-            Destinations
-          </Text>
-          <DestinationsNav idPrefix="footer" defaultOpen={null} />
-        </div>
+        <FooterLeaves />
+        <div className={styles.mobileInner}>
+          <div className={styles.mobileGroup}>
+            <div className={styles.mobileBlock}>
+              <Text variant="base" className={styles.mobileLabel}>
+                Destinations
+              </Text>
+              <DestinationsNav idPrefix="footer" defaultOpen={null} />
+            </div>
 
-        <div className={styles.mobilePages}>
-          {footerMobileLinks.experiences.map((page) => (
-            <Text key={page} variant="base" as="a" href={NOT_FOUND_HREF} className={styles.mobilePageLink}>
-              {page}
+            <nav className={styles.mobilePages} aria-label="Site">
+              {menuLinks.map((link) =>
+                "disabled" in link && link.disabled ? (
+                  <Text
+                    key={link.label}
+                    variant="base"
+                    as="span"
+                    className={`${styles.mobilePageLink} ${styles.mobilePageLinkDisabled}`}
+                  >
+                    {link.label}
+                  </Text>
+                ) : (
+                  <Text
+                    key={link.label}
+                    variant="base"
+                    as="a"
+                    href={getCompanyHref(link.label)}
+                    className={styles.mobilePageLink}
+                  >
+                    {link.label}
+                  </Text>
+                ),
+              )}
+            </nav>
+          </div>
+
+          <div className={styles.mobileLegal}>
+            <Text variant="caption" muted>
+              Copyright © 2026 Utopia. All Rights Reserved
             </Text>
-          ))}
-        </div>
-
-        <div className={styles.mobilePages}>
-          {footerMobileLinks.company.map((page) => (
-            <Text key={page} variant="base" as="a" href={getCompanyHref(page)} className={styles.mobilePageLink}>
-              {page}
+            <Text variant="caption" muted as="a" href={TERMS_HREF}>
+              Terms and Conditions
             </Text>
-          ))}
-        </div>
-
-        <div className={styles.mobileLegal}>
-          <Text variant="caption" muted>
-            Copyright © 2026 Utopia. All Rights Reserved
-          </Text>
-          <Text variant="caption" muted as="a" href={TERMS_HREF}>
-            Terms and Conditions
-          </Text>
-          <Text variant="caption" muted as="a" href={NOT_FOUND_HREF}>
-            Privacy Policy
-          </Text>
+            <Text variant="caption" muted as="a" href={NOT_FOUND_HREF}>
+              Privacy Policy
+            </Text>
+          </div>
         </div>
       </div>
 

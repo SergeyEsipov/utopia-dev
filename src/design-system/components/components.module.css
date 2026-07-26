@@ -325,6 +325,19 @@
   color: var(--utopia-tab-inactive);
   cursor: pointer;
   position: relative;
+  /* Prototype `.filter-tab__label { transition: color 0.3s ease }` — the
+     inactive labels warm toward the active colour on hover. */
+  transition: color 0.3s ease;
+}
+
+.categoryTab:not(.categoryTabActive):hover {
+  color: var(--utopia-text-inverse);
+}
+
+/* The active tab is not a target — prototype `.filter-tab--active`. */
+.categoryTabActive {
+  cursor: default;
+  pointer-events: none;
 }
 
 .categoryTabActive {

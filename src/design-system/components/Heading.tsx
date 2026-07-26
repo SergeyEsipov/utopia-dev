@@ -9,7 +9,7 @@ const variantClass: Record<HeadingVariant, string> = {
   card: styles.headingCard,
 };
 
-export interface HeadingProps {
+export interface HeadingProps extends React.HTMLAttributes<HTMLElement> {
   variant?: HeadingVariant;
   as?: HeadingTag;
   muted?: boolean;
@@ -25,6 +25,7 @@ export function Heading({
   inverse = false,
   className = "",
   children,
+  ...rest
 }: HeadingProps) {
   const colorClass = inverse
     ? styles.textInverse
@@ -37,6 +38,7 @@ export function Heading({
       className={[variantClass[variant], colorClass, className]
         .filter(Boolean)
         .join(" ")}
+      {...rest}
     >
       {children}
     </Tag>

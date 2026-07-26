@@ -3,7 +3,8 @@
 import styles from "./components.module.css";
 import { triggerHaptic } from "@/lib/haptics";
 
-export interface CategoryTabsProps {
+export interface CategoryTabsProps
+  extends Omit<React.HTMLAttributes<HTMLDivElement>, "onChange"> {
   items: readonly string[];
   activeIndex?: number;
   onChange?: (index: number) => void;
@@ -20,6 +21,7 @@ export function CategoryTabs({
   variant = "onLight",
   className = "",
   progress = 0,
+  ...rest
 }: CategoryTabsProps) {
   const clamp = (value: number) => Math.min(1, Math.max(0, value));
 
@@ -33,6 +35,7 @@ export function CategoryTabs({
         .filter(Boolean)
         .join(" ")}
       role="tablist"
+      {...rest}
     >
       {items.map((item, i) => (
         <button

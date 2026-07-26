@@ -37,7 +37,6 @@ export function NavPill({
       <GlassSurface
         preset={preset}
         height={BTN}
-        radius={16}
         className={styles.navPillBtn}
         contentClassName={styles.navPillBtnContent}
         onClick={() => {
@@ -58,7 +57,6 @@ export function NavPill({
         as="div"
         preset={preset}
         height={BTN}
-        radius={16}
         fullWidth
         interactive={false}
         className={styles.navPillLabel}
@@ -70,7 +68,6 @@ export function NavPill({
       <GlassSurface
         preset={preset}
         height={BTN}
-        radius={16}
         className={styles.navPillBtn}
         contentClassName={styles.navPillBtnContent}
         onClick={() => {

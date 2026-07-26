@@ -12,7 +12,7 @@ const variantClass: Record<TextVariant, string> = {
 
 type TextTag = "p" | "span" | "div" | "label" | "a";
 
-export interface TextProps {
+export interface TextProps extends React.HTMLAttributes<HTMLElement> {
   variant?: TextVariant;
   as?: TextTag;
   muted?: boolean;
@@ -30,6 +30,7 @@ export function Text({
   className = "",
   href,
   children,
+  ...rest
 }: TextProps) {
   const colorClass = inverse
     ? styles.textInverse
@@ -42,6 +43,7 @@ export function Text({
   return (
     <Tag
       {...props}
+      {...rest}
       className={[variantClass[variant], colorClass, className]
         .filter(Boolean)
         .join(" ")}

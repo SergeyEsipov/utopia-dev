@@ -90,12 +90,27 @@
   --utopia-radius-lg: 26px;
   --utopia-radius-pill: 160px;
   --utopia-radius-progress: 30px;
+  /* Media surfaces: destination cards, the ecosystem image, the fullwidth
+     frame. Separate from the control radii above because the two families
+     collapse to different values in the sharp language. */
+  --utopia-radius-card: 16px;
+  --utopia-radius-card-active: 20px;
+  --utopia-radius-frame: 32px;
+  /* Caps for one-off radii that are not worth their own token (careers chips,
+     badges, job cards). Used as `min(<designed px>, var(--cap))`: in the
+     rounded language the cap is larger than anything, so the designed value
+     wins untouched; in sharp it clamps the whole family down. */
+  --utopia-radius-cap-card: 999px;
+  --utopia-radius-cap-control: 999px;
 
   /* ── Effects ── */
   --utopia-blur-logo: 16px;
   --utopia-backdrop-blur: 10px;
   --utopia-transition-fast: 150ms ease;
   --utopia-transition-base: 250ms ease;
+
+  /* Side gutter for full-bleed sections — prototype `--site-grid-pad`. */
+  --utopia-site-pad: 24px;
 
   /* ── Z-index ── */
   --utopia-z-dock: 210;
@@ -113,4 +128,10 @@
   --utopia-radius-lg: 7px;
   --utopia-radius-pill: 2px;
   --utopia-radius-progress: 2px;
+  /* desktop_v9: --radius-card 6, --radius-card-active 7, fullwidth frame 0. */
+  --utopia-radius-card: 6px;
+  --utopia-radius-card-active: 7px;
+  --utopia-radius-frame: 0px;
+  --utopia-radius-cap-card: 6px;
+  --utopia-radius-cap-control: 2px;
 }

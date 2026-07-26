@@ -20,7 +20,6 @@ export function SiteDock() {
         <GlassSurface
           preset="pill"
           height={BTN}
-          radius={16}
           interactive={false}
           className={styles.iconBtn}
           contentClassName={styles.iconBtnContent}
@@ -36,7 +35,6 @@ export function SiteDock() {
         <GlassSurface
           preset="pill"
           height={BTN}
-          radius={16}
           fullWidth
           interactive={false}
           className={styles.cta}
@@ -52,7 +50,6 @@ export function SiteDock() {
         <GlassSurface
           preset="pill"
           height={BTN}
-          radius={16}
           interactive={false}
           className={styles.iconBtn}
           contentClassName={styles.iconBtnContent}

@@ -98,7 +98,6 @@ export function SiteNav({ overlay = false }: SiteNavProps) {
         <GlassSurface
           preset="dock"
           height={TABLET_BTN}
-          radius={16}
           interactive={false}
           className={styles.tabletBtn}
           contentClassName={styles.tabletBtnContent}
@@ -124,7 +123,6 @@ export function SiteNav({ overlay = false }: SiteNavProps) {
         <GlassSurface
           preset="dock"
           height={TABLET_BTN}
-          radius={16}
           interactive={false}
           className={styles.tabletBtn}
           contentClassName={styles.tabletBtnContent}

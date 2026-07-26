@@ -29,7 +29,7 @@ type CarouselCard = {
   key: string;
   slideIndex: number;
   position: number;
-  offset: -1 | 0 | 1 | 2;
+  offset: -1 | 0 | 1 | 2 | 3;
   active: boolean;
   departing: boolean;
   next: boolean;
@@ -50,11 +50,23 @@ function nearestPositionForSlide(slideIndex: number, currentPosition: number) {
   return currentPosition + delta;
 }
 
+/**
+ * Width alone is not enough here: the desktop tier lays three cards out in a
+ * horizontal belt, which overflows on a nearly-square or portrait window even
+ * when it is wide. The prototype guards its equivalent tiers on aspect ratio
+ * too (`max-aspect-ratio: 11/10` falls back to the stacked layout,
+ * `min-aspect-ratio: 1101/1000` gates the ultra tier) — that was the point of
+ * its "fix responsive private world breakpoints" pass.
+ *
+ * Width thresholds stay ours: 1900 rather than the prototype's 2000, so a
+ * 1920 display with a scrollbar still reaches the wide tier (see CLAUDE.md).
+ * First match wins, so these run widest-first.
+ */
 const DAYS_BREAKPOINT_QUERIES: ReadonlyArray<
   readonly [Exclude<DaysBreakpoint, "mobile">, string]
 > = [
-  ["wide", "(min-width: 1900px)"],
-  ["desktop", "(min-width: 1024px)"],
+  ["wide", "(min-width: 1900px) and (min-aspect-ratio: 1101/1000)"],
+  ["desktop", "(min-width: 1024px) and (min-aspect-ratio: 11/10)"],
   ["tablet", "(min-width: 640px)"],
 ];
 
@@ -84,6 +96,7 @@ function getSlotStyle(
 ): Pick<CSSProperties, "height" | "opacity" | "transform" | "width"> {
   if (breakpoint !== "mobile") {
     const m = getDaysStackedMetrics(breakpoint);
+    const thirdSlot = m.activeW + m.gap + m.inactiveW + m.gap;
     const x =
       offset === -1
         ? -(m.inactiveW + m.gap)
@@ -91,7 +104,12 @@ function getSlotStyle(
           ? 0
           : offset === 1
             ? m.activeW + m.gap
-            : m.activeW + m.gap + m.inactiveW + m.gap;
+            : offset === 2
+              ? thirdSlot
+              : // Parked just off the right edge so the card that refills the
+                // belt has a from-state and visibly slides in, instead of
+                // popping into place (prototype parks its ghost at +60px).
+                thirdSlot + m.inactiveW + 60;
     const y = offset === 0 ? 0 : m.inactiveY;
     const active = offset === 0;
 
@@ -104,6 +122,7 @@ function getSlotStyle(
   }
 
   const m = daysMobileMetrics;
+  const thirdSlot = m.activeW + m.gap + m.inactiveW + m.gap;
   const x =
     offset === -1
       ? m.peekLeft
@@ -111,7 +130,9 @@ function getSlotStyle(
         ? 0
         : offset === 1
           ? m.activeW + m.gap
-          : m.activeW + m.gap + m.inactiveW + m.gap;
+          : offset === 2
+            ? thirdSlot
+            : thirdSlot + m.inactiveW + 60;
   const active = offset === 0;
 
   return {
@@ -161,7 +182,8 @@ export function useDaysCarousel() {
     if (!section || !("IntersectionObserver" in window)) return;
     const observer = new IntersectionObserver(
       ([entry]) => setIsInView(entry.isIntersecting),
-      { threshold: 0.2 },
+      // Prototype gates its autoplay at 0.35.
+      { threshold: 0.35 },
     );
     observer.observe(section);
     return () => observer.disconnect();
@@ -352,7 +374,7 @@ export function useDaysCarousel() {
   );
 
   const cards = useMemo<CarouselCard[]>(() => {
-    const offsets: CarouselCard["offset"][] = [-1, 0, 1, 2];
+    const offsets: CarouselCard["offset"][] = [-1, 0, 1, 2, 3];
 
     return offsets.map((offset) => {
       const position = activePosition + offset;

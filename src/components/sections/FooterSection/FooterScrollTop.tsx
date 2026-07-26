@@ -13,7 +13,6 @@ export function FooterScrollTop() {
     <GlassSurface
       preset="dock"
       height={38}
-      radius={16}
       className={styles.scrollTop}
       contentClassName={styles.scrollTopContent}
       aria-label="Scroll to top"

@@ -12,6 +12,14 @@ export type EcosystemCategory = {
 
 export const ECOSYSTEM_SLIDE_DURATION_MS = 5500;
 
+/**
+ * Image crossfade — prototype `showSlide`'s `FADE_MS = Math.round(380 / 1.3)`
+ * with a plain `ease`. Deliberately not the hero's shared crossfade: the
+ * destinations swap is noticeably quicker.
+ */
+export const ECOSYSTEM_CROSSFADE_MS = 292;
+export const ECOSYSTEM_CROSSFADE_EASING = "ease";
+
 export const ecosystemCategoryData: EcosystemCategory[] = [
   {
     id: "tropical",

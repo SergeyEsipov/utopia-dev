@@ -37,7 +37,7 @@ export function LocationPill({
       <GlassSurface
         preset="pill"
         height={36}
-        radius={160}
+        radius="var(--utopia-radius-pill)"
       className={[styles.locationPill, className].filter(Boolean).join(" ")}
       contentClassName={styles.locationPillContent}
       onClick={onClick}
@@ -52,7 +52,7 @@ export function LocationPill({
       as="div"
       preset="pill"
       height={36}
-      radius={160}
+      radius="var(--utopia-radius-pill)"
       interactive={false}
       className={[styles.locationPill, className].filter(Boolean).join(" ")}
       contentClassName={styles.locationPillContent}

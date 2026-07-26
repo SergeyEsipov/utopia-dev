@@ -406,6 +406,15 @@
 
 /* ── Desktop ≥1024: 5-column grid ── */
 @media (min-width: 1024px) {
+  /* Full-bleed like the hero and the section above it — the beige base and the
+     leaf clip have to reach the viewport edges, otherwise the footer sits in
+     the centred .page column with cream gutters either side. Inner content
+     keeps its gutter via --utopia-site-pad (prototype `--site-grid-pad`). */
+  .footer {
+    width: 100vw;
+    margin-left: calc(50% - 50vw);
+  }
+
   .desktop {
     --footer-grid: 285fr repeat(3, 217fr) 184fr;
     --footer-right-pad: calc(
@@ -413,7 +422,7 @@
     );
     height: 640px;
     min-height: 640px;
-    padding: 72px var(--footer-right-pad) 32px 24px;
+    padding: 72px var(--footer-right-pad) 32px var(--utopia-site-pad);
   }
 
   .menu {

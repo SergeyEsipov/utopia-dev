@@ -161,7 +161,7 @@
 @media (min-width: 640px) {
   .frame {
     height: var(--utopia-viewport-height);
-    border-radius: 32px;
+    border-radius: var(--utopia-radius-frame);
   }
 }
 
@@ -293,7 +293,7 @@
   right: 0;
   height: 144px;
   background: var(--utopia-bg-cream);
-  border-radius: 26px 26px 0 0;
+  border-radius: var(--utopia-radius-lg) var(--utopia-radius-lg) 0 0;
   pointer-events: none;
   z-index: 0;
 }
@@ -322,4 +322,15 @@
 .slides {
   transform-origin: center center;
   will-change: transform;
+}
+
+/* ── Desktop ≥1024: full-bleed screen ──
+   This is the prototype's "fullwidth" section: its media has to span the
+   viewport, not the centred 1440 .page column. The copy inside keeps its own
+   max-width and stays centred. */
+@media (min-width: 1024px) {
+  .section {
+    width: 100vw;
+    margin-left: calc(50% - 50vw);
+  }
 }

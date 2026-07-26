@@ -56,7 +56,6 @@ export function Button({
   return (
     <GlassSurface
       preset="pill"
-      radius={16}
       fullWidth={fullWidth}
       className={[styles.button, styles.buttonGlass, className]
         .filter(Boolean)

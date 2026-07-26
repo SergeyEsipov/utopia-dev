@@ -26,7 +26,6 @@ export function Tab({ label, active = false, onClick, className = "" }: TabProps
     <GlassSurface
       preset="pill"
       height={36}
-      radius={16}
       className={[styles.tab, styles.tabInactive, className].filter(Boolean).join(" ")}
       contentClassName={styles.tabContent}
       onClick={onClick}

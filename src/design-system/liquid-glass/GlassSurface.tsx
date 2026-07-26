@@ -17,7 +17,14 @@ type SharedProps = {
   preset?: GlassPresetName | Partial<GlassPresetValues>;
   /** Minimum height; surface grows with content padding */
   height?: number;
-  radius?: number;
+  /**
+   * Corner radius. Leave unset so the .glass rule's `--utopia-radius-sm`
+   * applies — that is what lets the rounded/sharp variants reach these
+   * controls. Pass a CSS string (e.g. `var(--utopia-radius-pill)`) only when a
+   * surface needs a different token; a bare number pins it and opts the
+   * control out of the variant switch.
+   */
+  radius?: number | string;
   fullWidth?: boolean;
   interactive?: boolean;
   contentClassName?: string;
@@ -46,7 +53,7 @@ export const GlassSurface = forwardRef<
     as = "button",
     preset = "pill",
     height,
-    radius = 16,
+    radius,
     fullWidth = false,
     interactive = true,
     className = "",
@@ -70,7 +77,7 @@ export const GlassSurface = forwardRef<
 
   const surfaceStyle: CSSProperties = {
     ...(height != null ? { minHeight: height, height } : {}),
-    borderRadius: radius,
+    ...(radius != null ? { borderRadius: radius } : {}),
     background: glass.background,
     boxShadow: glass.shadow,
     border: glass.border,

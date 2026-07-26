@@ -16,10 +16,10 @@ export function useNavSolid(enabled: boolean) {
   const [solid, setSolid] = useState(false);
 
   useEffect(() => {
-    if (!enabled) {
-      setSolid(false);
-      return;
-    }
+    // Nothing to observe on a bar that is always solid. No reset needed: the
+    // caller ignores this value unless `enabled`, and the detach path below
+    // clears it whenever the listener is torn down.
+    if (!enabled) return;
 
     const desktop = window.matchMedia("(min-width: 1024px)");
     let frame: number | null = null;

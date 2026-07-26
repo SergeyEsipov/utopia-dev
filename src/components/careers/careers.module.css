@@ -307,7 +307,7 @@ a.roleCard:hover {
   justify-content: center;
   height: 32px;
   padding: 4px 18px;
-  border-radius: 12px;
+  border-radius: min(12px, var(--utopia-radius-cap-control));
   background: rgba(249, 245, 234, 0.8);
   font-family: var(--utopia-font-body);
   font-size: 13px;
@@ -781,7 +781,7 @@ a.roleCard:hover {
   left: 20px;
   z-index: 3;
   padding: 4px 18px;
-  border-radius: 80px;
+  border-radius: min(80px, var(--utopia-radius-cap-control));
   background: rgba(0, 0, 0, 0.2);
   backdrop-filter: blur(8px);
   font-family: var(--utopia-font-body);
@@ -920,7 +920,7 @@ a.roleCard:hover {
   width: 100%;
   padding: 8px 16px;
   border: none;
-  border-radius: 10px;
+  border-radius: min(10px, var(--utopia-radius-cap-control));
   background: none;
   font-family: var(--utopia-font-body);
   font-size: var(--utopia-text-sm);

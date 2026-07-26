@@ -6,9 +6,13 @@ export type DaysSlide = {
 };
 
 export const DAYS_AUTOPLAY_MS = 4000;
-export const DAYS_TRANSITION_MS = 900;
+/* 1000ms / cubic-bezier(0.22, 0.61, 0.36, 1) — prototype `EASE_STR` and its
+   card transition. The previous 900ms / (0.22, 1, 0.36, 1) was a different
+   curve family: it shot forward and settled slowly, where the prototype is a
+   gentler ease-out. */
+export const DAYS_TRANSITION_MS = 1000;
 export const DAYS_CAPTION_MS = 650;
-export const DAYS_EASE = "cubic-bezier(0.22, 1, 0.36, 1)";
+export const DAYS_EASE = "cubic-bezier(0.22, 0.61, 0.36, 1)";
 
 export const daysSlides: DaysSlide[] = [
   {
@@ -51,13 +55,17 @@ export const daysMobileMetrics = {
 };
 
 /** Figma tablet-768 days section (node 1:1077). */
+/* Figma 24.07 `154:5280` and prototype v9's stacked tier agree exactly: the
+   768 stage is 1078 wide = 386 + 20 + 326 + 20 + 326, so the active card is
+   386x516 and the inactive pair 326x436 — not the 426x570 / 308x412 this
+   used to carry, which matched neither source. */
 export const daysTabletMetrics = {
-  activeW: 426,
-  activeH: 570,
-  inactiveW: 308,
-  inactiveH: 412,
+  activeW: 386,
+  activeH: 516,
+  inactiveW: 326,
+  inactiveH: 436,
   gap: 20,
-  inactiveY: 79,
+  inactiveY: 40,
 };
 
 /** Figma desktop-1440 days section (node 1:917). */
@@ -71,13 +79,17 @@ export const daysDesktopMetrics = {
 };
 
 /** Figma desktop-1920 days section (node 1:1763). */
+/* Prototype v9's "ultra" tier: cardScale 1.35 over the desktop metrics
+   (386x516 -> 521.1x696.6, 308.8x412.8 -> 416.88x557.28) with a 27px gap.
+   Figma 24.07 has no frame wider than 1440, so the prototype is the only
+   source that covers this tier — the previous 458x612 matched neither. */
 export const daysWideMetrics = {
-  activeW: 458,
-  activeH: 612,
-  inactiveW: 360,
-  inactiveH: 482,
-  gap: 20,
-  inactiveY: 65,
+  activeW: 521,
+  activeH: 697,
+  inactiveW: 417,
+  inactiveH: 557,
+  gap: 27,
+  inactiveY: 70,
 };
 
 export type DaysStackedMetrics = typeof daysDesktopMetrics;

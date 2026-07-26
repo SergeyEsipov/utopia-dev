@@ -541,7 +541,7 @@
     height: 331px;
     border-width: 1.5px;
     border-color: #ffffff;
-    border-radius: 20px;
+    border-radius: var(--utopia-radius-card-active);
     box-shadow:
       0 16.152px 32.304px 0 rgba(0, 0, 0, 0.1),
       0 2.019px 2.019px 0 rgba(0, 0, 0, 0.05);
@@ -556,7 +556,11 @@
     --hero-side-shift: 59px;
     width: calc(472px + 118px * var(--card-focus));
     height: calc(265.5px + 65.5px * var(--card-focus));
-    border-radius: calc(16px + 4px * var(--card-focus));
+    border-radius: calc(
+    var(--utopia-radius-card) +
+      (var(--utopia-radius-card-active) - var(--utopia-radius-card)) *
+      var(--card-focus)
+  );
     transform: translateX(
       calc(var(--card-side) * (var(--card-focus) - 1) * var(--hero-side-shift))
     );

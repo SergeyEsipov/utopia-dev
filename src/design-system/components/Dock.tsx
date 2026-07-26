@@ -33,7 +33,7 @@ export function Dock({ items, onItemClick, className = "" }: DockProps) {
               : "dock"
           }
           height={32}
-          radius={160}
+          radius="var(--utopia-radius-pill)"
           className={[
             styles.dockItem,
             item.active ? styles.dockItemActive : "",

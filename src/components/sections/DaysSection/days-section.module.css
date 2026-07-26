@@ -151,12 +151,12 @@
   pointer-events: none;
   backface-visibility: hidden;
   transition:
-    transform var(--days-transition-ms, 900ms) cubic-bezier(0.22, 1, 0.36, 1),
-    width var(--days-transition-ms, 900ms) cubic-bezier(0.22, 1, 0.36, 1),
-    height var(--days-transition-ms, 900ms) cubic-bezier(0.22, 1, 0.36, 1),
-    opacity calc(var(--days-transition-ms, 900ms) * 0.75)
-      cubic-bezier(0.22, 1, 0.36, 1),
-    border-radius var(--days-transition-ms, 900ms) cubic-bezier(0.22, 1, 0.36, 1);
+    transform var(--days-transition-ms, 1000ms) var(--days-ease, cubic-bezier(0.22, 0.61, 0.36, 1)),
+    width var(--days-transition-ms, 1000ms) var(--days-ease, cubic-bezier(0.22, 0.61, 0.36, 1)),
+    height var(--days-transition-ms, 1000ms) var(--days-ease, cubic-bezier(0.22, 0.61, 0.36, 1)),
+    opacity calc(var(--days-transition-ms, 1000ms) * 0.75)
+      var(--days-ease, cubic-bezier(0.22, 0.61, 0.36, 1)),
+    border-radius var(--days-transition-ms, 1000ms) var(--days-ease, cubic-bezier(0.22, 0.61, 0.36, 1));
 }
 
 .stageDragging .card {
@@ -166,12 +166,12 @@
 .cardDeparting {
   pointer-events: none;
   transition:
-    transform var(--days-transition-ms, 900ms) cubic-bezier(0.22, 1, 0.36, 1),
-    width var(--days-transition-ms, 900ms) cubic-bezier(0.22, 1, 0.36, 1),
-    height var(--days-transition-ms, 900ms) cubic-bezier(0.22, 1, 0.36, 1),
-    opacity calc(var(--days-transition-ms, 900ms) * 0.55)
-      cubic-bezier(0.22, 1, 0.36, 1),
-    border-radius var(--days-transition-ms, 900ms) cubic-bezier(0.22, 1, 0.36, 1);
+    transform var(--days-transition-ms, 1000ms) var(--days-ease, cubic-bezier(0.22, 0.61, 0.36, 1)),
+    width var(--days-transition-ms, 1000ms) var(--days-ease, cubic-bezier(0.22, 0.61, 0.36, 1)),
+    height var(--days-transition-ms, 1000ms) var(--days-ease, cubic-bezier(0.22, 0.61, 0.36, 1)),
+    opacity calc(var(--days-transition-ms, 1000ms) * 0.55)
+      var(--days-ease, cubic-bezier(0.22, 0.61, 0.36, 1)),
+    border-radius var(--days-transition-ms, 1000ms) var(--days-ease, cubic-bezier(0.22, 0.61, 0.36, 1));
 }
 
 .cardDeparting .cardImage {
@@ -186,13 +186,13 @@
 
 @media (min-width: 640px) and (max-width: 1023px) {
   .cardActive {
-    border-radius: 20px;
+    border-radius: var(--utopia-radius-card-active);
   }
 }
 
 @media (min-width: 1900px) {
   .card {
-    border-radius: 20px;
+    border-radius: var(--utopia-radius-card-active);
   }
 
   .cardActive {
@@ -232,8 +232,8 @@
   object-position: center 35%;
   background: var(--utopia-bg-placeholder);
   transform: scale(1.06);
-  transition: transform calc(var(--days-transition-ms, 900ms) * 1.15)
-    cubic-bezier(0.22, 1, 0.36, 1);
+  transition: transform calc(var(--days-transition-ms, 1000ms) * 1.15)
+    var(--days-ease, cubic-bezier(0.22, 0.61, 0.36, 1));
 }
 
 .cardActive .cardImage {
@@ -285,7 +285,7 @@
   gap: 8px;
   opacity: 0;
   pointer-events: none;
-  transition: opacity var(--days-caption-ms, 650ms) cubic-bezier(0.22, 1, 0.36, 1);
+  transition: opacity var(--days-caption-ms, 650ms) var(--days-ease, cubic-bezier(0.22, 0.61, 0.36, 1));
 }
 
 .captionLayerActive {
@@ -402,12 +402,12 @@
   display: block;
   height: 4px;
   width: 4px;
-  border-radius: 20px;
+  border-radius: var(--utopia-radius-card-active);
   background: var(--utopia-progress-fill-muted);
   overflow: hidden;
   transition:
-    width var(--days-transition-ms, 900ms) cubic-bezier(0.22, 1, 0.36, 1),
-    background-color var(--days-transition-ms, 900ms) cubic-bezier(0.22, 1, 0.36, 1);
+    width var(--days-transition-ms, 1000ms) var(--days-ease, cubic-bezier(0.22, 0.61, 0.36, 1)),
+    background-color var(--days-transition-ms, 1000ms) var(--days-ease, cubic-bezier(0.22, 0.61, 0.36, 1));
   will-change: width;
 }
 
@@ -422,9 +422,9 @@
   background: var(--utopia-progress-fill);
   width: 0;
   animation: daysProgressFill
-    calc(var(--days-autoplay-ms, 5000ms) - var(--days-transition-ms, 900ms))
+    calc(var(--days-autoplay-ms, 5000ms) - var(--days-transition-ms, 1000ms))
     linear
-    var(--days-transition-ms, 900ms)
+    var(--days-transition-ms, 1000ms)
     forwards;
 }
 

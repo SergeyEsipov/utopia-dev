@@ -1,5 +1,9 @@
 .glass {
   position: relative;
+  /* Token, not a fixed px: this is what carries the rounded/sharp variant into
+     every glass control. Override per surface with the `radius` prop only when
+     a different token is wanted. */
+  border-radius: var(--utopia-radius-sm);
   overflow: hidden;
   display: inline-flex;
   align-items: center;

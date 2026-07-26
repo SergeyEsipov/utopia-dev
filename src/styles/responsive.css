@@ -45,3 +45,11 @@
     --utopia-dock-max: 358px;
   }
 }
+
+@media (min-width: 1024px) {
+  :root {
+    /* Prototype `--site-grid-pad`: 120px at 1440+, easing down on narrow
+       desktops. Used by the sections that break out of the .page column. */
+    --utopia-site-pad: clamp(64px, 8.3333vw, 120px);
+  }
+}

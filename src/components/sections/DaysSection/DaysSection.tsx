@@ -2,7 +2,13 @@
 
 import Image from "next/image";
 import { Heading, Text } from "@/design-system/components";
-import { daysSlides, DAYS_AUTOPLAY_MS, DAYS_CAPTION_MS, DAYS_TRANSITION_MS } from "@/lib/days-carousel";
+import {
+  daysSlides,
+  DAYS_AUTOPLAY_MS,
+  DAYS_CAPTION_MS,
+  DAYS_EASE,
+  DAYS_TRANSITION_MS,
+} from "@/lib/days-carousel";
 import { images } from "@/lib/media";
 import { useReveal } from "@/hooks/useReveal";
 import { useDaysCarousel } from "./useDaysCarousel";
@@ -53,6 +59,7 @@ export function DaysSection() {
           {
             "--days-autoplay-ms": `${DAYS_AUTOPLAY_MS}ms`,
             "--days-transition-ms": `${DAYS_TRANSITION_MS}ms`,
+            "--days-ease": DAYS_EASE,
             "--days-caption-ms": `${DAYS_CAPTION_MS}ms`,
           } as React.CSSProperties
         }

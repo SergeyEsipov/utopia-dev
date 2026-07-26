@@ -32,11 +32,14 @@ export function EcosystemSection() {
     >
       <div className={styles.divider} />
 
-      <div className={styles.intro} data-reveal>
-        <Heading variant="section" as="h2" className={styles.heading}>
+      {/* Title, body and the filter row each take their own slot in the
+          140ms ladder — the prototype reveals them i=0/1/2, not as one block.
+          The image is deliberately exempt (it must never fade in). */}
+      <div className={styles.intro}>
+        <Heading variant="section" as="h2" className={styles.heading} data-reveal>
           Best Spots. Unique Design. Unmatched Service.
         </Heading>
-        <Text variant="base" className={styles.subheading}>
+        <Text variant="base" className={styles.subheading} data-reveal>
           Ultra-luxury private estates for groups and families in the
           world&apos;s ultimate destinations for kitesurfing, surfing, and
           skiing.
@@ -51,6 +54,7 @@ export function EcosystemSection() {
           progress={categoryProgress.end}
           variant="onLight"
           className={styles.tabsDesktop}
+          data-reveal
         />
 
         <div className={styles.visual} data-scale-seed>

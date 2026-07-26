@@ -67,8 +67,13 @@ desktop layout system. It also has two separate component trees — `HeroSwiperM
 
 The home page column `.page` is capped (`max-width: 1440px`, 1920 at ≥1900) and
 centred. Sections that must be full-bleed break out with
-`width: 100vw; margin-left: calc(50% - 50vw)` — the hero and ecosystem do this on
-desktop.
+`width: 100vw; margin-left: calc(50% - 50vw)` — on desktop the hero, ecosystem,
+opening and footer all do this, and keep their own gutter via
+`--utopia-site-pad` (the prototype's `--site-grid-pad`). Days is deliberately
+left in the column: it is left-anchored (`padding-left: 328px`) and its cream
+background matches the page, so breaking it out would shift the composition
+without changing what you see. **If you add a section with its own background,
+it needs the breakout too** — otherwise it paints a 1440-wide band with gutters.
 
 Home section order (`src/app/page.tsx`): Hero → **Ecosystem** (this is the
 "destinations" section: heading + Tropical/Urban/Alpine tabs + big image) →

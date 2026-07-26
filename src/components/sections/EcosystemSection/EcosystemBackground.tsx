@@ -3,12 +3,12 @@
 import Image from "next/image";
 import { useMemo } from "react";
 import { resolveHeroBackgroundRenderLayers } from "@/lib/hero-background";
+import { type HeroBackgroundMix } from "@/lib/hero-carousel";
 import {
-  HERO_BG_CROSSFADE_EASING,
-  HERO_BG_CROSSFADE_MS,
-  type HeroBackgroundMix,
-} from "@/lib/hero-carousel";
-import { ecosystemSlides } from "@/lib/ecosystem-carousel";
+  ECOSYSTEM_CROSSFADE_EASING,
+  ECOSYSTEM_CROSSFADE_MS,
+  ecosystemSlides,
+} from "@/lib/ecosystem-carousel";
 import styles from "./ecosystem-section.module.css";
 
 type EcosystemBackgroundProps = {
@@ -23,7 +23,7 @@ export function EcosystemBackground({
     [bgMix],
   );
 
-  const transitionStyle = `opacity ${HERO_BG_CROSSFADE_MS}ms ${HERO_BG_CROSSFADE_EASING}`;
+  const transitionStyle = `opacity ${ECOSYSTEM_CROSSFADE_MS}ms ${ECOSYSTEM_CROSSFADE_EASING}`;
 
   return (
     <div className={styles.bgStack} aria-hidden>

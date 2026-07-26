@@ -7,6 +7,7 @@ import { openingCopy, normalizeOpeningSlideIndex } from "@/lib/opening-carousel"
 import { triggerHaptic } from "@/lib/haptics";
 import { NOT_FOUND_HREF } from "@/lib/routes";
 import { useReveal } from "@/hooks/useReveal";
+import { useFullwidthScale } from "./useFullwidthScale";
 import {
   useOpeningCarousel,
   useOpeningVideo,
@@ -30,18 +31,21 @@ export function OpeningSection() {
   } = useOpeningCarousel(slidesRef);
   const { setVideoRef } = useOpeningVideo(loopIndex, slidesRef);
   const revealRef = useReveal<HTMLElement>();
+  useFullwidthScale(revealRef);
 
   return (
     <section
       ref={revealRef}
       data-reveal-group
+      data-snap-screen="opening"
       className={styles.section}
       aria-label="Opening"
     >
-      <div className={styles.frame}>
+      <div className={styles.frame} data-fullwidth-inner>
         <div
           ref={slidesRef}
           className={styles.slides}
+          data-fullwidth-card
           {...swipeHandlers}
         >
           <div
@@ -100,7 +104,7 @@ export function OpeningSection() {
           </div>
         </div>
 
-        <div className={styles.content}>
+        <div className={styles.content} data-fullwidth-content>
           <div className={styles.textBlock} data-reveal>
             <Text variant="md" muted className={styles.eyebrow}>
               {openingCopy.eyebrow}
@@ -126,7 +130,7 @@ export function OpeningSection() {
           </Button>
         </div>
 
-        <div className={styles.navWrap}>
+        <div className={styles.navWrap} data-fullwidth-nav>
           <NavPill
             label={slide.label}
             onPrev={goPrev}

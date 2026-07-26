@@ -80,7 +80,11 @@
   --utopia-hero-card-height: 420px;
   --utopia-logo-size: 100px;
 
-  /* ── Border Radius ── */
+  /* ── Border Radius ──
+     These are the "rounded" corner language (prototype desktop_v8) — the
+     default. The "sharp" variant (desktop_v9) shrinks them via the
+     [data-variant="sharp"] override at the end of this file. Anything that
+     uses these tokens switches between the two versions automatically. */
   --utopia-radius-sm: 16px;
   --utopia-radius-md: 24px;
   --utopia-radius-lg: 26px;
@@ -97,4 +101,16 @@
   --utopia-z-dock: 210;
   --utopia-z-menu: 200;
   --utopia-z-overlay: 150;
+}
+
+/* "Sharp" corner language (prototype desktop_v9): cards ~6px, controls/pills
+   near-square. The client is choosing between this and the default "rounded"
+   look (desktop_v8); switch with data-variant on <html> — set from
+   NEXT_PUBLIC_SITE_VARIANT at build time or ?variant=sharp at runtime. */
+:root[data-variant="sharp"] {
+  --utopia-radius-sm: 6px;
+  --utopia-radius-md: 6px;
+  --utopia-radius-lg: 7px;
+  --utopia-radius-pill: 2px;
+  --utopia-radius-progress: 2px;
 }

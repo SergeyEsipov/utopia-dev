@@ -298,7 +298,6 @@ a.roleCard:hover {
   line-height: 1.3;
   letter-spacing: -0.22px;
   color: var(--utopia-text-black);
-  text-transform: capitalize;
 }
 
 .rolePill {
@@ -854,4 +853,155 @@ a.roleCard:hover {
 
 .ctaButton:hover {
   opacity: 0.85;
+}
+
+/* ── Jobs filters (live data) ── */
+
+.filterField {
+  position: relative;
+  width: 100%;
+}
+
+.filterField .filterControl {
+  width: 100%;
+}
+
+@media (min-width: 1024px) {
+  .filterFieldLocation {
+    width: 285px;
+    flex-shrink: 0;
+  }
+
+  .filterFieldSearch {
+    flex: 1;
+    min-width: 0;
+  }
+}
+
+.filterIconOpen {
+  transform: rotate(180deg);
+}
+
+.filterPopover {
+  position: absolute;
+  z-index: 20;
+  top: calc(100% + 8px);
+  left: 0;
+  right: 0;
+  max-height: 320px;
+  overflow-y: auto;
+  padding: 8px;
+  background: var(--utopia-bg-cream);
+  border: 1px solid rgba(28, 28, 28, 0.2);
+  border-radius: var(--utopia-radius-sm);
+  box-shadow: 0 12px 32px rgba(28, 28, 28, 0.12);
+}
+
+.filterOptionList {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.filterGroupLabel {
+  padding: 10px 16px 4px;
+  font-family: var(--utopia-font-body);
+  font-size: var(--utopia-text-xs);
+  letter-spacing: var(--utopia-tracking-tight-xs);
+  color: var(--utopia-text-muted);
+  text-transform: uppercase;
+}
+
+.filterOption {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  width: 100%;
+  padding: 8px 16px;
+  border: none;
+  border-radius: 10px;
+  background: none;
+  font-family: var(--utopia-font-body);
+  font-size: var(--utopia-text-sm);
+  line-height: 1.3;
+  letter-spacing: var(--utopia-tracking-tight-xs);
+  color: var(--utopia-text-black);
+  text-align: left;
+  cursor: pointer;
+}
+
+.filterOption:hover {
+  background: rgba(28, 28, 28, 0.06);
+}
+
+.filterOptionActive {
+  background: #ebdfd2;
+}
+
+.filterOptionCount {
+  flex-shrink: 0;
+  color: var(--utopia-text-muted);
+}
+
+.filterInput {
+  padding-right: 52px;
+  appearance: none;
+  -webkit-appearance: none;
+}
+
+.filterInput::placeholder {
+  color: var(--utopia-text-muted);
+  opacity: 1;
+}
+
+.filterInput::-webkit-search-cancel-button {
+  -webkit-appearance: none;
+}
+
+.filterFieldIcon {
+  position: absolute;
+  right: 24px;
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+}
+
+.departmentButton {
+  display: block;
+  width: 100%;
+  padding: 0;
+  border: none;
+  background: none;
+  font: inherit;
+  letter-spacing: inherit;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.departmentButton:hover {
+  opacity: 0.7;
+}
+
+.departmentButtonActive {
+  text-decoration: underline;
+  text-underline-position: from-font;
+}
+
+.rolesEmpty {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.filterLocation:focus-visible,
+.filterInput:focus-visible,
+.filterOption:focus-visible,
+.departmentButton:focus-visible,
+.showMore:focus-visible,
+.roleCard:focus-visible {
+  outline: 1px solid rgba(28, 28, 28, 0.55);
+  outline-offset: 2px;
 }

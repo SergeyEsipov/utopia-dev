@@ -32,6 +32,7 @@ export function DaysSection() {
         revealRef.current = node;
       }}
       data-reveal-group
+      data-snap-screen="private-world"
       className={styles.section}
       aria-label="Private World"
     >
@@ -44,7 +45,9 @@ export function DaysSection() {
       </div>
 
       <div
-        data-reveal
+        // Opacity-only bloom, no lift or stagger — prototype `.private-world
+        // .pw-stage` / `.private-world__caption` (1.5s, cubic-bezier(.25,1,.5,1)).
+        data-reveal="fade"
         className={styles.carousel}
         style={
           {

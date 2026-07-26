@@ -1,5 +1,5 @@
-<svg preserveAspectRatio="none" width="100%" height="100%" overflow="visible" style="display: block;" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+<svg preserveAspectRatio="none" width="100%" height="100%" overflow="visible" style="display: block;" viewBox="0 0 16.0005 16.0005" fill="none" xmlns="http://www.w3.org/2000/svg">
 <g id="menu">
-<path id="Vector" d="M2.66667 8H13.3333M2.66667 4H13.3333M2.66667 12H13.3333" stroke="var(--stroke-0, black)" stroke-linecap="round" stroke-linejoin="round"/>
+<path id="Vector" d="M1 8.00029H15.0008M1 2.75H15.0008M1 13.2506H15.0008" stroke="var(--stroke-0, black)" stroke-width="1.31257" stroke-linecap="round" stroke-linejoin="round"/>
 </g>
 </svg>

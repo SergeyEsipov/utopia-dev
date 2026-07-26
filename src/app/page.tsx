@@ -6,12 +6,13 @@ import { EcosystemSection } from "@/components/sections/EcosystemSection";
 import { OpeningSection } from "@/components/sections/OpeningSection";
 import { DaysSection } from "@/components/sections/DaysSection";
 import { FooterSection } from "@/components/sections/FooterSection";
+import { ScrollSnap } from "@/components/sections/ScrollSnap";
 import styles from "./page.module.css";
 
 export default function HomePage() {
   return (
     <>
-      <SiteNav />
+      <SiteNav overlay />
       <main className={styles.page}>
         <HeroSection />
         <EcosystemSection />
@@ -21,6 +22,7 @@ export default function HomePage() {
       </main>
       <SiteMenu />
       <SiteDock />
+      <ScrollSnap />
     </>
   );
 }

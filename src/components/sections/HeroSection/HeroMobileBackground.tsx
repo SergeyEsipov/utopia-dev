@@ -72,7 +72,7 @@ export function HeroMobileBackground({
       })}
 
       {!reducedMotion ? (
-        <HeroVideoLayer bgMix={bgMix} ready={ready} isScrolling={isScrolling} />
+        <HeroVideoLayer bgMix={bgMix} ready={ready} />
       ) : null}
     </div>
   );

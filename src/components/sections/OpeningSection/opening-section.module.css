@@ -303,3 +303,23 @@
     display: none;
   }
 }
+
+/* ── Scroll-driven growth (prototype fullwidth driver, useFullwidthScale) ──
+   The card scales/rounds imperatively; these rules only cover the copy and the
+   nav pill appearing as it finishes. The attribute is absent until the hook
+   runs, so with JS off — or on mobile / reduced motion — both stay visible. */
+.content,
+.navWrap {
+  transition: opacity 450ms cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+
+.content[data-fullwidth-visible="false"],
+.navWrap[data-fullwidth-visible="false"] {
+  opacity: 0;
+}
+
+/* The media card scales about its centre and keeps its own clipping. */
+.slides {
+  transform-origin: center center;
+  will-change: transform;
+}

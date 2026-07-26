@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { notFound } from "next/navigation";
+import { notFound, permanentRedirect } from "next/navigation";
 import { SiteDock } from "@/components/layout/SiteDock";
 import { SiteMenu } from "@/components/layout/SiteMenu";
 import { SiteNav } from "@/components/layout/SiteNav";
@@ -11,44 +11,67 @@ import {
 } from "@/components/careers";
 import { JobCta } from "@/components/careers/JobCta";
 import { JobWorkCarousel } from "@/components/careers/JobWorkCarousel";
-import { careerFeaturedRoles, jobOpeningContent } from "@/lib/career-data";
+import {
+  getJobPosting,
+  getJobPostings,
+  jobPostingExcerpt,
+} from "@/lib/revolut-people";
+import { alternatesFor } from "@/lib/site";
 import styles from "../careers-page.module.css";
 
 type JobOpeningPageProps = {
   params: Promise<{ slug: string }>;
 };
 
-export function generateStaticParams() {
-  return careerFeaturedRoles.map((role) => ({ slug: role.id }));
+export const revalidate = 900;
+export const dynamicParams = true;
+
+export async function generateStaticParams() {
+  const postings = await getJobPostings();
+  return (postings ?? []).map((posting) => ({ slug: posting.slug }));
 }
 
 export async function generateMetadata({
   params,
 }: JobOpeningPageProps): Promise<Metadata> {
   const { slug } = await params;
-  const role = careerFeaturedRoles.find((item) => item.id === slug);
-  if (!role) {
-    return { title: "Job Opening — Utopia" };
+  const posting = await getJobPosting(slug);
+  if (!posting) {
+    return { title: "Page not found — Utopia" };
   }
+  const description = jobPostingExcerpt(posting, 160);
+  const location = [...posting.offices, ...posting.remote][0];
   return {
-    title: `${role.title} — Careers at Utopia`,
-    description: jobOpeningContent.intro,
+    title: `${posting.title} — Careers at Utopia`,
+    description,
+    alternates: alternatesFor(`/careers/${posting.slug}`),
+    openGraph: {
+      type: "article",
+      title: `${posting.title}${location ? ` · ${location}` : ""} — Utopia`,
+      description,
+    },
   };
 }
 
 export default async function JobOpeningPage({ params }: JobOpeningPageProps) {
   const { slug } = await params;
-  const role = careerFeaturedRoles.find((item) => item.id === slug);
-  if (!role) {
+  const posting = await getJobPosting(slug);
+  if (!posting) {
     notFound();
+  }
+  if (posting.slug !== slug) {
+    permanentRedirect(`/careers/${posting.slug}`);
   }
 
   return (
     <>
-      <SiteNav activeLink="Careers" />
+      <SiteNav />
       <main className={styles.page}>
-        <JobHero role={role} />
-        <JobDescription />
+        <JobHero posting={posting} />
+        <JobDescription
+          sections={posting.sections}
+          applyUrl={posting.applyUrl}
+        />
         <JobWorkCarousel />
         <JobTeamUp />
         <JobCta />

@@ -21,9 +21,12 @@
   pointer-events: none;
 }
 
+/* Desktop keeps the nav bar visible above the overlay (it holds the only close
+   affordance ≥1024), so the sheet starts below it — prototype v9
+   `.nav-menu { top: var(--nav-h) }`. */
 @media (min-width: 1024px) {
   .menu {
-    display: none;
+    top: 64px;
   }
 }
 
@@ -279,4 +282,244 @@
 .label {
   font-size: var(--utopia-text-base);
   letter-spacing: var(--utopia-tracking-tight-sm);
+}
+
+/* ── Layout switch: stacked accordion <1024, four-column panel ≥1024 ── */
+
+.compact {
+  display: block;
+}
+
+.panel {
+  display: none;
+}
+
+@media (min-width: 1024px) {
+  .compact {
+    display: none;
+  }
+
+  .panel {
+    display: block;
+  }
+}
+
+/* ── Desktop panel (prototype desktop_v9 .nav-menu__panel, Figma 24.07
+      `154:7535`): four destination columns + a secondary link row on the
+      left, featured card pinned right. ── */
+
+/* Side inset tracks the prototype's `.nav-menu__panel`: 120px at 1440 and
+   above, easing down to 24px on narrow desktops. A flat 120px starved the four
+   columns between 1024 and ~1350 and made them collide. */
+.panelGrid {
+  --panel-inset: clamp(24px, calc(120px - (1440px - 100vw) * 0.2), 120px);
+
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 387px;
+  gap: 20px;
+  align-items: flex-start;
+  max-width: var(--utopia-desktop-width);
+  margin: 0 auto;
+  padding: 40px calc(var(--panel-inset) + 12px) 60px var(--panel-inset);
+  border-top: 1px solid #ebdfd2;
+  box-sizing: border-box;
+}
+
+.panelLeft {
+  display: flex;
+  flex-direction: column;
+  gap: 64px;
+  min-width: 0;
+}
+
+.columns {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 20px;
+  min-width: 0;
+}
+
+.column {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 24px;
+  min-width: 0;
+}
+
+/* 24px/-0.72px — prototype `.nav-menu__col-title` (v8 and v9 agree); the 26px
+   token is the mobile/footer size and reads oversized here. */
+.columnTitle {
+  font-family: var(--utopia-font-display);
+  font-size: 24px;
+  letter-spacing: -0.72px;
+  line-height: 1.2;
+  color: var(--utopia-text-primary);
+}
+
+.columnLinks {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 14px;
+}
+
+/* Destinations have no pages yet — muted and inert, matching the footer. */
+.columnLink {
+  font-family: var(--utopia-font-body);
+  font-size: var(--utopia-text-md);
+  letter-spacing: var(--utopia-tracking-tight-md);
+  line-height: var(--utopia-leading-relaxed);
+  color: var(--utopia-text-primary);
+  opacity: 0.6;
+  cursor: default;
+}
+
+.secondary {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  column-gap: 28px;
+  row-gap: 8px;
+  padding-top: 6px;
+}
+
+.secondaryLink {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-family: var(--utopia-font-body);
+  font-size: var(--utopia-text-md);
+  letter-spacing: var(--utopia-tracking-tight-md);
+  line-height: var(--utopia-leading-relaxed);
+  color: var(--utopia-text-primary);
+  text-decoration: none;
+  transition: gap 250ms ease;
+}
+
+.secondaryLink:hover {
+  gap: 12px;
+}
+
+.secondaryLinkDisabled {
+  opacity: 0.6;
+  pointer-events: none;
+  cursor: default;
+}
+
+.secondaryArrow {
+  display: flex;
+  align-items: center;
+  width: 0;
+  opacity: 0;
+  overflow: hidden;
+  transform: translateX(-4px);
+  transition:
+    opacity 250ms ease,
+    transform 250ms ease,
+    width 250ms ease;
+}
+
+.secondaryLink:hover .secondaryArrow {
+  width: 14px;
+  opacity: 1;
+  transform: translateX(0);
+}
+
+/* ── Featured card (Figma Pic 1:3844) ── */
+
+/* Hover scales the whole card as one frame — prototype `.nav-menu__card`
+   (1.0413 is the 403/387 ratio from the Figma hover variant). */
+.card {
+  position: relative;
+  display: block;
+  width: 387px;
+  height: 296px;
+  justify-self: end;
+  flex-shrink: 0;
+  border-radius: var(--utopia-radius-sm);
+  overflow: hidden;
+  background: var(--utopia-text-primary);
+  text-decoration: none;
+  transform: scale(var(--card-scale, 1));
+  transform-origin: right top;
+  transition: transform 500ms cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+.card:hover {
+  --card-scale: 1.0413;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .card {
+    transition: none;
+  }
+
+  .card:hover {
+    --card-scale: 1;
+  }
+}
+
+.cardImage {
+  object-fit: cover;
+}
+
+.cardShade {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    180deg,
+    rgba(51, 47, 46, 0) 60%,
+    rgba(51, 47, 46, 0.9) 100%
+  );
+}
+
+.cardFooter {
+  position: absolute;
+  left: 22px;
+  right: 22px;
+  bottom: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.cardText {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.cardTitle {
+  font-family: var(--utopia-font-body);
+  font-size: 19px;
+  line-height: 1.05;
+  letter-spacing: -0.19px;
+  color: var(--utopia-text-inverse);
+}
+
+.cardSubtitle {
+  font-family: var(--utopia-font-body);
+  font-size: var(--utopia-text-sm);
+  line-height: 1.4;
+  letter-spacing: -0.07px;
+  color: var(--utopia-bg-cream);
+  opacity: 0.65;
+}
+
+.cardAction {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  flex-shrink: 0;
+  border: 0.5px solid rgba(255, 255, 255, 0.4);
+  border-radius: var(--utopia-radius-pill);
+  /* 30% → 50% on hover, per prototype `.nav-menu__card-arrow`. */
+  background: rgba(255, 255, 255, 0.3);
+}
+
+.card:hover .cardAction {
+  background: rgba(255, 255, 255, 0.5);
 }

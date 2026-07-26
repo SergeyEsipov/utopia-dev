@@ -11,30 +11,36 @@ const PLAY_RETRY_MAX = 10;
 type HeroVideoLayerProps = {
   bgMix: HeroBackgroundMix;
   ready: boolean;
-  isScrolling: boolean;
 };
 
 /**
- * Poster-first progressive enhancement for the desktop/tablet hero
- * (reference: desktop_v3/js/lazy-video.js + its hero slider): the poster jpg
- * layer beneath renders immediately; the ACTIVE destination's muted looping
- * 4K clip is lazy-loaded once the hero is on screen and fades in only when
- * it is actually playing. Only mounted at >=768 without reduced motion
- * (gated by the parent), so mobile stays on static images.
+ * Poster-first progressive enhancement for the desktop/tablet hero: the poster
+ * jpg beneath renders immediately, and each destination's muted looping clip
+ * fades in once it is actually playing.
+ *
+ * Videos are never unmounted once a destination has been visited — the
+ * prototype keeps its whole set alive and hands over video → video, holding
+ * the outgoing clip on screen until the incoming one can paint. Keying a
+ * single <video> per destination (what this used to do) tore the element down
+ * on every change, so each step flashed back to the poster and refetched the
+ * clip, even when stepping back to one already watched.
+ *
+ * Only mounted at ≥768 without reduced motion (gated by the parent).
  */
-export function HeroVideoLayer({ bgMix, ready, isScrolling }: HeroVideoLayerProps) {
+export function HeroVideoLayer({ bgMix, ready }: HeroVideoLayerProps) {
   const wrapRef = useRef<HTMLDivElement>(null);
-  const videoRef = useRef<HTMLVideoElement | null>(null);
+  const videoRefs = useRef<(HTMLVideoElement | null)[]>([]);
   const [inView, setInView] = useState(false);
   const [everInView, setEverInView] = useState(false);
-  const [playingIndex, setPlayingIndex] = useState<number | null>(null);
+  /** Destinations whose <video> has been mounted; only ever grows. */
+  const [mounted, setMounted] = useState<number[]>([]);
+  /** The clip currently faded in — lags activeIndex until the new one paints. */
+  const [visibleIndex, setVisibleIndex] = useState<number | null>(null);
 
   const resting = isRestingBackground(bgMix);
 
   // Last destination the carousel settled on (render-time adjustment, see
-  // react.dev "adjusting state when a prop changes"); while a crossfade is in
-  // flight the previous video stays mounted (hidden) so returning to the same
-  // card fades straight back in without a reload.
+  // react.dev "adjusting state when a prop changes").
   const [activeIndex, setActiveIndex] = useState(bgMix.from);
   if (resting && activeIndex !== bgMix.from) {
     setActiveIndex(bgMix.from);
@@ -60,76 +66,109 @@ export function HeroVideoLayer({ bgMix, ready, isScrolling }: HeroVideoLayerProp
     return () => observer.disconnect();
   }, []);
 
-  // Lazy-load: the <video> only mounts (and starts fetching) once the
-  // carousel has initialised and the hero has been on screen at least once.
   const loadStarted = ready && everInView;
 
-  // Drive playback per mounted destination (keyed remount on change).
+  // Mount the active destination's clip the first time it is needed; mounted
+  // clips stay put, so revisiting one resumes instead of refetching. Adjusted
+  // during render (same pattern as activeIndex above) rather than in an
+  // effect, so the <video> exists on the very first frame it is needed.
+  if (loadStarted && !mounted.includes(activeIndex)) {
+    setMounted([...mounted, activeIndex]);
+  }
+
+  // Play the active clip, pause the rest.
   useEffect(() => {
     if (!loadStarted) return;
-
-    const video = videoRef.current;
-    if (!video) return;
-
-    // Belt-and-suspenders for Safari: muted autoplay needs the JS
-    // properties, not just the HTML attributes (same as desktop_v3).
-    video.muted = true;
-    video.defaultMuted = true;
-    video.playsInline = true;
 
     let cancelled = false;
     let attempts = 0;
     let retryTimer: ReturnType<typeof setTimeout> | null = null;
 
+    const active = videoRefs.current[activeIndex] ?? null;
+
+    videoRefs.current.forEach((video, index) => {
+      if (video && index !== activeIndex && !video.paused) video.pause();
+    });
+
+    if (!active) return;
+
+    // Belt-and-suspenders for Safari: muted autoplay needs the JS properties,
+    // not just the HTML attributes.
+    active.muted = true;
+    active.defaultMuted = true;
+    active.playsInline = true;
+
     const tryPlay = () => {
-      if (cancelled || !video.paused) return;
-      const playPromise = video.play();
+      if (cancelled || !active.paused) return;
+      const playPromise = active.play();
       if (!playPromise) return;
       playPromise.catch(() => {
-        // Safari rejects muted autoplay while the element is still
-        // effectively invisible; retry on a bounded timer (desktop_v3 trick).
+        // Safari rejects muted autoplay while the element is still effectively
+        // invisible; retry on a bounded timer.
         if (cancelled || ++attempts > PLAY_RETRY_MAX) return;
         retryTimer = setTimeout(tryPlay, PLAY_RETRY_MS);
       });
     };
 
+    // Hand over only once the incoming clip can actually paint, so the
+    // outgoing one covers the gap instead of the poster flashing through.
+    // `timeupdate` rather than a one-shot `playing` handler: the latter can
+    // fire in the gap between mounting the element and React wiring its
+    // listener, and the hand-over would then never happen for that clip.
+    const reveal = () => {
+      if (!cancelled) setVisibleIndex(activeIndex);
+    };
+
     if (inView) {
       tryPlay();
-      video.addEventListener("canplay", tryPlay);
-    } else if (!video.paused) {
-      video.pause();
+      if (active.readyState >= HTMLMediaElement.HAVE_FUTURE_DATA) reveal();
+      active.addEventListener("canplay", tryPlay);
+      active.addEventListener("playing", reveal);
+      active.addEventListener("timeupdate", reveal);
+    } else if (!active.paused) {
+      active.pause();
     }
 
     return () => {
       cancelled = true;
       if (retryTimer) clearTimeout(retryTimer);
-      video.removeEventListener("canplay", tryPlay);
+      active.removeEventListener("canplay", tryPlay);
+      active.removeEventListener("playing", reveal);
+      active.removeEventListener("timeupdate", reveal);
     };
-  }, [loadStarted, activeIndex, inView]);
-
-  const destination = heroCarouselDestinations[activeIndex];
-  const showVideo =
-    playingIndex === activeIndex && resting && !isScrolling && inView;
+  }, [loadStarted, activeIndex, inView, mounted]);
 
   return (
     <div ref={wrapRef} className={styles.bgVideoWrap} aria-hidden>
-      {loadStarted && destination.video ? (
-        <video
-          key={destination.id}
-          ref={videoRef}
-          className={[styles.bgVideo, showVideo ? styles.bgVideoVisible : ""]
-            .filter(Boolean)
-            .join(" ")}
-          src={destination.video}
-          poster={destination.poster}
-          muted
-          loop
-          playsInline
-          preload="auto"
-          tabIndex={-1}
-          onPlaying={() => setPlayingIndex(activeIndex)}
-        />
-      ) : null}
+      {mounted.map((index) => {
+        const destination = heroCarouselDestinations[index];
+        if (!destination?.video) return null;
+
+        const isActive = index === activeIndex;
+        // Deliberately not gated on carousel motion: the clips now hand over
+        // to each other, so hiding them mid-step would reintroduce the poster
+        // flash this layer exists to avoid.
+        const isVisible = index === visibleIndex && inView;
+
+        return (
+          <video
+            key={destination.id}
+            ref={(node) => {
+              videoRefs.current[index] = node;
+            }}
+            className={[styles.bgVideo, isVisible ? styles.bgVideoVisible : ""]
+              .filter(Boolean)
+              .join(" ")}
+            src={destination.video}
+            poster={destination.poster}
+            muted
+            loop
+            playsInline
+            preload={isActive ? "auto" : "metadata"}
+            tabIndex={-1}
+          />
+        );
+      })}
     </div>
   );
 }

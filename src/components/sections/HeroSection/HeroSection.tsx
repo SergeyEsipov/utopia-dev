@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import Image from "next/image";
 import { Heading } from "@/design-system/components";
 import { images } from "@/lib/media";
@@ -11,7 +11,6 @@ import {
 } from "./HeroMobileCarousel";
 import { HeroRequestCta } from "./HeroRequestCta";
 import { HeroSwiperMobile } from "./HeroSwiperMobile";
-import { useHeroSettle } from "./useHeroSettle";
 import styles from "./hero-section.module.css";
 
 export function HeroSection() {
@@ -26,17 +25,12 @@ export function HeroSection() {
     return () => mq.removeEventListener("change", sync);
   }, []);
 
-  // The pin supplies the scroll runway the sticky hero settles across (≥1024).
-  const pinRef = useRef<HTMLDivElement>(null);
-  const heroRef = useRef<HTMLElement>(null);
-  useHeroSettle(pinRef, heroRef, !isMobile);
-
   if (isMobile) return <HeroSwiperMobile />;
 
   return (
     <HeroMobileCarouselRoot>
-      <div ref={pinRef} className={styles.heroPin}>
-        <section ref={heroRef} className={styles.hero} aria-label="Hero">
+      <div className={styles.heroPin} data-snap-screen="hero">
+        <section className={styles.hero} aria-label="Hero">
           <div className={styles.heroMedia}>
             <HeroMobileBackgroundLayer />
 

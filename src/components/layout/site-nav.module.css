@@ -1,6 +1,7 @@
 .nav {
   display: none;
   position: relative;
+  z-index: 2;
   background: var(--utopia-bg-cream);
 }
 
@@ -10,14 +11,68 @@
   }
 }
 
-/* Above the frosted scrim while a dropdown panel is open */
-.navOpen {
-  z-index: calc(var(--utopia-z-menu) + 1);
-  /* Beige Dark #ebdfd2 — Figma 1:3231 divider (no matching token) */
-  box-shadow: 0 1px 0 #ebdfd2;
+/* Pages without a hero: keep the bar in flow but pinned, so the burger — the
+   only navigation affordance since the redesign — never scrolls out of reach. */
+@media (min-width: 1024px) {
+  .nav {
+    position: sticky;
+    top: 0;
+  }
 }
 
-/* ── Desktop bar (Figma 1:3207) ── */
+/* Home: float clear over the full-bleed hero (prototype .nav is fixed and
+   transparent until .nav--solid). Fixed rather than sticky so the hero starts
+   at the very top of the viewport underneath it. */
+@media (min-width: 1024px) {
+  .navOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    background: transparent;
+    transition:
+      background 350ms ease,
+      box-shadow 350ms ease;
+  }
+
+  .navSolid.navOverlay {
+    background: var(--utopia-bg-cream);
+  }
+
+  /* Transparent state: white wordmark over the photo, and no CTA — Figma
+     24.07 `154:7489` shows only the wordmark and the burger over the hero. */
+  .navOverlay:not(.navSolid) .logo img {
+    filter: none;
+  }
+
+  .navOverlay:not(.navSolid) .requestPill {
+    display: none;
+  }
+}
+
+/* While the full-screen menu is open the bar must sit above the overlay — it
+   holds the only close affordance on desktop (SiteDock is hidden ≥1024).
+   Deliberately does NOT set `position`: the bar is already pinned (fixed when
+   it overlays the hero, sticky otherwise), and overriding that here would
+   re-break the pin. Staying pinned also depends on SiteMenu locking <html>
+   rather than <body> — a body lock makes body the scroll container and sticky
+   silently stops working. */
+/* Only ≥1024: there the overlay starts below the bar (`.menu { top: 64px }`)
+   and needs it on top. At 640–1023 the overlay is full-viewport and carries
+   its own logo, so lifting the bar above it would paint over that logo — the
+   tablet dock closes the menu instead. */
+@media (min-width: 1024px) {
+  .navOpen {
+    z-index: calc(var(--utopia-z-menu) + 1);
+    /* Beige Dark #ebdfd2 — Figma 1:3231 divider (no matching token) */
+    box-shadow: 0 1px 0 #ebdfd2;
+  }
+}
+
+/* ── Desktop bar (Figma 24.07 `154:7489` / prototype desktop_v9 .nav) ──
+   Wordmark left, actions right. The pre-24.07 design had inline
+   Destinations/Experiences dropdown triggers here; those were replaced by the
+   single burger-driven SiteMenu. */
 
 .bar {
   display: none;
@@ -36,98 +91,34 @@
   }
 }
 
-.left {
+.logo {
   display: flex;
   align-items: center;
-  gap: 20px;
-}
-
-.leaf {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 36px;
-  height: 36px;
   flex-shrink: 0;
 }
 
-.leaf:hover {
-  opacity: 0.7;
+/* The wordmark ships white (it is drawn to sit over the hero in the
+   prototype). Our bar is always cream, so darken it the same way v9 does for
+   its solid state (.nav--solid .nav__logo img). */
+.logo img {
+  filter: brightness(0);
 }
 
-.trigger {
-  display: inline-flex;
+.actions {
+  display: flex;
   align-items: center;
   gap: 4px;
-  padding: 0;
-  border: none;
-  background: transparent;
-  cursor: pointer;
-  font-family: var(--utopia-font-body);
-  font-size: var(--utopia-text-sm);
-  line-height: 1.4;
-  letter-spacing: -0.07px;
-  color: var(--utopia-text-black);
 }
 
-.trigger:hover {
-  opacity: 0.7;
-}
-
-.triggerChevron {
-  flex-shrink: 0;
-  transition: transform 300ms cubic-bezier(0.22, 1, 0.36, 1);
-}
-
-.triggerChevronOpen {
-  transform: rotate(180deg);
-}
-
-.logo {
-  position: absolute;
-  left: 50%;
-  transform: translateX(-50%);
-  display: flex;
-  align-items: center;
-}
-
-.right {
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  gap: 24px;
-}
-
-.rightLinks {
-  display: flex;
-  align-items: center;
-  gap: 20px;
-}
-
-.navLink {
-  font-family: var(--utopia-font-body);
-  font-size: var(--utopia-text-sm);
-  line-height: 1.4;
-  letter-spacing: -0.07px;
-  color: var(--utopia-text-black);
-  text-decoration: none;
-}
-
-.navLink:hover {
-  opacity: 0.7;
-}
-
-.navLinkActive {
-  opacity: 0.55;
-}
-
+/* Radius comes from the pill token so the rounded (desktop_v8) and sharp
+   (desktop_v9) variants both fall out of the token switch. */
 .requestPill {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   padding: 11px 24px;
   border: 0.5px solid rgba(255, 255, 255, 0.4);
-  border-radius: var(--utopia-radius-sm);
+  border-radius: var(--utopia-radius-pill);
   /* Beige Dark #ebdfd2 at 70% — Figma 1:3226 button fill (no matching token) */
   background: rgba(235, 223, 210, 0.7);
   font-family: var(--utopia-font-body);
@@ -141,6 +132,29 @@
 
 .requestPill:hover {
   opacity: 0.8;
+}
+
+.burger {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border: 0.5px solid rgba(255, 255, 255, 0.25);
+  border-radius: var(--utopia-radius-pill);
+  background: rgba(249, 245, 234, 0.6);
+  cursor: pointer;
+  transition:
+    background 300ms ease,
+    border-color 300ms ease;
+}
+
+.burger:hover {
+  background: rgba(249, 245, 234, 0.85);
+  border-color: rgba(255, 255, 255, 0.4);
 }
 
 /* ── Tablet bar, 640–1023 band (Figma home.tablet768.nav 1:982) ── */
@@ -179,192 +193,4 @@
   transform: translateX(-50%);
   display: flex;
   align-items: center;
-}
-
-/* ── Dropdown panel (Figma 1:3227 / 1:3271) ── */
-
-.panel {
-  display: none;
-  position: absolute;
-  top: 100%;
-  left: 0;
-  right: 0;
-}
-
-@media (min-width: 1024px) {
-  .panel {
-    display: block;
-    animation: navPanelIn 450ms cubic-bezier(0.22, 1, 0.36, 1) both;
-  }
-}
-
-.panelInner {
-  display: flex;
-  align-items: flex-start;
-  gap: 20px;
-  max-width: var(--utopia-desktop-width);
-  margin: 0 auto;
-  padding: 40px 120px 60px;
-}
-
-.panelColumn {
-  flex: 1 0 0;
-  min-width: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 24px;
-}
-
-.panelHeading {
-  font-size: var(--utopia-text-2xl);
-  letter-spacing: var(--utopia-tracking-display-md);
-}
-
-.panelList {
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-
-.panelLink {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  min-height: 24px;
-  font-family: var(--utopia-font-body);
-  font-size: var(--utopia-text-md);
-  line-height: var(--utopia-leading-relaxed);
-  letter-spacing: var(--utopia-tracking-tight-md);
-  color: var(--utopia-text-muted);
-  text-decoration: none;
-}
-
-.panelLinkActive {
-  color: var(--utopia-text-primary);
-}
-
-.panelLinkActive:hover {
-  opacity: 0.7;
-}
-
-/* ── Featured / experience image cards (Figma Pic 1:3844) ── */
-
-.card {
-  position: relative;
-  display: block;
-  width: 387px;
-  height: 296px;
-  flex-shrink: 0;
-  border-radius: var(--utopia-radius-sm);
-  overflow: hidden;
-  background: var(--utopia-text-primary);
-  text-decoration: none;
-}
-
-.cardImage {
-  object-fit: cover;
-}
-
-.cardShade {
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(
-    180deg,
-    rgba(51, 47, 46, 0) 60%,
-    rgba(51, 47, 46, 0.9) 100%
-  );
-}
-
-.cardFooter {
-  position: absolute;
-  left: 22px;
-  right: 22px;
-  bottom: 18px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.cardText {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.cardTitle {
-  font-family: var(--utopia-font-body);
-  font-size: 19px;
-  line-height: 1.05;
-  letter-spacing: -0.19px;
-  color: var(--utopia-text-inverse);
-}
-
-.cardSubtitle {
-  font-family: var(--utopia-font-body);
-  font-size: var(--utopia-text-sm);
-  line-height: 1.4;
-  letter-spacing: -0.07px;
-  color: var(--utopia-bg-cream);
-  opacity: 0.65;
-}
-
-.cardAction {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 40px;
-  height: 40px;
-  flex-shrink: 0;
-  border: 0.5px solid rgba(255, 255, 255, 0.4);
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.5);
-}
-
-.card:hover .cardAction {
-  background: rgba(255, 255, 255, 0.65);
-}
-
-/* ── Frosted full-viewport scrim behind the open panel ── */
-
-.scrim {
-  display: none;
-  position: fixed;
-  inset: 0;
-  z-index: var(--utopia-z-menu);
-  /* Beige #f9f5ea frosted — Figma 1:3227 backdrop-blur overlay */
-  background: rgba(249, 245, 234, 0.92);
-  backdrop-filter: blur(60px);
-  -webkit-backdrop-filter: blur(60px);
-}
-
-@media (min-width: 1024px) {
-  .scrim {
-    display: block;
-    animation: navScrimIn 350ms ease both;
-  }
-}
-
-@keyframes navPanelIn {
-  from {
-    opacity: 0;
-    transform: translate3d(0, -8px, 0);
-  }
-
-  to {
-    opacity: 1;
-    transform: translate3d(0, 0, 0);
-  }
-}
-
-@keyframes navScrimIn {
-  from {
-    opacity: 0;
-  }
-
-  to {
-    opacity: 1;
-  }
 }

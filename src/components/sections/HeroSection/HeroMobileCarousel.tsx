@@ -667,13 +667,35 @@ export function HeroMobileCarouselRoot({ children }: { children: ReactNode }) {
     return () => observer.disconnect();
   }, []);
 
-  // Autoplay — matches the prototype hero (desktop_v3 4s). The effect depends
-  // on `centeredSlide`, so the timer is REBASED on every slide change (manual
-  // or auto) instead of firing on a fixed cadence — otherwise a manual switch
-  // right before the tick would advance again almost immediately (bug #4).
-  // Skipped while scrolling; paused off-screen / under reduced motion.
+  // Freeze the slider once the page leaves the top — the prototype gates its
+  // hero on `scrollY <= 4`, which with the snap engine means "the hero is the
+  // screen you are on". Only below the snap breakpoint does the page scroll
+  // freely past a still-visible hero, so there the gate is disabled.
+  const [atTop, setAtTop] = useState(true);
   useEffect(() => {
-    if (!ready || !inView || reducedMotion || isScrolling) return;
+    const snapped = window.matchMedia("(min-width: 1024px)");
+    const sync = () =>
+      setAtTop((prev) => {
+        const next = !snapped.matches || window.scrollY <= 4;
+        return prev === next ? prev : next;
+      });
+
+    sync();
+    window.addEventListener("scroll", sync, { passive: true });
+    snapped.addEventListener("change", sync);
+    return () => {
+      window.removeEventListener("scroll", sync);
+      snapped.removeEventListener("change", sync);
+    };
+  }, []);
+
+  // Autoplay — matches the prototype hero (4s). The effect depends on
+  // `centeredSlide`, so the timer is REBASED on every slide change (manual or
+  // auto) instead of firing on a fixed cadence — otherwise a manual switch
+  // right before the tick would advance again almost immediately (bug #4).
+  // Skipped while scrolling; paused off-screen / off-top / under reduced motion.
+  useEffect(() => {
+    if (!ready || !inView || !atTop || reducedMotion || isScrolling) return;
     const interval = isDesktopHeroLayout() ? 4000 : 4500;
     const timer = setTimeout(() => {
       if (!userScrollIntentRef.current && !isScrollingRef.current) {
@@ -681,7 +703,7 @@ export function HeroMobileCarouselRoot({ children }: { children: ReactNode }) {
       }
     }, interval);
     return () => clearTimeout(timer);
-  }, [ready, inView, reducedMotion, isScrolling, centeredSlide, scrollToSlide]);
+  }, [ready, inView, atTop, reducedMotion, isScrolling, centeredSlide, scrollToSlide]);
 
   return (
     <HeroCarouselContext.Provider
@@ -764,6 +786,9 @@ export function HeroMobileCarouselTrack() {
     };
   }, [trackRef]);
 
+  // Clicking a card steps exactly one slot toward it, never straight to it —
+  // prototype hero (`i < half → goPrev`, `i > half → goNext`, centre no-op).
+  // Jumping to the index skipped a card in the five-card layout.
   const handleSlideClick = useCallback(
     (index: number, event?: MouseEvent) => {
       event?.stopPropagation();
@@ -772,7 +797,7 @@ export function HeroMobileCarouselTrack() {
         return;
       }
       if (index === centeredSlide) return;
-      scrollToSlide(index, "smooth");
+      scrollToSlide(centeredSlide + (index < centeredSlide ? -1 : 1), "smooth");
     },
     [centeredSlide, scrollToSlide],
   );
@@ -782,7 +807,7 @@ export function HeroMobileCarouselTrack() {
       if (index === centeredSlide) return;
       if (event.key !== "Enter" && event.key !== " ") return;
       event.preventDefault();
-      scrollToSlide(index, "smooth");
+      scrollToSlide(centeredSlide + (index < centeredSlide ? -1 : 1), "smooth");
     },
     [centeredSlide, scrollToSlide],
   );

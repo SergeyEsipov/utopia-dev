@@ -1,7 +1,15 @@
-/* Scroll-reveal — ported from the prototype (v2/css/reveal.css). Children of a
-   [data-reveal-group] fade + slide up (staggered by --reveal-i) once the group
-   gets the .is-revealed class from useReveal. Global attribute selectors so they
-   pierce CSS-module scoping. */
+/* Scroll-reveal — ported from the prototype. Children of a [data-reveal-group]
+   fade + slide up (staggered by --reveal-i) once the group gets .is-revealed
+   from useReveal. Global attribute selectors so they pierce CSS-module scoping.
+
+   Sections tune themselves through custom properties rather than needing a rule
+   here, since their class names are hashed by CSS Modules:
+     --reveal-step   per-group stagger    (prototype: 200ms; destinations and
+                                           the fullwidth section use 140ms)
+     --reveal-delay  fixed delay override (prototype pins the footer's bottom
+                                           bar to 0.8s instead of its slot)
+   and [data-reveal="fade"] switches an element to the opacity-only treatment
+   the Private World section uses. */
 
 @media (prefers-reduced-motion: no-preference) {
   [data-reveal-group]:not(.is-revealed) [data-reveal] {
@@ -13,7 +21,10 @@
     transition:
       opacity 0.75s cubic-bezier(0.22, 0.61, 0.36, 1),
       transform 0.75s cubic-bezier(0.22, 0.61, 0.36, 1);
-    transition-delay: calc(var(--reveal-i, 0) * 90ms);
+    transition-delay: var(
+      --reveal-delay,
+      calc(var(--reveal-i, 0) * var(--reveal-step, 200ms))
+    );
     will-change: opacity, transform;
   }
 
@@ -21,5 +32,26 @@
     opacity: 1;
     transform: translate3d(0, 0, 0);
     will-change: auto;
+  }
+
+  /* Opacity-only, slower and unstaggered — prototype `.private-world .pw-stage`
+     / `.private-world__caption`: these hold their layout and just bloom in. */
+  [data-reveal-group]:not(.is-revealed) [data-reveal="fade"] {
+    opacity: 0;
+    transform: none;
+  }
+
+  [data-reveal="fade"] {
+    transition-property: opacity;
+    transition-duration: 1.5s;
+    transition-timing-function: cubic-bezier(0.25, 1, 0.5, 1);
+    transition-delay: 0ms;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-reveal] {
+    opacity: 1;
+    transform: none;
   }
 }

@@ -113,163 +113,408 @@
   text-decoration: none;
 }
 
-/* ── Tablet (640–1023, Figma 1:1101) + Desktop (≥1024, Figma 1:942 / 1:1788) ── */
+/* ── Desktop / tablet footer (prototype desktop_v9) ──
+   Base = tablet layout (≥640, 3-col grid); ≥1024 switches to the 5-col desktop
+   grid; ≥1900 is the wide tier. Terms/Privacy live in the bottom bar at every
+   width (the in-grid legal column stays hidden, matching v9). */
 
 .desktop {
   display: none;
   position: relative;
-  padding: 60px 60px 32px;
+  overflow: hidden;
   box-sizing: border-box;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 64px;
+  padding: 72px 40px 32px;
+  background: linear-gradient(
+      180deg,
+      rgba(249, 245, 234, 0.4) 21%,
+      rgba(249, 245, 234, 0) 100%
+    ),
+    #f1e8dc;
 }
 
 @media (min-width: 640px) {
   .desktop {
-    display: block;
+    display: flex;
   }
 }
 
-@media (min-width: 1024px) {
-  .desktop {
-    padding: 100px 120px 32px;
-  }
+.desktopLeaves {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center bottom;
+  z-index: 0;
+  pointer-events: none;
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0%, #000 42%);
+  mask-image: linear-gradient(to bottom, transparent 0%, #000 42%);
 }
 
-@media (min-width: 1900px) {
-  .desktop {
-    padding: 100px 200px 32px;
-  }
+.top,
+.bottom {
+  position: relative;
+  z-index: 1;
 }
 
-.columns {
-  display: flex;
-  flex-wrap: wrap;
+.top {
+  width: 100%;
+}
+
+/* Tablet grid: brand full-width, then 3 destination columns, then the
+   experiences/contact row. */
+.menu {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   column-gap: 20px;
-  row-gap: 48px;
+  row-gap: 64px;
+  align-items: flex-start;
+  width: 100%;
 }
 
-.column {
+.brand {
+  grid-column: 1 / -1;
+  grid-row: 1;
   min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0;
 }
 
-/* Tablet: three destination columns fill row 1; link groups wrap to row 2. */
-.columnDest {
-  flex: 1 1 calc((100% - 40px) / 3);
+.brandMark {
+  display: block;
 }
 
-.columnLinks {
-  flex: 0 0 206px;
-}
-
-/* Tablet footer has no scroll-to-top button. */
-.columnAction {
+.brandMarkDesktop {
   display: none;
 }
 
-@media (min-width: 1024px) {
-  .columns {
-    flex-wrap: nowrap;
-  }
-
-  .columnDest,
-  .columnLinks {
-    flex: 1 1 0;
-  }
-
-  .columnAction {
-    display: flex;
-    flex: 1 1 0;
-    flex-direction: column;
-    align-items: flex-end;
-  }
+.brandMarkTablet {
+  display: block;
+  width: 43.838px;
+  height: 61.41px;
+  filter: brightness(0);
 }
 
-.columnTitle {
-  font-size: var(--utopia-text-2xl);
-  margin-bottom: 20px;
+.brandWord {
+  display: none;
 }
 
-.columnList {
-  list-style: none;
+.col {
   display: flex;
   flex-direction: column;
-  gap: 12px;
-}
-
-.columnLink {
-  font-family: var(--utopia-font-body);
-  font-size: var(--utopia-text-xs);
-  letter-spacing: var(--utopia-tracking-tight-xs);
-  line-height: var(--utopia-leading-normal);
-  color: var(--utopia-text-muted);
-  text-decoration: none;
-}
-
-.columnLinkActive {
-  color: var(--utopia-text-primary);
-}
-
-/* Experiences / About link groups — dark text, 20px pitch (Figma 1:963 / 1:1122). */
-.columnLinks .columnList {
   gap: 20px;
+  min-width: 0;
 }
 
-.columnLinks .columnLink {
+.colTropical {
+  grid-column: 1;
+  grid-row: 2;
+}
+
+.colUrban {
+  grid-column: 2;
+  grid-row: 2;
+}
+
+.colAlpine {
+  grid-column: 3;
+  grid-row: 2;
+}
+
+.colExperiences {
+  grid-column: 1;
+  grid-row: 3;
+  margin-top: 16px;
+}
+
+.linksCol {
+  min-width: 0;
+}
+
+.linksColContact {
+  grid-column: 2;
+  grid-row: 3;
+  margin-top: 16px;
+  padding-top: 6px;
+}
+
+/* Kept in the DOM for parity with v9, but the legal links render in the bottom
+   bar at utopia-dev's breakpoints. */
+.legalCol {
+  display: none;
+}
+
+.colHeading {
+  font-family: var(--utopia-font-display);
+  font-weight: 400;
+  font-size: 26px;
+  letter-spacing: -0.78px;
+  line-height: 1.2;
   color: var(--utopia-text-primary);
-}
-
-.columnLink:hover {
-  opacity: 0.7;
-}
-
-/* Giant UTOPIA wordmark — 56px inset inside the content column (80px at 1920). */
-.wordmarkWrap {
-  width: 100%;
-  margin-top: 48px;
-  padding: 0 56px;
-  box-sizing: border-box;
-}
-
-@media (min-width: 1024px) {
-  .wordmarkWrap {
-    margin-top: 64px;
-  }
-}
-
-@media (min-width: 1900px) {
-  .wordmarkWrap {
-    padding: 0 80px;
-  }
-}
-
-.wordmarkImage {
-  display: block;
-  width: 100%;
-  height: auto;
-}
-
-.legal {
-  display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
-  margin-top: 56px;
   white-space: nowrap;
 }
 
-@media (min-width: 1900px) {
-  .legal {
-    margin-top: 48px;
+.colLinks {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  font-size: 16px;
+  letter-spacing: -0.08px;
+  line-height: 1.4;
+}
+
+.colLinks a,
+.colLinks span {
+  color: var(--utopia-text-primary);
+  opacity: 0.6;
+  text-decoration: none;
+}
+
+.colLinksDark a {
+  opacity: 1;
+}
+
+.linkArrow {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  transition: gap 0.25s ease;
+}
+
+.linkArrow:hover {
+  gap: 12px;
+}
+
+.linkArrowIcon {
+  display: flex;
+  align-items: center;
+  width: 0;
+  opacity: 0;
+  overflow: hidden;
+  transform: translateX(-4px);
+  transition:
+    opacity 0.25s ease,
+    transform 0.25s ease,
+    width 0.25s ease;
+}
+
+.linkArrowIcon img {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+}
+
+.linkArrow:hover .linkArrowIcon {
+  width: 14px;
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.linkDisabled {
+  cursor: default;
+  pointer-events: none;
+  color: var(--utopia-text-primary);
+  opacity: 0.6;
+}
+
+/* Bottom bar — tablet uses a 4-cell grid (Terms / Privacy on row 1, copy +
+   social on row 2). */
+.bottom {
+  /* Pinned instead of taking its slot in the stagger — prototype
+     `.footer .footer__bottom[data-reveal] { transition-delay: 0.8s }`.
+     Declared here, not on the shared `position/z-index` rule above: that one
+     is identical to `.top`'s, so the minifier merges the two selectors and the
+     variable would inherit down into every column. */
+  --reveal-delay: 0.8s;
+  display: grid;
+  grid-template-columns: auto auto minmax(0, 1fr) auto;
+  column-gap: 40px;
+  row-gap: 16px;
+  width: 100%;
+  font-size: 14.5px;
+  letter-spacing: -0.08px;
+  line-height: 1.4;
+  color: rgba(22, 21, 20, 0.6);
+}
+
+.copy {
+  grid-column: 1 / 4;
+  grid-row: 2;
+  min-width: 0;
+}
+
+.bottomLegal {
+  display: contents;
+}
+
+.bottomCellTerms {
+  grid-column: 1;
+  grid-row: 1;
+  white-space: nowrap;
+}
+
+.bottomCellPrivacy {
+  grid-column: 2;
+  grid-row: 1;
+  white-space: nowrap;
+}
+
+.bottomLink {
+  color: inherit;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.bottomLink:hover {
+  color: var(--utopia-text-primary);
+}
+
+.social {
+  grid-column: 4;
+  grid-row: 2;
+  justify-self: end;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+.socialIcon {
+  display: flex;
+  flex-shrink: 0;
+  opacity: 0.6;
+  transition: opacity 0.1s ease;
+}
+
+.socialIcon:hover {
+  opacity: 1;
+  transition: opacity 0.2s ease;
+}
+
+.socialIcon img {
+  width: 24px;
+  height: 24px;
+  display: block;
+}
+
+/* ── Desktop ≥1024: 5-column grid ── */
+@media (min-width: 1024px) {
+  .desktop {
+    --footer-grid: 285fr repeat(3, 217fr) 184fr;
+    --footer-right-pad: calc(
+      clamp(24px, calc(120px - (1440px - 100vw) * 0.2), 120px) + 12px
+    );
+    height: 640px;
+    min-height: 640px;
+    padding: 72px var(--footer-right-pad) 32px 24px;
+  }
+
+  .menu {
+    grid-template-columns: var(--footer-grid);
+    row-gap: 64px;
+  }
+
+  .brand {
+    grid-column: 1;
+    grid-row: 1;
+    gap: 26px;
+  }
+
+  .brandMarkDesktop {
+    display: block;
+    width: 132px;
+    height: 73.692px;
+  }
+
+  .brandMarkTablet {
+    display: none;
+  }
+
+  .brandWord {
+    display: block;
+    width: 130.997px;
+    height: 20.596px;
+    object-fit: contain;
+  }
+
+  .colTropical {
+    grid-column: 2;
+    grid-row: 1;
+  }
+
+  .colUrban {
+    grid-column: 3;
+    grid-row: 1;
+  }
+
+  .colAlpine {
+    grid-column: 4;
+    grid-row: 1;
+  }
+
+  .colExperiences {
+    grid-column: 5;
+    grid-row: 1;
+    margin-top: 0;
+  }
+
+  .linksColContact {
+    grid-column: 2 / 4;
+    grid-row: 2;
+    margin-top: 0;
+    padding-top: 0;
+  }
+
+  .linksColContact .colLinks {
+    flex-direction: row;
+    flex-wrap: nowrap;
+    align-items: center;
+    column-gap: 24px;
+  }
+
+  .linksColContact .colLinks a,
+  .linksColContact .colLinks span {
+    white-space: nowrap;
+  }
+
+  /* Desktop bottom bar is a single flex row. */
+  .bottom {
+    display: flex;
+    align-items: center;
+    gap: 32px;
+  }
+
+  .copy {
+    min-width: 0;
+  }
+
+  .bottomLegal {
+    display: flex;
+    align-items: center;
+    gap: 32px;
+    white-space: nowrap;
+  }
+
+  .social {
+    margin-left: auto;
+    margin-right: -8px;
   }
 }
 
-.legalCenter {
-  text-align: center;
-  text-decoration: none;
-}
+/* ── Wide ≥1900 ── */
+@media (min-width: 1900px) {
+  .colHeading {
+    font-size: 28px;
+  }
 
-.legalRight {
-  text-align: right;
-  text-decoration: none;
-}
-
-.legal a {
-  color: inherit;
+  .colLinks {
+    font-size: 17px;
+  }
 }

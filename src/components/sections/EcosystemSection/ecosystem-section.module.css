@@ -1,4 +1,6 @@
 .section {
+  /* Prototype `.destinations [data-reveal]` runs a tighter 140ms stagger. */
+  --reveal-step: 140ms;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -299,27 +301,19 @@
   }
 }
 
-/* ── Desktop ≥1024: slide up over the pinned hero (prototype desktop_v5) ──
-   The hero pins for a 60vh runway; this section eats that runway with a
-   negative margin so it rides up over the hero in normal document flow,
-   its rounded top edge squaring off (.sectionFlush, set by useHandoffFlush)
-   once it lands against the top of the viewport.
+/* ── Desktop ≥1024: its own full-height screen (prototype desktop_v8/v9) ──
+   The earlier port followed desktop_v5, where this section rode up over the
+   pinned hero (`margin-top: -60vh`) behind a 40px rounded edge that squared
+   off on arrival. v8 and v9 both dropped that: the section sits flush in flow
+   with no overlap and no radius, and the snap engine (useScrollSnap) steps
+   between the screens instead.
 
    Last in the file so it beats the ≥1024 / ≥1900 rules above. */
 @media (min-width: 1024px) {
   .section {
     position: relative;
-    z-index: 2;
-    margin-top: -60vh;
-    border-radius: 40px 40px 0 0;
-    overflow: hidden;
-    /* Full-bleed like the hero it slides over, so the rounded edge spans the
-       viewport rather than the 1440 .page column. Inner content stays centred. */
+    /* Full-bleed like the hero above it; inner content stays centred. */
     width: 100vw;
     margin-left: calc(50% - 50vw);
-  }
-
-  .sectionFlush {
-    border-radius: 0;
   }
 }

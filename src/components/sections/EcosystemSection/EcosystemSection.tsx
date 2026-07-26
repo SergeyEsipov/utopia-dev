@@ -5,7 +5,6 @@ import { getCategoryProgressRange } from "@/lib/ecosystem-carousel";
 import { useReveal } from "@/hooks/useReveal";
 import { EcosystemBackground } from "./EcosystemBackground";
 import { useEcosystemCarousel } from "./useEcosystemCarousel";
-import { useHandoffFlush } from "./useHandoffFlush";
 import styles from "./ecosystem-section.module.css";
 
 export function EcosystemSection() {
@@ -23,14 +22,11 @@ export function EcosystemSection() {
 
   const categoryProgress = getCategoryProgressRange(categoryIndex, slideIndex);
   const revealRef = useReveal<HTMLElement>();
-  // On desktop this section slides up over the pinned hero; its top corners
-  // square off once it reaches the top of the viewport.
-  useHandoffFlush(revealRef, styles.sectionFlush);
-
   return (
     <section
       ref={revealRef}
       data-reveal-group
+      data-snap-screen="destinations"
       className={styles.section}
       aria-label="Ecosystem"
     >
@@ -57,7 +53,7 @@ export function EcosystemSection() {
           className={styles.tabsDesktop}
         />
 
-        <div className={styles.visual}>
+        <div className={styles.visual} data-scale-seed>
           <div className={styles.swipeSurface} {...swipeHandlers}>
             <EcosystemBackground bgMix={bgMix} />
             <div className={styles.gradient} />

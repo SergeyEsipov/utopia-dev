@@ -120,15 +120,15 @@ export function HeroSwiperMobile() {
   const reducedMotion = useHeroReducedMotion();
   const speed = reducedMotion ? 0 : SPEED;
 
-  // Card metrics: clamp(260, innerWidth - 72, 314); height keeps the 314:420
-  // design ratio (prototype applyHeroCardMetrics).
+  // Card width: clamp(260, innerWidth - 64, 314). Figma 44:3283 is 314 wide in
+  // a 378 frame — 32px a side, not the prototype's 36 (which gave 306 at 378).
+  // The height is not set here: the card stretches to fill the track.
   useEffect(() => {
     const el = containerRef.current;
     if (!el) return;
     const sync = () => {
-      const w = Math.min(314, Math.max(260, Math.round(window.innerWidth - 72)));
+      const w = Math.min(314, Math.max(260, Math.round(window.innerWidth - 64)));
       el.style.setProperty("--hero-card-w", `${w}px`);
-      el.style.setProperty("--hero-card-h", `${Math.round((w * 420) / 314)}px`);
     };
     sync();
     window.addEventListener("resize", sync);
@@ -229,7 +229,7 @@ export function HeroSwiperMobile() {
           loop
           loopAdditionalSlides={2}
           initialSlide={START_INDEX}
-          spaceBetween={14}
+          spaceBetween={20}
           speed={speed}
           slideToClickedSlide
           grabCursor

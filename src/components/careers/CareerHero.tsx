@@ -1,13 +1,22 @@
 import { careerHero } from "@/lib/career-data";
 import styles from "./careers.module.css";
 
-export function CareerHero() {
+type CareerHeroProps = {
+  openPositions?: number | null;
+};
+
+export function CareerHero({ openPositions }: CareerHeroProps) {
+  const eyebrow =
+    typeof openPositions === "number"
+      ? `${openPositions} open position${openPositions === 1 ? "" : "s"}`
+      : careerHero.eyebrow;
+
   return (
     <section className={styles.sectionWide} aria-labelledby="career-hero-title">
       <div className={`${styles.sectionNarrow} ${styles.hero}`}>
         <div className={styles.heroContent}>
           <div className={styles.heroIntro}>
-            <p className={styles.eyebrowLg}>{careerHero.eyebrow}</p>
+            <p className={styles.eyebrowLg}>{eyebrow}</p>
             <h1 id="career-hero-title" className={styles.displayTitle}>
               {careerHero.title}
             </h1>

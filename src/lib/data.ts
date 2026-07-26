@@ -25,10 +25,14 @@ export const menuLinks = [
   { label: "About", disabled: true },
 ] as const;
 
-export const footerDesktopLinks = {
-  experiences: ["Experiences", "Private Jet", "Superyacht"],
-  company: ["About", "Careers"],
-};
+/** Desktop footer social row (prototype desktop_v9 .footer__social). */
+export const footerSocials = [
+  { label: "Facebook", icon: "/assets/social-facebook.svg" },
+  { label: "WhatsApp", icon: "/assets/social-whatsapp.svg" },
+  { label: "Instagram", icon: "/assets/social-instagram.svg" },
+  { label: "Telegram", icon: "/assets/social-telegram.svg" },
+  { label: "LinkedIn", icon: "/assets/social-linkedin.svg" },
+] as const;
 
 export const navLinks = ["About", "Careers"] as const;
 

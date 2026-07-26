@@ -1,5 +1,5 @@
 export const careerHero = {
-  eyebrow: "80+ open positions",
+  eyebrow: "Open positions",
   title: "Careers at Utopia",
   description:
     "Utopia is an ultra-luxury hospitality and lifestyle brand creating a global ecosystem of properties and experiences.",

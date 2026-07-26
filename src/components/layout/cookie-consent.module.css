@@ -1,0 +1,126 @@
+/* Figma 24.07 `154:8226`: 371x150 card, #ccc4b8 at 7.5px backdrop blur,
+   20/20/18 padding, 12px radius, 32px clear of the viewport corner. */
+
+.card {
+  position: fixed;
+  right: 32px;
+  bottom: 32px;
+  z-index: var(--utopia-z-overlay);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 371px;
+  max-width: calc(100vw - 2 * var(--utopia-content-inset));
+  padding: 20px 20px 18px;
+  box-sizing: border-box;
+  border-radius: min(12px, var(--utopia-radius-cap-card));
+  background: #ccc4b8;
+  backdrop-filter: blur(7.5px);
+  -webkit-backdrop-filter: blur(7.5px);
+  color: var(--utopia-text-primary);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .card {
+    animation: cookieIn 450ms cubic-bezier(0.22, 0.61, 0.36, 1) both;
+  }
+
+  .cardLeaving {
+    animation: cookieOut 350ms cubic-bezier(0.22, 0.61, 0.36, 1) both;
+  }
+}
+
+@keyframes cookieIn {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 16px, 0);
+  }
+
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+@keyframes cookieOut {
+  from {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+
+  to {
+    opacity: 0;
+    transform: translate3d(0, 16px, 0);
+  }
+}
+
+.text {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.title {
+  font-family: var(--utopia-font-body);
+  font-size: 15px;
+  line-height: 1.2;
+  letter-spacing: -0.15px;
+}
+
+.body {
+  font-family: var(--utopia-font-body);
+  font-size: 14px;
+  line-height: 1.5;
+  letter-spacing: -0.14px;
+}
+
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 6px;
+}
+
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 34px;
+  padding: 0 28px;
+  border-radius: min(60.35px, var(--utopia-radius-cap-control));
+  font-family: var(--utopia-font-body);
+  font-size: 10.84px;
+  line-height: 13.005px;
+  color: var(--utopia-text-black);
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background 200ms ease;
+}
+
+.accept {
+  border: 0.5px solid rgba(255, 255, 255, 0.4);
+  background: rgba(241, 232, 220, 0.7);
+}
+
+.accept:hover {
+  background: rgba(241, 232, 220, 0.9);
+}
+
+.reject {
+  border: 0.5px solid rgba(229, 218, 203, 0.6);
+  background: rgba(241, 232, 220, 0.2);
+}
+
+.reject:hover {
+  background: rgba(241, 232, 220, 0.4);
+}
+
+/* Mobile: a full-width sheet that clears the fixed dock. */
+@media (max-width: 639px) {
+  .card {
+    right: var(--utopia-content-inset);
+    left: var(--utopia-content-inset);
+    bottom: calc(var(--utopia-dock-offset) + 12px);
+    width: auto;
+  }
+}

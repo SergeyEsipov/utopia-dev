@@ -30,7 +30,7 @@ export const careerFeaturedRoles: CareerRole[] = [
   {
     id: "growth-partnership-manager",
     title: "Growth Partnership Manager",
-    department: "Project Magagement",
+    department: "Project Management",
     office: "Tokyo",
     remote: "Japan",
   },
@@ -139,7 +139,7 @@ export type WorkSlide = {
 export const careerWorkSlides: WorkSlide[] = [
   {
     id: "guests",
-    title: "Expectional guests",
+    title: "Exceptional guests",
     layout: "overlay",
     imageKey: "careerWorkGuests",
     badge: "everywhere",

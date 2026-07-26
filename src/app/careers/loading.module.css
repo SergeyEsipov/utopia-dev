@@ -1,0 +1,83 @@
+.page {
+  width: 100%;
+  min-height: 100svh;
+  padding: clamp(64px, 12vw, 120px) var(--utopia-content-inset) 0;
+  box-sizing: border-box;
+  background: var(--utopia-bg-cream);
+}
+
+.hero,
+.list {
+  display: flex;
+  flex-direction: column;
+  max-width: var(--utopia-layout-max);
+  margin: 0 auto;
+}
+
+.hero {
+  gap: 16px;
+  align-items: flex-start;
+}
+
+.list {
+  gap: 12px;
+  margin-top: 56px;
+}
+
+/* Placeholders read as paper, not as a loading spinner — the same beige the
+   page settles into, one shade down. */
+.bar {
+  display: block;
+  border-radius: min(8px, var(--utopia-radius-cap-card));
+  background: var(--utopia-bg-ecosystem, #e6dccd);
+  opacity: 0.55;
+}
+
+.eyebrow {
+  width: 120px;
+  height: 14px;
+}
+
+.title {
+  width: min(560px, 100%);
+  height: 44px;
+}
+
+.subtitle {
+  width: min(420px, 100%);
+  height: 18px;
+}
+
+.row {
+  width: 100%;
+  height: 72px;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .bar {
+    animation: careersLoadingPulse 1.4s ease-in-out infinite;
+  }
+
+  .bar:nth-child(2) {
+    animation-delay: 0.12s;
+  }
+
+  .bar:nth-child(3) {
+    animation-delay: 0.24s;
+  }
+
+  .bar:nth-child(4) {
+    animation-delay: 0.36s;
+  }
+}
+
+@keyframes careersLoadingPulse {
+  0%,
+  100% {
+    opacity: 0.4;
+  }
+
+  50% {
+    opacity: 0.7;
+  }
+}

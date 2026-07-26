@@ -623,75 +623,40 @@
   background: transparent;
 }
 
+/* The label morphs with the card instead of snapping between two sizes: every
+   metric is interpolated from --card-focus, the same 0-1 the card sizing
+   already rides. Endpoints are the prototype's `labelMetrics` — side
+   17/11/15.55/14.8/6, centre 19/12/18.5/22.5/8 — times the tier's card scale
+   (1 at >=768, 620/590 at >=1900). */
 .cardCaption {
+  --caption-scale: 1;
   position: absolute;
-  bottom: 19px;
-  left: 19px;
+  bottom: calc((15.55px + 2.95px * var(--card-focus, 0)) * var(--caption-scale));
+  left: calc((14.8px + 7.7px * var(--card-focus, 0)) * var(--caption-scale));
   display: flex;
   align-items: center;
-  gap: var(--utopia-space-2);
+  gap: calc((6px + 2px * var(--card-focus, 0)) * var(--caption-scale));
   color: var(--utopia-text-inverse);
 }
 
-@media (min-width: 768px) {
-  .cardSm .cardCaption {
-    bottom: 15px;
-    left: 15px;
-    gap: 6.5px;
-  }
-
-  .cardMd .cardCaption {
-    bottom: 18.5px;
-    left: 18.5px;
-    gap: 8px;
-  }
+.cardCaption img {
+  width: calc((11px + 1px * var(--card-focus, 0)) * var(--caption-scale));
+  height: calc((11px + 1px * var(--card-focus, 0)) * var(--caption-scale));
 }
 
-.captionSm {
-  font-family: var(--utopia-font-body);
-  font-size: 12.308px;
-  white-space: nowrap;
-}
-
+.captionSm,
 .captionMd {
   font-family: var(--utopia-font-body);
-  font-size: var(--utopia-text-md);
+  font-size: calc((17px + 2px * var(--card-focus, 0)) * var(--caption-scale));
+  /* -0.01em keeps the tracking proportional at every interpolated size. */
+  letter-spacing: -0.01em;
   white-space: nowrap;
-}
-
-@media (min-width: 768px) {
-  .cardSm .captionSm {
-    font-size: 12.921px;
-    letter-spacing: -0.1292px;
-  }
-
-  .cardMd .captionMd {
-    font-size: 16.152px;
-    letter-spacing: -0.1615px;
-  }
 }
 
 @media (min-width: 1900px) {
-  .cardSm .cardCaption {
-    bottom: 15.6px;
-    left: 15.6px;
-    gap: 6.8px;
-  }
-
-  .cardMd .cardCaption {
-    bottom: 19.45px;
-    left: 19.45px;
-    gap: 8.5px;
-  }
-
-  .cardSm .captionSm {
-    font-size: 13.585px;
-    letter-spacing: -0.1359px;
-  }
-
-  .cardMd .captionMd {
-    font-size: 16px;
-    letter-spacing: -0.16px;
+  /* Cards grow 590 -> 620, so the label rides the same 1.0508 scale. */
+  .cardCaption {
+    --caption-scale: 1.0508;
   }
 }
 

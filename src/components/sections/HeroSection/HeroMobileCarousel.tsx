@@ -41,8 +41,12 @@ const LOOP_COPIES = HERO_LOOP_COPIES;
 const ALL_SLIDES = Array.from({ length: LOOP_COPIES }, () => heroCarouselSlides).flat();
 const START_SLIDE =
   BASE_LENGTH + slideIndexForDestination(HERO_START_DESTINATION_INDEX);
-const PROGRAMMATIC_SCROLL_MIN_MS = 420;
-const PROGRAMMATIC_SCROLL_MAX_MS = 760;
+/* One card step takes a flat 1000ms, as in the prototype, instead of the old
+   distance-scaled 420-760ms: now that a click steps exactly one slot the
+   distance barely varies, and a fixed beat reads as deliberate rather than
+   snappier-when-closer. Long hops (loop normalisation) still get clamped. */
+const PROGRAMMATIC_SCROLL_STEP_MS = 1000;
+const PROGRAMMATIC_SCROLL_MAX_MS = 1200;
 const PROGRAMMATIC_SCROLL_MS_PER_PX = 0.85;
 
 type HeroCarouselContextValue = {
@@ -343,7 +347,7 @@ export function HeroMobileCarouselRoot({ children }: { children: ReactNode }) {
       const duration = Math.min(
         PROGRAMMATIC_SCROLL_MAX_MS,
         Math.max(
-          PROGRAMMATIC_SCROLL_MIN_MS,
+          PROGRAMMATIC_SCROLL_STEP_MS,
           Math.abs(distance) * PROGRAMMATIC_SCROLL_MS_PER_PX,
         ),
       );

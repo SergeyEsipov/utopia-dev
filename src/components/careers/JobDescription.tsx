@@ -1,4 +1,5 @@
 import { jobOpeningContent } from "@/lib/career-data";
+import { ApplyButton } from "./ApplyButton";
 import type {
   InlineNode,
   JobDescriptionBlock,
@@ -167,14 +168,9 @@ export function JobDescription({ sections, applyUrl }: JobDescriptionProps) {
           );
         })}
         <div className={styles.cardActions}>
-          <a
-            href={applyUrl}
-            className={styles.cardApply}
-            target="_blank"
-            rel="noreferrer noopener"
-          >
+          <ApplyButton applyUrl={applyUrl} className={styles.cardApply}>
             {jobOpeningContent.applyLabel}
-          </a>
+          </ApplyButton>
           <a href={TERMS_HREF} className={styles.cardTerms}>
             {jobOpeningContent.termsLabel}
           </a>

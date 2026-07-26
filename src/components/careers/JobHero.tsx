@@ -1,6 +1,7 @@
 import Image from "next/image";
 import { jobOpeningContent } from "@/lib/career-data";
 import { images } from "@/lib/media";
+import { ApplyButton } from "./ApplyButton";
 import { jobPostingExcerpt, type JobPosting } from "@/lib/revolut-people";
 import styles from "./job-opening.module.css";
 
@@ -67,14 +68,12 @@ export function JobHero({ posting }: { posting: JobPosting }) {
             ) : null}
           </div>
         </div>
-        <a
-          href={posting.applyUrl}
+        <ApplyButton
+          applyUrl={posting.applyUrl}
           className={styles.heroApply}
-          target="_blank"
-          rel="noreferrer noopener"
         >
           {jobOpeningContent.applyLabel}
-        </a>
+        </ApplyButton>
       </div>
     </section>
   );

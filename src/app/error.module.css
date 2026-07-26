@@ -1,0 +1,82 @@
+.page {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100svh;
+  padding: var(--utopia-content-inset);
+  background: var(--utopia-bg-cream);
+  box-sizing: border-box;
+}
+
+.content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  max-width: 480px;
+  text-align: center;
+}
+
+.title {
+  font-family: var(--utopia-font-display);
+  font-size: var(--utopia-text-2xl);
+  letter-spacing: var(--utopia-tracking-display-md);
+  line-height: 1.2;
+  color: var(--utopia-text-primary);
+}
+
+.description {
+  font-family: var(--utopia-font-body);
+  font-size: var(--utopia-text-md);
+  letter-spacing: var(--utopia-tracking-tight-md);
+  line-height: var(--utopia-leading-relaxed);
+  color: var(--utopia-text-muted);
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 4px;
+}
+
+.primary,
+.secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 44px;
+  padding: 0 24px;
+  border-radius: var(--utopia-radius-pill);
+  font-family: var(--utopia-font-body);
+  font-size: var(--utopia-text-sm);
+  letter-spacing: -0.07px;
+  text-decoration: none;
+  cursor: pointer;
+  transition: opacity 200ms ease;
+}
+
+.primary {
+  border: 0.5px solid rgba(255, 255, 255, 0.4);
+  background: rgba(235, 223, 210, 0.7);
+  color: var(--utopia-text-black);
+}
+
+.secondary {
+  border: 0.5px solid var(--utopia-divider-on-cream);
+  background: transparent;
+  color: var(--utopia-text-primary);
+}
+
+.primary:hover,
+.secondary:hover {
+  opacity: 0.8;
+}
+
+.digest {
+  font-family: var(--utopia-font-body);
+  font-size: var(--utopia-text-caption, 12px);
+  color: var(--utopia-text-muted);
+  opacity: 0.7;
+}

@@ -463,19 +463,10 @@
     pointer-events: none;
   }
 
-  .fadeEdge::before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    backdrop-filter: blur(4px);
-    -webkit-backdrop-filter: blur(4px);
-    mask-image: linear-gradient(to left, #000 0%, rgba(0, 0, 0, 0) 90%);
-    -webkit-mask-image: linear-gradient(
-      to left,
-      #000 0%,
-      rgba(0, 0, 0, 0) 90%
-    );
-  }
+  /* No backdrop blur: the prototype's edge fade is a plain gradient (it even
+     disables blur on its stacked tier). The blur came from Figma's `Blur_rec`
+     and softened the card that sits under it. Restore by re-adding
+     `backdrop-filter: blur(4px)` with the mask below if the design wants it. */
 }
 
 /* Tablet keeps the edge fade, capped so the active card stays clear of it. */

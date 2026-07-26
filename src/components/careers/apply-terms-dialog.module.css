@@ -1,0 +1,161 @@
+/* Figma 24.07 `154:2258`: 792-wide cream card, 64/72 padding, 28px radius. */
+
+.dialog {
+  width: 100%;
+  max-width: 792px;
+  /* Explicit: globals.css zeroes every margin, which kills the UA stylesheet's
+     `margin: auto` that centres a modal <dialog> — without this it pins to the
+     top-left corner. */
+  margin: auto;
+  padding: 0;
+  border: none;
+  background: transparent;
+  overflow: visible;
+}
+
+.dialog::backdrop {
+  background: rgba(22, 21, 20, 0.45);
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
+}
+
+.card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+  padding: 64px 72px;
+  box-sizing: border-box;
+  border-radius: min(28px, var(--utopia-radius-cap-card));
+  background: var(--utopia-bg-cream);
+  color: var(--utopia-text-primary);
+  box-shadow: 4px 4px 32px rgba(0, 0, 0, 0.02);
+  /* The job hero centres its text; the dialog must not inherit that. */
+  text-align: left;
+}
+
+.text {
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+
+/* 40x40 at 32px from the top/right corner, with the same faint blur the other
+   glass controls carry. */
+.close {
+  position: absolute;
+  top: 32px;
+  right: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border: none;
+  border-radius: min(16px, var(--utopia-radius-cap-control));
+  background: transparent;
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
+  color: var(--utopia-text-primary);
+  cursor: pointer;
+  transition: opacity 200ms ease;
+}
+
+.close:hover {
+  opacity: 0.6;
+}
+
+.title {
+  font-family: var(--utopia-font-display);
+  font-size: var(--utopia-text-2xl);
+  letter-spacing: var(--utopia-tracking-display-md);
+  line-height: 1.2;
+  /* Clear of the close button. */
+  padding-right: 56px;
+}
+
+/* The body is the primary ink at 70%, not the muted token — the design keeps
+   one colour and drops its opacity. */
+.body {
+  max-width: 614px;
+  font-family: var(--utopia-font-body);
+  font-size: var(--utopia-text-md);
+  letter-spacing: var(--utopia-tracking-tight-md);
+  line-height: var(--utopia-leading-relaxed);
+  opacity: 0.7;
+}
+
+.body + .body {
+  margin-top: 12px;
+}
+
+.actions {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.accept,
+.reject {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 44px;
+  padding: 0 32px;
+  border-radius: var(--utopia-radius-pill);
+  font-family: var(--utopia-font-body);
+  font-size: 17px;
+  line-height: 18px;
+  cursor: pointer;
+  transition:
+    opacity 200ms ease,
+    background 200ms ease;
+}
+
+.accept {
+  border: 0.5px solid rgba(255, 255, 255, 0.4);
+  background: var(--utopia-text-primary);
+  color: var(--utopia-text-inverse);
+}
+
+.accept:hover {
+  opacity: 0.85;
+}
+
+.reject {
+  border: none;
+  background: transparent;
+  color: var(--utopia-text-primary);
+  opacity: 0.6;
+}
+
+.reject:hover {
+  opacity: 1;
+}
+
+@media (max-width: 767px) {
+  .card {
+    gap: 24px;
+    padding: 32px 24px 28px;
+  }
+
+  .text {
+    gap: 20px;
+  }
+
+  .close {
+    top: 20px;
+    right: 20px;
+  }
+
+  .title {
+    padding-right: 48px;
+  }
+
+  .accept,
+  .reject {
+    padding: 0 24px;
+    font-size: var(--utopia-text-md);
+  }
+}

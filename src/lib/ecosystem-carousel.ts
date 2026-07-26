@@ -20,6 +20,11 @@ export const ECOSYSTEM_SLIDE_DURATION_MS = 5500;
 export const ECOSYSTEM_CROSSFADE_MS = 292;
 export const ECOSYSTEM_CROSSFADE_EASING = "ease";
 
+/* Cabarete, Dubai, Cape Town and Alpine use the designers' own framings from
+   desktop_v9 (`dest-*`): the assets we carried were the same renders exported
+   at different aspect ratios — Cape Town was a portrait crop of a landscape
+   scene — so the destinations window had to centre-crop them hard. The other
+   five images are byte-identical scenes and were left alone. */
 export const ecosystemCategoryData: EcosystemCategory[] = [
   {
     id: "tropical",
@@ -48,7 +53,7 @@ export const ecosystemCategoryData: EcosystemCategory[] = [
       {
         id: "cabarete",
         label: "Cabarete, Dominican Republic",
-        bg: "/assets/opt/enhanced_ecosystem-bg-cabarete-tropical.jpg",
+        bg: "/assets/opt/ecosystem-bg-cabarete-v9.jpg",
       },
     ],
   },
@@ -59,7 +64,7 @@ export const ecosystemCategoryData: EcosystemCategory[] = [
       {
         id: "dubai",
         label: "Dubai, UAE",
-        bg: "/assets/opt/enhanced_ecosystem-bg-dubai-urban.jpg",
+        bg: "/assets/opt/ecosystem-bg-dubai-v9.jpg",
       },
       {
         id: "barcelona",
@@ -69,7 +74,7 @@ export const ecosystemCategoryData: EcosystemCategory[] = [
       {
         id: "cape-town",
         label: "Cape Town, South Africa",
-        bg: "/assets/opt/ecosystem-bg-capetown-urban.jpg",
+        bg: "/assets/opt/ecosystem-bg-capetown-v9.jpg",
       },
     ],
   },
@@ -80,7 +85,7 @@ export const ecosystemCategoryData: EcosystemCategory[] = [
       {
         id: "alpine",
         label: "Alpine",
-        bg: "/assets/opt/ecosystem-bg-alpine.jpg",
+        bg: "/assets/opt/ecosystem-bg-alpine-v9.jpg",
       },
     ],
   },

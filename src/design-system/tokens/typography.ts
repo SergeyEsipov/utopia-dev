@@ -1,7 +1,7 @@
 export const typography = {
   fontFamily: {
-    display: '"GT Ultra Median Trial", Georgia, serif',
-    body: '"NB International", system-ui, sans-serif',
+    display: '"GT Ultra Median", Georgia, serif',
+    body: '"NB International Pro", system-ui, sans-serif',
   },
   fontSize: {
     xs: "12px",

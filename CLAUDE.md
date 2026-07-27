@@ -238,6 +238,13 @@ file. Its only per-image treatments are the two recorded in the JSON.
 - **`overflow-x: hidden` silently breaks `position: sticky`** on descendants — it
   makes the element a scroll container. `html, body` use `overflow-x: clip`
   instead; keep it that way or the desktop hero pin dies with no error.
+- **The page background has to sit on `html`, not `body` alone.** `body` only
+  propagates its background to the canvas while the root has none *and* is not
+  itself a scroll container — and the `overflow-x: clip` above makes it one. With
+  the cream on `body` only, the strip a phone reveals when it rubber-bands past
+  the footer painted the UA's white, which reads as an empty block below the
+  footer. Nothing is in the DOM there: every route ends within half a pixel of
+  its footer.
 - **The Next image optimizer caches derivatives by filename.** Replacing an asset
   in place keeps serving the stale rendition until `.next/cache/images` is cleared
   (which we can't do while dev is running). For small transparent PNGs, render
@@ -332,6 +339,17 @@ verified by measurement. Every section lands within a few px of its frame:
 mocks five identical 130-tall cards with both an Office and a Remote row, while
 the live ATS returns roles that often have only one. Nothing to fix there.
 
+**The two job filters are faceted.** Each dropdown is built from the postings
+matching the *other* filters, so picking a Department leaves only the locations
+that department actually hires in, and picking a Location leaves only the
+departments hiring there — the desktop sidebar list re-scopes the same way. The
+pure logic lives in `src/lib/career-filters.ts` (`narrowPostings(..., except)`
+is the whole trick: a facet is left out of its own scope) with tests in
+`career-filters.test.ts`. Two details worth keeping: `withSelected` re-adds an
+active value the other facets would have hidden, so a filter is always
+clearable, and picking a value that strands the other facet releases it rather
+than leaving an unexplained empty list.
+
 What changed: the filters became a search bar over a Department/Location
 dropdown pair below 1024 (the department only stays a sidebar list at 1024+);
 the role card puts its chip beside the title from 640 up and above it on
@@ -386,11 +404,51 @@ Notes for whoever picks this up next:
 - **"Terms of applying" opens the dialog**, not `/terms`. Both it and Apply are
   still real anchors, so the no-JS path keeps working; they share one dialog via
   `ApplyActions`.
-- **The Team up track needed trailing runway.** The row overflows by less than
-  one card, so before the `::after` spacer no card but the first could reach the
-  lead position and the three-stop indicator had nothing to point at. The
-  caption box is pinned to the *active* card's width, so it narrows to 308 (or
-  184 on mobile) once a small card leads.
+- **Team up is a rotation, not a scroller, and `154:2073` alone does not say
+  so.** Its two sibling states `154:2326` ("Desktop - 238") and `154:2357`
+  ("Desktop - 239") have *identical* geometry — a 386×516 lead at x=407 and two
+  308×412 followers at x=813/1141 — and differ only in which photograph sits in
+  which slot, cycling tea-room → chess → tablet. So the slots are fixed
+  furniture and only their *contents* change: each slot stacks all three
+  photographs and opacity cross-fades between them. **Do not animate the slot
+  sizes or reorder the cards** — `order` is not animatable, so a card teleports
+  to its new slot and only then resizes, which is exactly the jumping-and-
+  scaling the first attempt produced. Measured across a full cycle at 1440 and
+  378, every slot rect is byte-identical, so nothing can reflow.
+  The caption under the lead slot names the active photo (386 wide always, 276
+  on mobile); its copy block reserves the Figma height (92 / 73) because the
+  three strings do not always wrap alike.
+  **The indicator is an autoplay scrubber**, which is what Figma's part-filled
+  bar (23.744 of 34.287, identical in all three frames) actually depicts: 5s
+  per slide, filling 0→100%, restarting on manual selection, and paused on
+  hover/focus, off screen, or under `prefers-reduced-motion`.
+  The per-photo captions ("Design developement" — Figma's spelling —
+  "Hospitality", "Legal") live on `careerTeamUp.photos`.
+- **Two of the three Team up photographs changed in 24.07** and the old files
+  were square 2048 exports from an earlier revision: the chessboard is now a tea
+  pour and the tablet is now a Utopia letterhead, which is exactly why the
+  captions read Hospitality and Legal. Re-pulled from the asset server (topmost
+  layer of each stack) and re-keyed to the team names — `teamup-design.jpg`,
+  `teamup-hospitality.jpg`, `teamup-legal.jpg`, 826KB for the three against
+  5.4MB before. **The tea pour arrives with a Weibo watermark baked into its
+  bottom edge** (`@子后汉服` — the same problem the Careers hospitality plate had);
+  it is cropped off. New filenames rather than replacements, because the image
+  optimizer caches derivatives by name. `teamup-tea-room/chess/tablet.jpg` and
+  `teamup-dot.svg` are now unused.
+- **The Team up right-edge fade cannot take Figma's literal 405px.** That width
+  only clears the caption at the 1440 the frame was drawn at; below it the
+  layout closes up and a fixed band reaches back across the copy, which at 1024
+  half-blurred the caption and the indicator. It is capped to the room left of
+  the lead card instead — 405 at 1440+, narrower below, zero when there is no
+  bleed. Separately, **`backdrop-filter` ignores the background gradient** and
+  blurs the whole box, so on its own it draws a hard vertical seam; the element
+  carries a matching `mask-image` so the blur fades out with the wash.
+- **Do not port Figma's `backdrop-blur-[2px]` onto the Work slides.** It comes
+  from the shared "Background rectangle" instance (`154:2051`), whose glass
+  effect is meant for translucent surfaces; over a photograph it just softens
+  the image. The signed-off Careers carousel drops it too. The blurs that *are*
+  real: the badge (8px), the Team up progress pill (2px) and the right-edge
+  fade (4px), all over translucent fills.
 - The hero must not use `--utopia-layout-max` — the shared tablet cap is 480
   where Figma draws a 589 column, the same trap the Careers sections hit.
 - Figma's desktop Work text card ends "…and the UAE.**м**"; our copy drops the
@@ -402,3 +460,63 @@ crop of the same photo, carrying a `scale(1.1)` correction we deliberately did
 not apply to our tighter crop), whether to delete four unused ecosystem images
 (~3.4MB), and whether the now-unused `team-resorts.jpg` / `team-technical.jpg`
 should go (Figma 24.07 has five teams, not six).
+
+**Terms, Privacy, 404, menu, icons** are now aligned too, all measured:
+Terms 8013/8062, Privacy 3306/3365, 404 1460/1460 at 1440.
+
+- **The 404's three frames are `154:8707` / `154:5381` / `154:6614`**, in the
+  group under the `154:1973` label at x=43849. The desktop one is still *named*
+  "Terms" in the file — that is why it was once filed as a stray Terms artboard.
+  `154:8725` / `154:8738` inside it are hidden alternates holding leftover
+  Careers content. The nav over it is `SiteNav overlay overlayTone="dark"`: the
+  backdrop is a bright photograph, so Figma draws `Logo_Text_Black` where the
+  home hero gets the white wordmark.
+- **The Opening section's side inset is a transform, never padding.** Both
+  prototypes give `.fullwidth { padding: 0 }` and express the start width as
+  `.fullwidth__scale { transform: scale((100vw - 2*--site-grid-pad)/100vw) }`.
+  A `padding: 12px 24px` on the section is what left cream bars down both edges
+  and stopped the card ever reaching full width — the section itself has to
+  touch both screen edges for the grow to land full-bleed. Carried as
+  `--utopia-fullwidth-start-inset`, which is 0 in sharp: v9's destinations
+  image is already 100vw, so the driver's measured `minScale` comes out at 1
+  and the section is flush and instantly full-width with **no grow at all**.
+  That is v9's own behaviour, not a bug. Verified: rounded opens at 1200 (the
+  seed width) r28 → 1440 r0; sharp sits at 1440 r0 throughout.
+  `settle()` must write explicit `none`/`0px` rather than `""`, or reduced
+  motion hands the card back to that CSS start scale and strands it inset.
+- **`154:2067` / `154:2070` are one arrow's rest and hover, not a live arrow
+  beside a spent one.** Identical 40×40 geometry and icon; only the fill moves,
+  Ivory `#f1e8dc` → Beige Dark `#ebdfd2`. Reading them as active/inactive
+  pinned the darker fill on whichever arrow had run out of track, so the
+  designed hover never appeared. Figma draws no spent state.
+- **Terms is a partly-adapted Revolut template — in Figma itself.** All 72 body
+  lines match `terms-data.ts` exactly, so there is nothing to port; but the copy
+  still says "www.revolut.com", "Revolut Ltd", company number 08804411, and
+  "regulated by the FCA as an Electronic Money Institution" (FRN 900562)
+  alongside "Utopia is a UK registered trade mark of Utopia Ltd". **Raised with
+  the user; do not silently rewrite it.** Privacy (`154:2584`) is genuinely
+  Utopia's copy and shares `terms.module.css` — same 794 measure, 28px section
+  headings, 18px body at `opacity: 0.7`.
+- Terms/Privacy body copy is **18px (`--utopia-text-lg`)** and group headings
+  **36/-1.08**; the 16px body and 38/-1.14 heading came from the 13.07 frames
+  and ran the document ~860px short of its frame.
+- **A `favicon.ico` whose embedded PNGs are RGB 500s every route** — Next's
+  image pipeline demands RGBA ("The PNG is not in RGBA format"). Chrome drops
+  the alpha channel when a capture is fully opaque, so the icon is built by
+  reading canvas `getImageData` and encoding colour-type-6 PNGs by hand
+  (scratch script), then packing the ICO. `src/app/icon.svg` carries the same
+  256×256 artwork (beige mark + wordmark on `#161514`, per `154:6832`).
+- The OG (`154:8063`) backdrop is **pre-cropped** to the window Figma shows
+  (a 2437×1174 image at −619,−323 in the 1200×630 board) so the route does not
+  inline a 4MB source per render. Its three destination cards export as
+  bordered *unfilled* frames — flagged to the user.
+
+Known deviations, all deliberate and reported:
+- Figma's nav bar is **72** tall (`154:7539`, `154:8717`) and ours is **64**;
+  the 404's tablet frame is 64px taller than Figma for the same reason, because
+  our tablet nav sits in flow rather than over the photo.
+- `.heroTitle` on Terms/Privacy is `font-weight: 300` where Figma specifies GT
+  Ultra Median **Regular**. Left alone per the standing instruction to report
+  weight mismatches rather than tune them.
+- Figma's 404 body copy reads "The page you're looking for **have** been
+  moved"; kept verbatim, same policy as "Design developement".

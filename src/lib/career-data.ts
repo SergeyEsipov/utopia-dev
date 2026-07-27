@@ -295,18 +295,42 @@ export const jobOpeningContent: {
   ],
 };
 
+/**
+ * Figma 24.07 `154:2073` ("Desktop - 118") plus its two sibling states
+ * `154:2326` ("Desktop - 238") and `154:2357` ("Desktop - 239").
+ *
+ * The three frames have *identical* geometry — one 386x516 slot at x=407 and
+ * two 308x412 slots at x=813/1141 — and differ only in which photograph sits in
+ * which slot. So the slider does not scroll: the photos rotate through fixed
+ * slots, the lead slot always holds the active one, and the caption underneath
+ * names it. Hence the caption travelling with each photo rather than sitting on
+ * the block. "developement" is Figma's spelling.
+ */
 export const careerTeamUp = {
   title: "Team up with experts",
   description:
     "We bring together diverse, slightly rebellious, and fiercely talented minds from around the world.",
-  caption: {
-    title: "Design developement",
-    description: "Shaping spaces with clarity, restraint, and a deep sense of place.",
-  },
   photos: [
-    { id: "tea-room", imageKey: "jobTeamUpTeaRoom" as const, variant: "large" as const },
-    { id: "chess", imageKey: "jobTeamUpChess" as const, variant: "small" as const },
-    { id: "tablet", imageKey: "jobTeamUpTablet" as const, variant: "small" as const },
+    {
+      id: "design",
+      imageKey: "jobTeamUpDesign" as const,
+      title: "Design developement",
+      description:
+        "Shaping spaces with clarity, restraint, and a deep sense of place.",
+    },
+    {
+      id: "hospitality",
+      imageKey: "jobTeamUpHospitality" as const,
+      title: "Hospitality",
+      description:
+        "Making every stay feel intuitive, personal, and entirely at ease.",
+    },
+    {
+      id: "legal",
+      imageKey: "jobTeamUpLegal" as const,
+      title: "Legal",
+      description: "Bringing clarity and confidence to every decision.",
+    },
   ],
 } as const;
 

@@ -160,9 +160,11 @@
     gap: 36px;
   }
 
+  /* Figma 24.07 `154:2388`: 36/-1.08, not the 38/-1.14 the 13.07 frames drew
+     (-0.03em either way — only the size moved). */
   .groupHeading {
-    font-size: 38px;
-    letter-spacing: -1.14px;
+    font-size: 36px;
+    letter-spacing: -1.08px;
   }
 
   .subsection {
@@ -174,9 +176,11 @@
     letter-spacing: -0.84px;
   }
 
+  /* Body copy is 18 from 640 up (`--utopia-text-md` is the 16 this used to
+     take, which ran the document ~860px short of its 8062 frame). */
   .chunk {
     gap: var(--utopia-space-3);
-    font-size: var(--utopia-text-md);
+    font-size: var(--utopia-text-lg);
     letter-spacing: var(--utopia-tracking-tight-md);
   }
 

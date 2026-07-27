@@ -11,25 +11,26 @@ import {
   useRef,
   useState,
 } from "react";
-import { images } from "@/lib/media";
 import {
-  OTHER_DEPARTMENT,
-  type JobDepartment,
-  type JobPostingSummary,
-} from "@/lib/revolut-people";
+  departmentOptions as buildDepartmentOptions,
+  locationOptions as buildLocationOptions,
+  narrowPostings,
+  normalizeQuery,
+  pairIsReachable,
+  withSelected,
+  type Facets,
+  type SelectOption,
+} from "@/lib/career-filters";
+import { images } from "@/lib/media";
+import { type JobPostingSummary } from "@/lib/revolut-people";
 import styles from "./careers.module.css";
 
 const ROLES_PAGE_SIZE = 5;
 
-type LocationOption = { name: string; type: "office" | "remote"; count: number };
-
 type CareerJobsListProps = {
   postings: JobPostingSummary[];
-  departments: JobDepartment[];
   unavailable?: boolean;
 };
-
-type SelectOption = { name: string; count: number; group?: string };
 
 type SelectFilterProps = {
   /** Placeholder from 640 up, and the accessible name at every width. */
@@ -47,43 +48,6 @@ type SelectFilterProps = {
 
 function cx(...names: (string | false | null | undefined)[]): string {
   return names.filter(Boolean).join(" ");
-}
-
-function normalize(value: string): string {
-  return value
-    .toLowerCase()
-    .normalize("NFKD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .trim();
-}
-
-function departmentKey(posting: JobPostingSummary): string {
-  return posting.department ?? OTHER_DEPARTMENT;
-}
-
-function getLocationOptions(postings: JobPostingSummary[]): SelectOption[] {
-  const options = new Map<string, LocationOption>();
-  for (const posting of postings) {
-    const seen = new Set<string>();
-    for (const location of posting.locations) {
-      if (seen.has(location.name)) continue;
-      seen.add(location.name);
-      const existing = options.get(location.name);
-      if (existing) existing.count += 1;
-      else options.set(location.name, { name: location.name, type: location.type, count: 1 });
-    }
-  }
-  return [...options.values()]
-    .sort(
-      (a, b) =>
-        (a.type === b.type ? 0 : a.type === "office" ? -1 : 1) ||
-        a.name.localeCompare(b.name),
-    )
-    .map(({ name, count, type }) => ({
-      name,
-      count,
-      group: type === "office" ? "Offices" : "Remote",
-    }));
 }
 
 function locationLine(names: string[]): string {
@@ -229,7 +193,6 @@ function SelectFilter({
 
 export function CareerJobsList({
   postings,
-  departments,
   unavailable = false,
 }: CareerJobsListProps) {
   const [location, setLocation] = useState<string | null>(null);
@@ -237,43 +200,65 @@ export function CareerJobsList({
   const [query, setQuery] = useState("");
   const [visible, setVisible] = useState(ROLES_PAGE_SIZE);
 
-  const locationOptions = useMemo(() => getLocationOptions(postings), [postings]);
-  const departmentOptions = useMemo<SelectOption[]>(
-    () => departments.map((dept) => ({ name: dept.name, count: dept.count })),
-    [departments],
+  const facets = useMemo<Facets>(
+    () => ({ location, department, needle: normalizeQuery(query) }),
+    [location, department, query],
   );
+
+  /* Each dropdown is scoped by the *other* filters, so its rows and counts
+     describe what is still reachable rather than the whole board. */
+  const locationScope = useMemo(
+    () => narrowPostings(postings, facets, "location"),
+    [postings, facets],
+  );
+  const departmentScope = useMemo(
+    () => narrowPostings(postings, facets, "department"),
+    [postings, facets],
+  );
+
+  const locationOptions = useMemo(
+    () => withSelected(buildLocationOptions(locationScope), location),
+    [locationScope, location],
+  );
+  const departmentOptions = useMemo<SelectOption[]>(
+    () => withSelected(buildDepartmentOptions(departmentScope), department),
+    [departmentScope, department],
+  );
+
   const hasFilters = location !== null || department !== null || query.trim() !== "";
 
   const ordered = useMemo(() => {
-    const needle = normalize(query);
-    const filtered = postings.filter((posting) => {
-      if (location !== null && !posting.locations.some((l) => l.name === location)) {
-        return false;
-      }
-      if (department !== null && departmentKey(posting) !== department) return false;
-      if (needle === "") return true;
-      return (
-        normalize(posting.title).includes(needle) ||
-        normalize(posting.department ?? "").includes(needle)
-      );
-    });
+    const filtered = narrowPostings(postings, facets, null);
     if (hasFilters) return filtered;
     return [...filtered].sort(
       (a, b) => Number(b.isFeatured) - Number(a.isFeatured),
     );
-  }, [postings, location, department, query, hasFilters]);
+  }, [postings, facets, hasFilters]);
 
   const shown = ordered.slice(0, visible);
 
-  const selectLocation = useCallback((next: string | null) => {
-    setLocation(next);
-    setVisible(ROLES_PAGE_SIZE);
-  }, []);
+  /* Picking one facet can strand the other on a value that now yields nothing
+     — "Legal" then a city with no Legal roles. Rather than leave an empty list
+     with no visible cause, the stranded facet is released. */
+  const selectLocation = useCallback(
+    (next: string | null) => {
+      setLocation(next);
+      setVisible(ROLES_PAGE_SIZE);
+      if (next === null || department === null) return;
+      if (!pairIsReachable(postings, next, department)) setDepartment(null);
+    },
+    [postings, department],
+  );
 
-  const selectDepartment = (next: string | null) => {
-    setDepartment(next);
-    setVisible(ROLES_PAGE_SIZE);
-  };
+  const selectDepartment = useCallback(
+    (next: string | null) => {
+      setDepartment(next);
+      setVisible(ROLES_PAGE_SIZE);
+      if (next === null || location === null) return;
+      if (!pairIsReachable(postings, location, next)) setLocation(null);
+    },
+    [postings, location],
+  );
 
   const clearFilters = () => {
     setLocation(null);
@@ -310,7 +295,7 @@ export function CareerJobsList({
           shortLabel="Department"
           allLabel="All departments"
           options={departmentOptions}
-          total={postings.length}
+          total={departmentScope.length}
           value={department}
           onChange={selectDepartment}
           className={styles.filterFieldDepartment}
@@ -320,7 +305,7 @@ export function CareerJobsList({
           shortLabel="Location"
           allLabel="All locations"
           options={locationOptions}
-          total={postings.length}
+          total={locationScope.length}
           value={location}
           onChange={selectLocation}
           className={styles.filterFieldLocation}
@@ -342,10 +327,15 @@ export function CareerJobsList({
                 onClick={() => selectDepartment(null)}
               >
                 All
-                <span className={styles.departmentCount}> · {postings.length}</span>
+                <span className={styles.departmentCount}>
+                  {" "}
+                  · {departmentScope.length}
+                </span>
               </button>
             </li>
-            {departments.map((dept) => (
+            {/* Same scoped list the mobile dropdown shows, so the sidebar
+                narrows to the chosen location too. */}
+            {departmentOptions.map((dept) => (
               <li key={dept.name} className={styles.departmentItem}>
                 <button
                   type="button"

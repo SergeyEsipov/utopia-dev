@@ -8,85 +8,108 @@ import { images } from "@/lib/media";
 import styles from "./job-opening.module.css";
 
 /**
- * "Team up with experts" — Figma 24.07 `154:2073` / `154:2828` / `154:3285`.
+ * "Team up with experts" — Figma 24.07 `154:2073`, with `154:2326`
+ * ("Desktop - 238") and `154:2357` ("Desktop - 239") giving the two further
+ * states.
  *
- * The photo row is a snap-scrolling track. Two things follow whichever card is
- * currently parked at the start of it: the caption box, which takes that card's
- * width (`154:2091` is 386 under the 386-wide `154:2079`, `154:3311` is 276
- * under the 276-wide `154:3292`), and the indicator, which draws that card as a
- * 34px bar and the rest as 4px dots.
+ * All three frames place the same slots at the same coordinates — a 386x516
+ * lead and two 308x412 followers — and differ only in which photograph sits in
+ * which. So the *slots* are fixed furniture: nothing resizes, moves or
+ * reflows, and advancing only cross-fades a different photo into each one.
+ * Every slot therefore carries all three photographs stacked, with opacity
+ * picking the current one.
+ *
+ * The indicator is an autoplay scrubber, which is why Figma draws its fill
+ * part-way across (23.744 of 34.287) in all three frames — a mid-cycle capture.
  */
+const PHOTOS = careerTeamUp.photos;
+const COUNT = PHOTOS.length;
+const AUTOPLAY_MS = 5000;
+const FADE_MS = 700;
+const SWIPE_THRESHOLD_PX = 40;
+
 export function JobTeamUp() {
-  const trackRef = useRef<HTMLDivElement>(null);
-  const cardRefs = useRef<(HTMLElement | null)[]>([]);
+  const sectionRef = useRef<HTMLElement>(null);
+  const pointerStart = useRef<{ x: number; y: number } | null>(null);
   const [active, setActive] = useState(0);
-  const [captionWidth, setCaptionWidth] = useState<number | null>(null);
+  // Bumped on every change so the progress animation restarts even when the
+  // same slide is re-selected, and so the autoplay timer resets on interaction.
+  const [tick, setTick] = useState(0);
+  const [hovered, setHovered] = useState(false);
+  const [onScreen, setOnScreen] = useState(false);
+  const [reducedMotion, setReducedMotion] = useState(false);
 
-  // Snapping is `start`-aligned, so the active card is the one whose left edge
-  // sits closest to the track's content-box origin.
-  const sync = useCallback(() => {
-    const track = trackRef.current;
-    if (!track) return;
-
-    const padding = Number.parseFloat(getComputedStyle(track).paddingLeft) || 0;
-    const anchor = track.getBoundingClientRect().left + padding;
-
-    let bestIndex = 0;
-    let bestDistance = Number.POSITIVE_INFINITY;
-    cardRefs.current.forEach((card, index) => {
-      if (!card) return;
-      const distance = Math.abs(card.getBoundingClientRect().left - anchor);
-      if (distance < bestDistance) {
-        bestDistance = distance;
-        bestIndex = index;
-      }
-    });
-
-    setActive(bestIndex);
-    const card = cardRefs.current[bestIndex];
-    setCaptionWidth(
-      card ? Math.round(card.getBoundingClientRect().width) : null,
-    );
+  const go = useCallback((next: number, haptic = false) => {
+    if (haptic) triggerHaptic("navigate");
+    setActive(((next % COUNT) + COUNT) % COUNT);
+    setTick((value) => value + 1);
   }, []);
 
   useEffect(() => {
-    const track = trackRef.current;
-    if (!track) return;
-
+    const query = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const sync = () => setReducedMotion(query.matches);
     sync();
+    query.addEventListener("change", sync);
+    return () => query.removeEventListener("change", sync);
+  }, []);
 
-    let idle: ReturnType<typeof setTimeout> | undefined;
-    const handleScroll = () => {
-      if (idle) clearTimeout(idle);
-      idle = setTimeout(sync, 80);
-    };
+  // Only run while the section is actually on screen — otherwise the scrubber
+  // is counting down against something nobody is looking at.
+  useEffect(() => {
+    const section = sectionRef.current;
+    if (!section) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => setOnScreen(entry.isIntersecting),
+      { threshold: 0.25 },
+    );
+    observer.observe(section);
+    return () => observer.disconnect();
+  }, []);
 
-    // The card sizes change at 768 and 1024, so the caption has to be
-    // re-measured on resize, not just on scroll.
-    const observer = new ResizeObserver(sync);
-    observer.observe(track);
-    track.addEventListener("scroll", handleScroll, { passive: true });
-    track.addEventListener("scrollend", sync);
+  const playing = onScreen && !hovered && !reducedMotion;
 
-    return () => {
-      if (idle) clearTimeout(idle);
-      observer.disconnect();
-      track.removeEventListener("scroll", handleScroll);
-      track.removeEventListener("scrollend", sync);
-    };
-  }, [sync]);
+  useEffect(() => {
+    if (!playing) return;
+    const timer = setTimeout(() => go(active + 1), AUTOPLAY_MS);
+    return () => clearTimeout(timer);
+  }, [playing, active, tick, go]);
 
-  const goTo = (index: number) => {
-    const track = trackRef.current;
-    const card = cardRefs.current[index];
-    if (!track || !card) return;
-    triggerHaptic("navigate");
-    const padding = Number.parseFloat(getComputedStyle(track).paddingLeft) || 0;
-    track.scrollTo({ left: card.offsetLeft - padding, behavior: "smooth" });
+  // Pointer events cover mouse and touch alike. Nothing calls preventDefault,
+  // so vertical page scrolling stays with the browser (`touch-action: pan-y`).
+  const handlePointerDown = (event: React.PointerEvent) => {
+    pointerStart.current = { x: event.clientX, y: event.clientY };
   };
 
+  const handlePointerUp = (event: React.PointerEvent) => {
+    const start = pointerStart.current;
+    pointerStart.current = null;
+    if (!start) return;
+    const dx = event.clientX - start.x;
+    const dy = event.clientY - start.y;
+    if (Math.abs(dx) < SWIPE_THRESHOLD_PX || Math.abs(dx) <= Math.abs(dy)) {
+      return;
+    }
+    go(active + (dx < 0 ? 1 : -1), true);
+  };
+
+  const current = PHOTOS[active];
+
   return (
-    <section className={styles.teamUp} aria-labelledby="job-teamup-title">
+    <section
+      ref={sectionRef}
+      className={styles.teamUp}
+      aria-labelledby="job-teamup-title"
+      style={
+        {
+          "--job-teamup-autoplay": `${AUTOPLAY_MS}ms`,
+          "--job-teamup-fade": `${FADE_MS}ms`,
+        } as React.CSSProperties
+      }
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      onFocusCapture={() => setHovered(true)}
+      onBlurCapture={() => setHovered(false)}
+    >
       <div className={styles.teamUpInner}>
         <div className={styles.teamUpHeader}>
           <h2 id="job-teamup-title" className={styles.teamUpTitle}>
@@ -95,54 +118,68 @@ export function JobTeamUp() {
           <p className={styles.teamUpDescription}>{careerTeamUp.description}</p>
         </div>
         <div className={styles.teamUpBody}>
-          <div className={styles.teamUpTrack} ref={trackRef}>
-            {careerTeamUp.photos.map((photo, index) => (
+          <div
+            className={styles.teamUpTrack}
+            onPointerDown={handlePointerDown}
+            onPointerUp={handlePointerUp}
+            onPointerCancel={() => {
+              pointerStart.current = null;
+            }}
+          >
+            {PHOTOS.map((_, slot) => (
               <div
-                key={photo.id}
-                ref={(node) => {
-                  cardRefs.current[index] = node;
-                }}
+                key={slot}
                 className={[
                   styles.teamUpCard,
-                  photo.variant === "large"
-                    ? styles.teamUpCardLarge
-                    : styles.teamUpCardSmall,
+                  slot === 0 ? styles.teamUpCardLarge : styles.teamUpCardSmall,
                 ].join(" ")}
+                aria-hidden
               >
-                <Image
-                  src={images[photo.imageKey]}
-                  alt=""
-                  fill
-                  sizes={
-                    photo.variant === "large"
-                      ? "(min-width: 1024px) 386px, (min-width: 768px) 426px, 276px"
-                      : "(min-width: 768px) 308px, 184px"
-                  }
-                  className={styles.teamUpImage}
-                />
+                {PHOTOS.map((photo, index) => (
+                  <div
+                    key={photo.id}
+                    className={[
+                      styles.teamUpPhoto,
+                      (active + slot) % COUNT === index
+                        ? styles.teamUpPhotoActive
+                        : "",
+                    ]
+                      .filter(Boolean)
+                      .join(" ")}
+                  >
+                    <Image
+                      src={images[photo.imageKey]}
+                      alt=""
+                      fill
+                      sizes={
+                        slot === 0
+                          ? "(min-width: 1024px) 386px, (min-width: 768px) 426px, 276px"
+                          : "(min-width: 768px) 308px, 184px"
+                      }
+                      className={styles.teamUpImage}
+                    />
+                  </div>
+                ))}
               </div>
             ))}
           </div>
-          <div
-            className={styles.teamUpCaption}
-            style={
-              captionWidth
-                ? ({
-                    "--job-teamup-caption-w": `${captionWidth}px`,
-                  } as React.CSSProperties)
-                : undefined
-            }
-          >
+          <div className={styles.teamUpCaption}>
             <div className={styles.teamUpCaptionCopy}>
-              <p className={styles.teamUpCaptionTitle}>
-                {careerTeamUp.caption.title}
-              </p>
-              <p className={styles.teamUpCaptionText}>
-                {careerTeamUp.caption.description}
-              </p>
+              {/* Keyed so the copy fades in with the photograph it names. */}
+              <div key={current.id} className={styles.teamUpCaptionFade}>
+                <p className={styles.teamUpCaptionTitle}>{current.title}</p>
+                <p className={styles.teamUpCaptionText}>{current.description}</p>
+              </div>
             </div>
-            <div className={styles.teamUpProgress}>
-              {careerTeamUp.photos.map((photo, index) => {
+            <div
+              className={[
+                styles.teamUpProgress,
+                playing ? styles.teamUpProgressPlaying : "",
+              ]
+                .filter(Boolean)
+                .join(" ")}
+            >
+              {PHOTOS.map((photo, index) => {
                 const isActive = index === active;
                 return (
                   <button
@@ -154,13 +191,13 @@ export function JobTeamUp() {
                     ]
                       .filter(Boolean)
                       .join(" ")}
-                    onClick={() => goTo(index)}
-                    aria-label={`Show photo ${index + 1} of ${careerTeamUp.photos.length}`}
+                    onClick={() => go(index, true)}
+                    aria-label={`Show ${photo.title}`}
                     aria-current={isActive}
                   >
                     <span className={styles.teamUpProgressTrack}>
                       {isActive ? (
-                        <span className={styles.teamUpProgressFill} />
+                        <span key={tick} className={styles.teamUpProgressFill} />
                       ) : null}
                     </span>
                   </button>

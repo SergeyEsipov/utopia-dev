@@ -7,12 +7,18 @@
   overflow: hidden;
 }
 
-/* Tablet 768 — Figma 1:1060: same treatment as desktop 1440 (1:900) — full-bleed
-   rounded card inset 24px each side, text block centered, bg center-cropped. */
+/* Tablet 768 and up — Figma 24.07 draws this section edge to edge at every
+   width: desktop `154:4204` is 1440×800 at x=0 and tablet `154:5261` is 768×994
+   at x=0, both with the backdrop bleeding well past the frame (1920 and 2220
+   wide respectively). It must therefore carry *no* side padding — an earlier
+   `padding: 12px 24px` here is what left cream bars down both edges and stopped
+   the card ever reaching full width. The inset the card starts from is a
+   transform on .slides instead (see the ≥1024 block at the end of this file),
+   which is exactly how both prototypes do it. */
 @media (min-width: 640px) {
   .section {
     background: var(--utopia-bg-cream);
-    padding: 12px 24px;
+    padding: 0;
     box-sizing: border-box;
   }
 }
@@ -158,10 +164,12 @@
   overflow: hidden;
 }
 
+/* No radius here: below 1024 the scale driver never attaches, so this is the
+   settled state and Figma's tablet frame is square and edge-to-edge. The
+   rounded start radius belongs to the animation, and lives in the ≥1024 block. */
 @media (min-width: 640px) {
   .frame {
     height: var(--utopia-viewport-height);
-    border-radius: var(--utopia-radius-frame);
   }
 }
 
@@ -357,5 +365,26 @@
   .section {
     width: 100vw;
     margin-left: calc(50% - 50vw);
+  }
+
+  /* Pre-JS start state, ported literally from both prototypes'
+     `.fullwidth__scale`. The card opens at the width of the destinations image
+     above it and grows to 100vw; useFullwidthScale then takes over and drives
+     the same transform from the measured seed. Without this the SSR frame
+     paints full-bleed and snaps inwards on the first rAF.
+
+     In sharp `--utopia-fullwidth-start-inset` is 0, so this is scale(1): the
+     card is flush and full-width from the start and there is no grow — which
+     is v9's own behaviour, since its destinations image is already 100vw and
+     the driver's measured minScale therefore also comes out at 1. */
+  .frame {
+    border-radius: var(--utopia-radius-frame);
+  }
+
+  .slides {
+    border-radius: var(--utopia-radius-frame);
+    transform: scale(
+      calc((100vw - 2 * var(--utopia-fullwidth-start-inset)) / 100vw)
+    );
   }
 }

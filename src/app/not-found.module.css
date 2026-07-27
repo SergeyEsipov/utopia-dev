@@ -1,106 +1,148 @@
+/* 404 — Figma 24.07 `154:8707` (desktop) / `154:5381` (tablet) / `154:6614`
+   (mobile). A full-bleed photograph with centred copy, then the site footer. */
+
 .page {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  min-height: 100dvh;
   width: 100%;
-  max-width: var(--utopia-layout-max);
-  margin: 0 auto;
-  padding: 48px var(--utopia-space-4) calc(var(--utopia-dock-height) + 32px);
   background: var(--utopia-bg-cream);
+}
+
+/* ── Hero ──
+   Figma draws the photo screen at 680 (mobile) / 994 (tablet) / 820 (desktop),
+   i.e. one viewport in each frame, so it is expressed as a viewport height
+   rather than three magic numbers. `100svh` and not `dvh`: a height that
+   changes as browser chrome hides would jitter the whole composition. */
+.hero {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: var(--utopia-viewport-height);
+  overflow: hidden;
   box-sizing: border-box;
 }
 
-@media (min-width: 1024px) {
-  .page {
-    max-width: var(--utopia-desktop-width);
-    padding: 120px 24px 80px;
-  }
+/* `154:8709` — the backdrop overruns its frame on every side and is cropped to
+   fill (1440×1044.84 against an 820 frame on desktop). */
+.heroImage {
+  object-fit: cover;
+  object-position: center center;
+  pointer-events: none;
+  user-select: none;
 }
 
-.divider {
+/* `154:8711` / `154:5392` / `154:6617`: 314 / 536 / 590 wide, centred, and
+   sitting slightly *above* the optical centre — Figma puts the block's centre
+   39 / 40 / 31px above the frame's, which keeps it clear of the mobile dock
+   and of the nav bar's visual weight. */
+.content {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
   width: 100%;
-  max-width: 346px;
-  height: 0;
-  border-top: 1px solid var(--utopia-divider-on-cream);
-  margin-bottom: 48px;
+  max-width: 314px;
+  text-align: center;
+  transform: translateY(-39px);
+}
+
+.textBlock {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  width: 100%;
+}
+
+/* `154:8713` — Black at 60%. */
+.code {
+  margin: 0;
+  font-family: var(--utopia-font-body);
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 1.4;
+  letter-spacing: -0.005em;
+  color: rgba(22, 21, 20, 0.6);
+}
+
+/* `154:8714`. The weight is set explicitly: globals.css resets headings to
+   `font-weight: inherit`, and there is no bold file to synthesise from. */
+.title {
+  margin: 0;
+  font-family: var(--utopia-font-display);
+  font-size: 26px;
+  font-weight: 400;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+  color: var(--utopia-text-primary, #161514);
+}
+
+/* `154:8715` — 394.648 wide on desktop, so the measure is capped rather than
+   left to fill the 590 column. */
+.description {
+  margin: 0;
+  font-family: var(--utopia-font-body);
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 1.4;
+  color: var(--utopia-text-primary, #161514);
+}
+
+/* `154:6621` 194×40 → `154:8716` 252×44. */
+.homeButton {
+  width: 194px;
+  height: 40px;
+  min-height: 40px;
   flex-shrink: 0;
 }
 
-@media (min-width: 1024px) {
-  .divider {
-    max-width: 996px;
-    margin-bottom: 64px;
-  }
+.homeButtonContent {
+  font-family: var(--utopia-font-body);
+  font-size: 17px;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
 }
 
-.content {
-  display: flex;
-  flex: 1;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: var(--utopia-space-4);
-  width: 100%;
-  max-width: 346px;
-  text-align: center;
+@media (min-width: 640px) {
+  .content {
+    max-width: 536px;
+    gap: 32px;
+    transform: translateY(-40px);
+  }
+
+  .homeButton {
+    width: 252px;
+    height: 44px;
+    min-height: 44px;
+  }
+
+  .homeButtonContent {
+    font-size: 18.7px;
+  }
+
+  .code,
+  .description {
+    font-size: 18px;
+  }
+
+  .title {
+    /* Shared section-title scale — 36 flat, 40 past 1800. Figma's 36 at 1440
+       is this token's own value, so it stays responsive on wide screens
+       instead of freezing. */
+    font-size: var(--utopia-section-title-size);
+    letter-spacing: var(--utopia-section-title-tracking);
+  }
+
+  .description {
+    max-width: 395px;
+  }
 }
 
 @media (min-width: 1024px) {
   .content {
     max-width: 590px;
-    gap: 20px;
+    transform: translateY(-31px);
   }
-}
-
-.emblem {
-  width: 64px;
-  height: auto;
-  margin-bottom: var(--utopia-space-2);
-  opacity: 0.92;
-}
-
-@media (min-width: 1024px) {
-  .emblem {
-    width: 80px;
-    margin-bottom: var(--utopia-space-3);
-  }
-}
-
-.code {
-  font-family: var(--utopia-font-body);
-  font-size: var(--utopia-text-sm);
-  letter-spacing: var(--utopia-tracking-tight-sm);
-  color: var(--utopia-text-muted);
-  text-transform: uppercase;
-}
-
-.title {
-  font-size: var(--utopia-text-2xl);
-  letter-spacing: var(--utopia-tracking-display-md);
-  line-height: var(--utopia-leading-snug);
-}
-
-@media (min-width: 1024px) {
-  .title {
-    font-size: 38px;
-    letter-spacing: -1.14px;
-  }
-}
-
-.description {
-  max-width: 314px;
-  line-height: var(--utopia-leading-normal);
-}
-
-@media (min-width: 1024px) {
-  .description {
-    max-width: 480px;
-    font-size: var(--utopia-text-md);
-    letter-spacing: var(--utopia-tracking-tight-md);
-  }
-}
-
-.actions {
-  margin-top: var(--utopia-space-2);
 }

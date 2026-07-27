@@ -44,11 +44,18 @@ export function useFullwidthScale(sectionRef: RefObject<HTMLElement | null>) {
     let frame: number | null = null;
     let attached = false;
 
-    /** Fully-grown state — also what reduced motion and mobile get. */
+    /** Fully-grown state — also what reduced motion and mobile get.
+     *
+     * These clear to explicit values rather than "": the ≥1024 stylesheet now
+     * carries the start inset as `transform: scale(...)` on the card (the
+     * prototypes' `.fullwidth__scale`), so blanking the inline style would
+     * hand the card straight back to that start scale and strand it inset —
+     * visible as cream bars under reduced motion. Both prototypes' own
+     * reduced-motion branches write `transform: none` for the same reason. */
     const settle = () => {
-      inner.style.borderRadius = "";
-      card.style.borderRadius = "";
-      card.style.transform = "";
+      inner.style.borderRadius = "0px";
+      card.style.borderRadius = "0px";
+      card.style.transform = "none";
       if (content) {
         content.style.top = "";
         content.dataset.fullwidthVisible = "true";

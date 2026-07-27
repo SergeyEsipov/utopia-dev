@@ -1,27 +1,66 @@
 /**
  * Brand fonts — files in public/fonts/
+ *
+ * These are the licensed families the designers supplied on 2026-07-27, and
+ * they replace the trial cuts we shipped until then. The trial GT Ultra Median
+ * carried only `space , - .`, digits and letters — no apostrophe, quotes, `?`,
+ * `!`, `:`, `;`, `(`, `)`, `&` or `/` — so Chrome fell back to Georgia for the
+ * apostrophe inside "It's all yours" and "Discover Utopia's Private World",
+ * mid-word, in a serif that is not ours. The designers' own prototype has the
+ * same defect for the same reason; it is fixed here rather than worked around.
+ *
+ * NB International Pro also brings a real Bold and Italic, which is what the
+ * job description needs: its `<strong>` and `<em>` come from the ATS feed and
+ * were being synthesised by the browser from the single regular face.
  */
 
 @font-face {
-  font-family: "GT Ultra Median Trial";
-  src: url("/fonts/gt-ultra-median-light.otf") format("opentype");
+  font-family: "GT Ultra Median";
+  src: url("/fonts/GTUltraMedian-Light.woff") format("woff");
   font-weight: 300;
   font-style: normal;
   font-display: swap;
 }
 
 @font-face {
-  font-family: "GT Ultra Median Trial";
-  src: url("/fonts/gt-ultra-median-regular.otf") format("opentype");
+  font-family: "GT Ultra Median";
+  src: url("/fonts/GTUltraMedian-Regular.woff") format("woff");
   font-weight: 400;
   font-style: normal;
   font-display: swap;
 }
 
 @font-face {
-  font-family: "NB International";
-  src: url("/fonts/nb-international-regular.otf") format("opentype");
+  font-family: "NB International Pro";
+  src: url("/fonts/NB-International-Pro-Regular.woff") format("woff");
   font-weight: 400;
   font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "NB International Pro";
+  src: url("/fonts/NB-International-Pro-Italic.woff") format("woff");
+  font-weight: 400;
+  font-style: italic;
+  font-display: swap;
+}
+
+/* 700 and its italic exist only for the ATS-authored job description, the one
+   place on the site that emits <strong>/<em>. Nothing in our own CSS asks for
+   a weight other than 300 or 400. */
+@font-face {
+  font-family: "NB International Pro";
+  src: url("/fonts/NB-International-Pro-Bold.woff") format("woff");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "NB International Pro";
+  src: url("/fonts/NB-International-Pro-Bold-Italic.woff") format("woff");
+  font-weight: 700;
+  font-style: italic;
   font-display: swap;
 }

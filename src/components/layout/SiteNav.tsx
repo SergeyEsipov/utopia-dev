@@ -28,6 +28,14 @@ type SiteNavProps = {
    * always solid.
    */
   overlay?: boolean;
+  /**
+   * Wordmark colour while the bar is transparent. The home hero is dark
+   * footage, so the wordmark ships white ("light"). The 404 backdrop
+   * (`154:8709`) is a bright photograph and Figma draws `Logo_Text_Black`
+   * over it, so that page asks for "dark". Ignored once the bar goes solid —
+   * the cream state is always dark-on-cream.
+   */
+  overlayTone?: "light" | "dark";
 };
 
 /**
@@ -36,7 +44,10 @@ type SiteNavProps = {
  * SiteMenu. The old desktop-only Destinations/Experiences dropdown panels were
  * dropped in that redesign.
  */
-export function SiteNav({ overlay = false }: SiteNavProps) {
+export function SiteNav({
+  overlay = false,
+  overlayTone = "light",
+}: SiteNavProps) {
   const { isOpen, toggle, close } = useMenu();
   const router = useRouter();
   const scrolledPastHero = useNavSolid(overlay);
@@ -51,6 +62,7 @@ export function SiteNav({ overlay = false }: SiteNavProps) {
       className={[
         styles.nav,
         overlay ? styles.navOverlay : "",
+        overlay && overlayTone === "dark" ? styles.navOverlayDark : "",
         isSolid ? styles.navSolid : "",
         isOpen ? styles.navOpen : "",
       ]

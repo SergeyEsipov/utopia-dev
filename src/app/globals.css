@@ -13,6 +13,15 @@ body {
   overflow-x: clip;
 }
 
+/* The cream has to sit on the root as well, not on `body` alone. `body` only
+   propagates its background to the canvas while the root has none *and* is not
+   itself a scroll container — and `overflow-x: clip` above makes it one. Left
+   to `body`, the area a phone reveals when it rubber-bands past the footer
+   paints the UA's white instead of the page. */
+html {
+  background: var(--utopia-bg-cream);
+}
+
 body {
   color: var(--utopia-text-primary);
   background: var(--utopia-bg-cream);

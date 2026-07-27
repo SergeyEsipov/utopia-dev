@@ -45,6 +45,13 @@
     filter: none;
   }
 
+  /* …unless the page says its backdrop is light. Figma's 404 (`154:8717`)
+     draws `Logo_Text_Black` over the photograph, where the white wordmark
+     would disappear. */
+  .navOverlayDark:not(.navSolid) .logo img {
+    filter: brightness(0);
+  }
+
   .navOverlay:not(.navSolid) .requestPill {
     display: none;
   }

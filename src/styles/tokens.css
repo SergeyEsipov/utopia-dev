@@ -30,8 +30,8 @@
   --utopia-progress-fill-muted: rgba(0, 0, 0, 0.4);
 
   /* ── Typography: Families ── */
-  --utopia-font-display: "GT Ultra Median Trial", Georgia, "Times New Roman", serif;
-  --utopia-font-body: "NB International", system-ui, -apple-system, sans-serif;
+  --utopia-font-display: "GT Ultra Median", Georgia, "Times New Roman", serif;
+  --utopia-font-body: "NB International Pro", system-ui, -apple-system, sans-serif;
 
   /* ── Typography: Sizes ── */
   --utopia-text-xs: 12px;
@@ -150,6 +150,14 @@
   --utopia-radius-card-n: 12;
   --utopia-radius-card-active-n: 16;
   --utopia-radius-frame: 24px;
+  /* How far the Opening ("fullwidth") card is inset when it *starts* growing.
+     Both prototypes express that inset as the card's own initial transform —
+     `.fullwidth__scale { transform: scale((100vw - 2*--site-grid-pad)/100vw) }`
+     — never as padding on the section, because the section itself has to reach
+     both screen edges for the grow to land full-bleed. In sharp it is 0: v9's
+     destinations image is already 100vw, so the card starts at scale 1 and the
+     section reads as flush and instantly full-width, with no grow at all. */
+  --utopia-fullwidth-start-inset: var(--utopia-site-pad);
   /* Caps for one-off radii that are not worth their own token (careers chips,
      badges, job cards). Used as `min(<designed px>, var(--cap))`: in the
      rounded language the cap is larger than anything, so the designed value
@@ -242,6 +250,7 @@
   --utopia-radius-card-n: 6;
   --utopia-radius-card-active-n: 7;
   --utopia-radius-frame: 0px;
+  --utopia-fullwidth-start-inset: 0px;
   --utopia-radius-cap-card: 6px;
   --utopia-radius-cap-control: 2px;
 

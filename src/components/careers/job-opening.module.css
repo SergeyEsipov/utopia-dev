@@ -506,21 +506,35 @@
   /* Arrows are controls: fully pill in `rounded`, 2px in `sharp`. */
   border-radius: var(--utopia-radius-control);
   cursor: pointer;
-  transition: opacity var(--utopia-transition-fast);
+  transition: background-color var(--utopia-transition-fast);
 }
 
-/* `154:2067` (live) is Ivory, `154:2070` (spent) the darker Beige. */
-.jobWorkNavBtnActive {
+/* `154:2066` holds the two arrows at identical 40×40 geometry and identical
+   iconography — the *only* difference between them is the fill: `154:2067` is
+   Ivory and `154:2070` is Beige Dark. They are therefore the two states of one
+   component (rest → hover), not a live arrow beside a spent one, which is how
+   this was read before: the darker fill was being pinned onto whichever arrow
+   had run out of track, so the designed hover never appeared anywhere. */
+.jobWorkNavBtn {
   background: #f1e8dc;
 }
 
-.jobWorkNavBtnInactive {
-  background: #ebdfd2;
-  cursor: default;
+/* Guarded on real hover so a touch device never leaves an arrow stuck in the
+   hovered fill after a tap. */
+@media (hover: hover) and (pointer: fine) {
+  .jobWorkNavBtn:not(:disabled):hover {
+    background: #ebdfd2;
+  }
 }
 
-.jobWorkNavBtnActive:hover {
-  opacity: 0.85;
+.jobWorkNavBtn:not(:disabled):focus-visible {
+  background: #ebdfd2;
+}
+
+/* Figma draws no spent state for these; the arrow simply stops responding
+   once its track runs out. */
+.jobWorkNavBtnInactive {
+  cursor: default;
 }
 
 .jobWorkNavChevronLeft {
@@ -645,12 +659,15 @@
   pointer-events: none;
 }
 
+/* Figma's `154:2051` carries a 2px background blur here, but that layer is a
+   shared "Background rectangle" instance whose glass effect is meant for
+   translucent surfaces — over a photograph it just softens the image. The
+   already-signed-off Careers carousel drops it for the same reason, so this is
+   the gradient alone. */
 .jobWorkSlideGradient {
   position: absolute;
   inset: 0;
   z-index: 2;
-  backdrop-filter: blur(2px);
-  -webkit-backdrop-filter: blur(2px);
   background: linear-gradient(
     180deg,
     rgba(0, 0, 0, 0) 0%,
@@ -843,63 +860,45 @@
   }
 }
 
-/* `scroll-padding-inline` has to mirror `padding-inline` or the first snap
-   stop eats the gutter (see CLAUDE.md). */
+/* The slots never move — `154:2073`, `154:2326` and `154:2357` put them at the
+   same coordinates and only swap which photo sits in which. So the track does
+   not scroll: it is a fixed row that bleeds past the right gutter and is
+   clipped by the section, and advancing re-orders the cards in place.
+   `touch-action: pan-y` leaves vertical page scrolling to the browser while the
+   component reads horizontal swipes. */
 .teamUpTrack {
   display: flex;
   align-items: center;
   gap: 20px;
-  margin: 0 -16px;
-  padding: 0 16px;
-  scroll-padding-inline: 16px;
-  overflow-x: auto;
-  overscroll-behavior-x: contain;
-  scroll-snap-type: x mandatory;
-  -webkit-overflow-scrolling: touch;
-  scrollbar-width: none;
-  position: relative;
+  min-width: 0;
+  touch-action: pan-y;
 }
 
-.teamUpTrack::-webkit-scrollbar {
-  display: none;
-}
-
-/* Without trailing runway the row overflows by less than one card, so no card
-   but the first can ever reach the lead position and the three-stop indicator
-   has nothing to point at. The spacer is one viewport minus the last card. */
-.teamUpTrack::after {
-  content: "";
-  flex: 0 0 auto;
-  block-size: 1px;
-  inline-size: max(0px, calc(100% - 184px));
-}
-
-@media (min-width: 768px) {
-  .teamUpTrack {
-    margin: 0 -60px;
-    padding: 0 60px;
-    scroll-padding-inline: 60px;
-  }
-
-  .teamUpTrack::after {
-    inline-size: max(0px, calc(100% - 308px));
-  }
-}
-
-@media (min-width: 1024px) {
-  .teamUpTrack {
-    margin: 0;
-    padding: 0;
-    scroll-padding-inline: 0;
-  }
-}
-
+/* A slot, not a card: its size belongs to the position, never to the photo, so
+   nothing here animates and the row cannot reflow while the slider runs. */
 .teamUpCard {
   position: relative;
   flex-shrink: 0;
   overflow: hidden;
-  scroll-snap-align: start;
   background: #4a2018;
+}
+
+/* Every slot stacks all three photographs; opacity picks the current one. */
+.teamUpPhoto {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transition: opacity var(--job-teamup-fade, 700ms) ease;
+}
+
+.teamUpPhotoActive {
+  opacity: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .teamUpPhoto {
+    transition: none;
+  }
 }
 
 /* `154:2079` is 16px, the two small cards `154:2083`/`154:2087` are 12px. */
@@ -941,22 +940,22 @@
   object-position: center center;
 }
 
-/* The caption box is pinned to the active card's width — 276 on mobile, 386
-   from 768 up — and JS keeps it in step as the track moves. */
+/* Pinned to the lead slot: 276 on mobile (`154:3311`), 386 from 768 up
+   (`154:2091`/`154:2848`). The lead slot never changes size, so this is a
+   constant rather than something JS has to keep measuring. */
 .teamUpCaption {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
   gap: 16px;
-  width: var(--job-teamup-caption-w, 276px);
+  width: 276px;
   max-width: 100%;
   padding-left: 16px;
-  transition: width var(--utopia-transition-base);
 }
 
 @media (min-width: 768px) {
   .teamUpCaption {
-    width: var(--job-teamup-caption-w, 386px);
+    width: 386px;
     padding: 0 16px;
   }
 }
@@ -969,23 +968,56 @@
   }
 }
 
+/* The copy changes with the photograph, and the three strings do not always
+   wrap to the same number of lines. Reserving the Figma height (`154:2093` is
+   354x92, `154:3312` 260x73) keeps the indicator below it from shifting as the
+   slider runs. */
 .teamUpCaptionCopy {
   display: flex;
   flex-direction: column;
-  gap: 8px;
   width: 100%;
+  min-height: 73px;
   color: var(--utopia-bg-cream);
 }
 
 @media (min-width: 768px) {
   .teamUpCaptionCopy {
+    min-height: 92px;
+  }
+}
+
+.teamUpCaptionFade {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+  animation: jobTeamUpCaptionIn var(--job-teamup-fade, 700ms) ease both;
+}
+
+@media (min-width: 768px) {
+  .teamUpCaptionFade {
     gap: 12px;
   }
 }
 
 @media (min-width: 1024px) {
-  .teamUpCaptionCopy {
+  .teamUpCaptionFade {
     align-items: center;
+  }
+}
+
+@keyframes jobTeamUpCaptionIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .teamUpCaptionFade {
+    animation: none;
   }
 }
 
@@ -1085,6 +1117,9 @@
   }
 }
 
+/* The scrubber: it fills across one autoplay period, which is why Figma's
+   frames all catch it part-way. With autoplay off — reduced motion, hover, or
+   the section off screen — it simply sits full. */
 .teamUpProgressFill {
   display: block;
   width: 100%;
@@ -1093,21 +1128,55 @@
   background: #ffffff;
 }
 
+.teamUpProgressPlaying .teamUpProgressFill {
+  animation: jobTeamUpScrub var(--job-teamup-autoplay, 5000ms) linear both;
+}
+
+@keyframes jobTeamUpScrub {
+  from {
+    width: 0;
+  }
+  to {
+    width: 100%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .teamUpProgressPlaying .teamUpProgressFill {
+    animation: none;
+  }
+}
+
 .teamUpFade {
   display: none;
 }
 
 @media (min-width: 1024px) {
-  /* `154:2103`: a 405-wide brick wash over the bleeding right edge. */
+  /* `154:2103` is a 405-wide brick wash over the bleeding right edge, but that
+     405 only clears the caption at the 1440 the frame was drawn at. Below it the
+     layout closes up and a fixed band reaches back over the copy, so the width
+     is capped at whatever room is left to the right of the lead card — 405 at
+     1440 and above, narrower as the viewport tightens, gone entirely if there
+     is no bleed to cover.
+
+     `mask-image` is what keeps it from reading as a band: `backdrop-filter`
+     applies across the whole box no matter what the background gradient does,
+     so on its own it draws a hard vertical blur seam. Masking the element fades
+     the blur out with the wash. */
   .teamUpFade {
+    --job-teamup-lead-end: calc(120px + 387px + 20px + 386px);
+
     display: block;
     position: absolute;
     top: 0;
     right: 0;
     bottom: 0;
-    width: 405px;
+    width: min(405px, max(0px, calc(100vw - var(--job-teamup-lead-end))));
     background: linear-gradient(to left, #5c2923 0%, rgba(92, 41, 35, 0) 90%);
     backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    mask-image: linear-gradient(to left, #000 0%, transparent 90%);
+    -webkit-mask-image: linear-gradient(to left, #000 0%, transparent 90%);
     pointer-events: none;
     z-index: 1;
   }

@@ -290,11 +290,13 @@ export function SiteMenu() {
                 data-menu-reveal
                 style={{ "--reveal-i": 5 } as React.CSSProperties}
               >
+                {/* 403×434, not the card's own 374×280 — see .cardImage. */}
                 <Image
                   src={menuFeaturedCard.image}
                   alt=""
-                  fill
-                  sizes="387px"
+                  width={403}
+                  height={434}
+                  sizes="403px"
                   className={styles.cardImage}
                 />
                 <span className={styles.cardShade} aria-hidden />

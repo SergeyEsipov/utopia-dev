@@ -4,7 +4,7 @@
 import { Text } from "@/design-system/components";
 import { DestinationsNav } from "@/components/layout/DestinationsNav";
 import { footerDestinations, menuLinks, footerSocials } from "@/lib/data";
-import { TERMS_HREF, getCompanyHref } from "@/lib/routes";
+import { PRIVACY_HREF, TERMS_HREF, getCompanyHref } from "@/lib/routes";
 import styles from "./footer-section.module.css";
 import { FooterLeaves } from "./FooterLeaves";
 import { RevealGroup } from "../RevealGroup";
@@ -96,14 +96,7 @@ export function FooterSection() {
                 <Text variant="caption" muted as="a" href={TERMS_HREF}>
                   Terms and Conditions
                 </Text>
-                {/* No page yet — disabled rather than a link into the 404. */}
-                <Text
-                  variant="caption"
-                  muted
-                  as="span"
-                  className={styles.mobilePageLinkDisabled}
-                  aria-disabled="true"
-                >
+                <Text variant="caption" muted as="a" href={PRIVACY_HREF}>
                   Privacy Policy
                 </Text>
               </div>
@@ -194,9 +187,7 @@ export function FooterSection() {
             <div className={styles.legalCol} data-reveal>
               <div className={`${styles.colLinks} ${styles.colLinksDark}`}>
                 <ArrowLink href={TERMS_HREF}>Terms and conditions</ArrowLink>
-                <span className={styles.linkDisabled} aria-disabled="true">
-                  Privacy policy
-                </span>
+                <ArrowLink href={PRIVACY_HREF}>Privacy policy</ArrowLink>
               </div>
             </div>
           </div>
@@ -208,12 +199,12 @@ export function FooterSection() {
             <a href={TERMS_HREF} className={`${styles.bottomLink} ${styles.bottomCellTerms}`}>
               Terms and conditions
             </a>
-            <span
-              className={`${styles.bottomLink} ${styles.bottomCellPrivacy} ${styles.linkDisabled}`}
-              aria-disabled="true"
+            <a
+              href={PRIVACY_HREF}
+              className={`${styles.bottomLink} ${styles.bottomCellPrivacy}`}
             >
               Privacy policy
-            </span>
+            </a>
           </div>
           <div className={styles.social}>
             {footerSocials.map((s) => (

@@ -10,6 +10,11 @@ export const images = {
 
   ecosystemBg: "/assets/opt/enhanced_ecosystem-bg-jeri-lobby.jpg",
 
+  /* 404 backdrop — Figma 24.07 `154:8709`. The asset server ships it as a
+     21.5MB 4096×2972 PNG; downscaled to a 2048-wide JPEG here (same 1.378
+     aspect the frame's image box uses, so the crop is unchanged). */
+  notFoundBg: "/assets/404/not-found.jpg",
+
   openingPoster: "/assets/opt/opening-kitesurf.jpg",
 
   // Design order: 1 Exclusively Yours (oranges card), 2 Hyper-Personal (yoga),
@@ -106,10 +111,16 @@ export const images = {
 
   jobOfficeIcon: "/assets/job-opening/job-office.svg",
   jobRemoteIcon: "/assets/job-opening/job-remote.svg",
-  jobTeamUpTeaRoom: "/assets/job-opening/teamup-tea-room.jpg",
-  jobTeamUpChess: "/assets/job-opening/teamup-chess.jpg",
-  jobTeamUpTablet: "/assets/job-opening/teamup-tablet.jpg",
-  jobTeamUpDot: "/assets/job-opening/teamup-dot.svg",
+  /* Pulled from the Figma 24.07 asset server — the topmost layer of each stack
+     in `154:2079` / `154:2083` / `154:2087`. Two of the three photographs
+     changed in this revision: the chessboard became the tea pour and the tablet
+     became the Utopia letterhead, which is why the keys are named for the teams
+     the captions give them rather than for their subjects. The tea pour had a
+     Weibo watermark baked into its bottom edge (`@子后汉服`, the same problem the
+     Careers hospitality plate had); it is cropped out. */
+  jobTeamUpDesign: "/assets/job-opening/teamup-design.jpg",
+  jobTeamUpHospitality: "/assets/job-opening/teamup-hospitality.jpg",
+  jobTeamUpLegal: "/assets/job-opening/teamup-legal.jpg",
 } as const;
 
 export type ImageKey = keyof typeof images;

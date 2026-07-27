@@ -8,9 +8,13 @@
  */
 export const NOT_FOUND_HREF = "/404";
 
+export const HOME_HREF = "/";
+
 export const CAREERS_HREF = "/careers";
 
 export const TERMS_HREF = "/terms";
+
+export const PRIVACY_HREF = "/privacy";
 
 /**
  * Destination for a company link, or `undefined` when that page does not exist

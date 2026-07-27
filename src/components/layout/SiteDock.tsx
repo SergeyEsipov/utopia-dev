@@ -1,15 +1,19 @@
 "use client";
 
+import { usePathname, useRouter } from "next/navigation";
 import { Icon } from "@/design-system/components";
 import { GlassSurface } from "@/design-system/liquid-glass";
 import { useMenu } from "@/contexts/MenuContext";
 import { triggerHaptic } from "@/lib/haptics";
+import { HOME_HREF } from "@/lib/routes";
 import styles from "./site-dock.module.css";
 
 const BTN = 40;
 
 export function SiteDock() {
   const { isOpen, toggle } = useMenu();
+  const router = useRouter();
+  const pathname = usePathname();
 
   return (
     <div className={styles.dockWrap}>
@@ -23,7 +27,14 @@ export function SiteDock() {
           aria-label="Home"
           onClick={() => {
             triggerHaptic("light");
-            window.scrollTo({ top: 0, behavior: "smooth" });
+            // On any other route this is a real navigation home. On the home
+            // page itself `push("/")` would be a no-op with nothing to show
+            // for the tap, so it keeps the scroll-to-top it always had.
+            if (pathname === HOME_HREF) {
+              window.scrollTo({ top: 0, behavior: "smooth" });
+            } else {
+              router.push(HOME_HREF);
+            }
           }}
         >
           <Icon name="dockMark" size={16} alt="" className={styles.logoMark} />

@@ -207,8 +207,10 @@ export function JobWorkCarousel() {
           type="button"
           className={[
             styles.jobWorkNavBtn,
-            canGoPrev ? styles.jobWorkNavBtnActive : styles.jobWorkNavBtnInactive,
-          ].join(" ")}
+            canGoPrev ? "" : styles.jobWorkNavBtnInactive,
+          ]
+            .filter(Boolean)
+            .join(" ")}
           onClick={handlePrev}
           disabled={!canGoPrev}
           aria-label="Previous slide"
@@ -224,8 +226,10 @@ export function JobWorkCarousel() {
           type="button"
           className={[
             styles.jobWorkNavBtn,
-            canGoNext ? styles.jobWorkNavBtnActive : styles.jobWorkNavBtnInactive,
-          ].join(" ")}
+            canGoNext ? "" : styles.jobWorkNavBtnInactive,
+          ]
+            .filter(Boolean)
+            .join(" ")}
           onClick={handleNext}
           disabled={!canGoNext}
           aria-label="Next slide"

@@ -319,24 +319,34 @@
 /* Side inset tracks the prototype's `.nav-menu__panel`: 120px at 1440 and
    above, easing down to 24px on narrow desktops. A flat 120px starved the four
    columns between 1024 and ~1350 and made them collide. */
+/* `154:7568`: the body is a 20px-gap row inside 120px gutters, holding a 793
+   column of destinations and the 374 card. It sits 32px below the 72-tall nav
+   row (`154:7539`, the 1px #ebdfd2 rule).
+
+   The two children are their designed widths rather than a 1fr/auto split:
+   793 + 20 + 374 = 1187 against the 1200 the gutters leave, so Figma keeps
+   ~13px of slack at the right edge and the card is deliberately *not* flush
+   to the gutter. A `1fr` left column would eat that slack and push the card
+   out to 120 from the edge. */
 .panelGrid {
   --panel-inset: clamp(24px, calc(120px - (1440px - 100vw) * 0.2), 120px);
 
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 387px;
+  grid-template-columns: minmax(0, 793px) 374px;
   gap: 20px;
   align-items: flex-start;
   max-width: var(--utopia-desktop-width);
   margin: 0 auto;
-  padding: 40px calc(var(--panel-inset) + 12px) 60px var(--panel-inset);
+  padding: 32px var(--panel-inset) 60px;
   border-top: 1px solid #ebdfd2;
   box-sizing: border-box;
 }
 
+/* `154:7569` — 56, not 64. */
 .panelLeft {
   display: flex;
   flex-direction: column;
-  gap: 64px;
+  gap: 56px;
   min-width: 0;
 }
 
@@ -383,13 +393,13 @@
   cursor: default;
 }
 
+/* `154:7591`/`154:7592` — a plain 32px row. */
 .secondary {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  column-gap: 28px;
+  column-gap: 32px;
   row-gap: 8px;
-  padding-top: 6px;
 }
 
 .secondaryLink {
@@ -434,16 +444,16 @@
   transform: translateX(0);
 }
 
-/* ── Featured card (Figma Pic 1:3844) ── */
+/* ── Featured card — Figma 24.07 "Pic" `154:7596`: 374×280, r16, on Black ── */
 
 /* Hover scales the whole card as one frame — prototype `.nav-menu__card`
-   (1.0413 is the 403/387 ratio from the Figma hover variant). */
+   (1.0776 is the 403/374 ratio between the card and the picture frame that
+   Figma centres inside it). */
 .card {
   position: relative;
   display: block;
-  width: 387px;
-  height: 296px;
-  justify-self: end;
+  width: 374px;
+  height: 280px;
   flex-shrink: 0;
   border-radius: var(--utopia-radius-card-lg);
   overflow: hidden;
@@ -455,7 +465,7 @@
 }
 
 .card:hover {
-  --card-scale: 1.0413;
+  --card-scale: 1.0776;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -468,25 +478,39 @@
   }
 }
 
+/* `154:7597` — the picture is *not* stretched to the card: Figma places a
+   403×434 frame centred in the 374×280 box and nudged 10px down, so the crop
+   is tighter and sits lower than an `inset: 0` cover would give. Reproduced as
+   an explicitly-sized, centred layer rather than an `object-position` guess. */
 .cardImage {
+  position: absolute;
+  left: 50%;
+  top: calc(50% + 10px);
+  width: 403px;
+  height: 434px;
+  transform: translate(-50%, -50%);
   object-fit: cover;
+  max-width: none;
 }
 
+/* `154:7600` — rgba(51,47,46,0) at 60.5% → #332f2e at 91%. */
 .cardShade {
   position: absolute;
   inset: 0;
   background: linear-gradient(
     180deg,
-    rgba(51, 47, 46, 0) 60%,
-    rgba(51, 47, 46, 0.9) 100%
+    rgba(51, 47, 46, 0) 60.482%,
+    #332f2e 91.005%
   );
 }
 
+/* `154:7601`: a 343-wide row, i.e. the 374 card less its 22px side padding
+   (`154:7596` is px-22/py-20, and the row is bottom-aligned). */
 .cardFooter {
   position: absolute;
   left: 22px;
   right: 22px;
-  bottom: 18px;
+  bottom: 20px;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -495,22 +519,24 @@
 .cardText {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 2px;
 }
 
+/* `154:7603` — 18px, not 19, and on the body face. */
 .cardTitle {
   font-family: var(--utopia-font-body);
-  font-size: 19px;
-  line-height: 1.05;
-  letter-spacing: -0.19px;
+  font-size: 18px;
+  line-height: 1.4;
+  letter-spacing: -0.09px;
   color: var(--utopia-text-inverse);
 }
 
+/* `154:7604` — 16px Beige at 65%. */
 .cardSubtitle {
   font-family: var(--utopia-font-body);
-  font-size: var(--utopia-text-sm);
+  font-size: 16px;
   line-height: 1.4;
-  letter-spacing: -0.07px;
+  letter-spacing: -0.08px;
   color: var(--utopia-bg-cream);
   opacity: 0.65;
 }

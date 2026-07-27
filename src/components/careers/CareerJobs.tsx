@@ -1,4 +1,4 @@
-import { buildDepartments, getJobPostings } from "@/lib/revolut-people";
+import { getJobPostings } from "@/lib/revolut-people";
 import { CareerJobsList } from "./CareerJobsList";
 import styles from "./careers.module.css";
 
@@ -8,11 +8,9 @@ export async function CareerJobs() {
   return (
     <section className={styles.sectionWide} aria-labelledby="career-jobs-title">
       <div className={`${styles.sectionInner} ${styles.jobs}`}>
-        <CareerJobsList
-          postings={items}
-          departments={buildDepartments(items)}
-          unavailable={postings === null}
-        />
+        {/* Departments are derived inside the list: they have to re-scope as
+            the location filter changes, so a server-built list would drift. */}
+        <CareerJobsList postings={items} unavailable={postings === null} />
       </div>
     </section>
   );

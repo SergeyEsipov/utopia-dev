@@ -26,3 +26,18 @@ export function getCompanyHref(label: string): string | undefined {
   if (label === "Careers") return CAREERS_HREF;
   return undefined;
 }
+
+/**
+ * `true` when a company link has no page to go to yet, so the caller must
+ * render it inert rather than as a live link.
+ *
+ * `menuLinks` only marks About `disabled`, which left Contact rendering as a
+ * real anchor: it carried the hover arrow and full opacity, but had no `href`
+ * and so did nothing when clicked — a control that looks live and is dead.
+ * Deriving the inert state from the routing table instead of the data file
+ * keeps the two from drifting: anything `getCompanyHref` cannot resolve is
+ * inert, and adding the page is the single edit that makes it live again.
+ */
+export function isCompanyLinkInert(label: string): boolean {
+  return getCompanyHref(label) === undefined;
+}

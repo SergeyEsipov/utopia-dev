@@ -60,10 +60,19 @@ export function CareerValues() {
     <section className={styles.sectionWide} aria-labelledby="career-values-title">
       <div className={`${styles.sectionInner} ${styles.values}`}>
         <div className={styles.valuesInner}>
-          <div
-            className={styles.valuesHero}
-            style={{ backgroundImage: `url(${images.careerValuesHero})` }}
-          >
+          <div className={styles.valuesHero}>
+            {/* Bug #27: this was an inline `background-image` on the div, so
+                the raw 2048×2048 source was served unresized and painted in
+                bands over the grey fill. The column is 346 / 648 / 996 wide at
+                the three tiers, and never grows past 996. */}
+            <Image
+              src={images.careerValuesHero}
+              alt=""
+              fill
+              sizes="(min-width: 1024px) 996px, (min-width: 640px) 648px, 100vw"
+              quality={80}
+              className={styles.valuesHeroImage}
+            />
             <div className={styles.valuesHeroContent}>
               <h2 id="career-values-title" className={styles.valuesHeroTitle}>
                 {careerValues.hero.title}

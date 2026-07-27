@@ -232,3 +232,35 @@ export function normalizeLoopSlideIndex(
 export function slideIndexForDestination(destinationIndex: number): number {
   return destinationIndex;
 }
+
+/* ── How far a swipe has to reach before it commits ──
+   The track is a `scroll-snap-type: x mandatory` container, so on its own it
+   only ever moves once the gesture has crossed HALF a stride — measured with a
+   synthetic drag, 316px at 1440, 355px at 1728, 400px at 1920. That is the
+   "you have to yank it quite hard for the slide to change" report. The stride
+   is one card slot plus the gap and rides `--hero-card-unit`, so the
+   replacement is a *fraction* of it rather than a flat pixel count: it stays
+   proportional at every width instead of getting relatively easier as the
+   cards grow. The floor keeps the phone tier (a 336px stride) usable. */
+export const HERO_STEP_GESTURE_RATIO = 0.2;
+export const HERO_STEP_GESTURE_MIN_PX = 48;
+
+export function heroStepGestureThresholdPx(stride: number): number {
+  return Math.max(HERO_STEP_GESTURE_MIN_PX, Math.abs(stride) * HERO_STEP_GESTURE_RATIO);
+}
+
+/**
+ * -1 / 0 / +1 — which way a gesture commits. `travel` is signed in scroll
+ * space: positive means the track was pushed toward the next card.
+ *
+ * A gesture that already covered a whole stride has moved the carousel by
+ * itself (or crossed a loop seam, which teleports `scrollLeft` by a whole
+ * copy), so it needs no help and returns 0.
+ */
+export function heroStepFromGesture(travel: number, stride: number): number {
+  if (!Number.isFinite(travel) || !Number.isFinite(stride) || stride <= 0) return 0;
+  const reach = Math.abs(travel);
+  if (reach >= stride) return 0;
+  if (reach < heroStepGestureThresholdPx(stride)) return 0;
+  return travel > 0 ? 1 : -1;
+}

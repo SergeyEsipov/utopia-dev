@@ -514,9 +514,13 @@
    number Figma holds at every width — the desktop component, the 1270 instance
    and the tablet instance `154:7851` (648×280) all draw the same height. */
 
-/* Hover scales the whole card as one frame — prototype `.nav-menu__card`
-   (1.0776 is the 403/374 ratio between the card and the picture frame that
-   Figma centres inside it). */
+/* Hover scales the whole card as one frame — prototype `.nav-menu__card`.
+   The prototype's growth is 1.0776 (the 403/374 ratio between the card and the
+   picture frame Figma centres inside it, reused as a hover constant). The
+   designer asked for that growth to be **1.5x smaller**, so it is the delta
+   that is divided, not the scale: 1 + 0.0776 / 1.5 = 1.05173.
+   `--card-img-zoom` keeps the full 1.0776 — it is the picture's over-scale
+   inside the frame, a different number that happens to share the value. */
 .card {
   position: relative;
   display: block;
@@ -533,7 +537,7 @@
 }
 
 .card:hover {
-  --card-scale: 1.0776;
+  --card-scale: 1.05173;
 }
 
 @media (prefers-reduced-motion: reduce) {

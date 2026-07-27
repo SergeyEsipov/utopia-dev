@@ -15,8 +15,8 @@
   box-sizing: border-box;
   border-radius: min(12px, var(--utopia-radius-cap-card));
   background: #ccc4b8;
-  backdrop-filter: blur(7.5px);
   -webkit-backdrop-filter: blur(7.5px);
+  backdrop-filter: blur(7.5px);
   color: var(--utopia-text-primary);
 }
 
@@ -74,13 +74,37 @@
   letter-spacing: -0.14px;
 }
 
+/* The row is left-aligned, hugging its buttons — it does NOT stretch to the
+   card's content width. Figma is explicit and agrees at both sizes: the button
+   frame is `154:8230` at **x=20**, w=198 inside the 371 desktop card, and
+   `154:8336` at **x=20**, w=198 inside the 378 mobile sheet. Its parent
+   (`154:8226` / `154:8332`) is `flex-col items-start`, so the row shrinks to
+   content and sits on the card's left padding; the `justify-end` Figma also
+   emits on the row is a no-op there, and porting it onto a *stretched* flex
+   child is what pushed both pills to the right edge (measured: row at x=20 but
+   the buttons starting at 161.7 of the card).
+   `align-self` rather than `width: max-content`, so the row still cannot
+   overflow the card if the labels ever grow. */
 .actions {
+  align-self: flex-start;
   display: flex;
-  justify-content: flex-end;
   align-items: center;
   gap: 6px;
 }
 
+/* 34 tall and 28px side padding are Figma's own overrides on the Button
+   instance and they are load-bearing: the card's 150 height is exactly
+   20 + 66 (text) + 12 (gap) + 34 + 18.
+
+   The label size is NOT Figma's literal value. `154:8231`/`154:8232` draw
+   `10.84px / 13.005px`, but those come from the nested "Filter option" instance
+   having been scaled — the master (`154:6855`) is a **134x18** text box, i.e.
+   15px on an 18px line, and 10.84/15 = 13.005/18 = 0.7226 is that scale baked
+   into the export. Rendering the artifact put an ~11px label inside a 34-tall,
+   56px-padded pill, which is exactly the "buttons too big" the designer filed.
+   Un-scaled to the card's own body size (14px) on the master's 1.2 leading;
+   the master's own 15px is the other defensible reading — flagged to the
+   designer rather than guessed at. */
 .button {
   display: inline-flex;
   align-items: center;
@@ -89,8 +113,8 @@
   padding: 0 28px;
   border-radius: min(60.35px, var(--utopia-radius-cap-control));
   font-family: var(--utopia-font-body);
-  font-size: 10.84px;
-  line-height: 13.005px;
+  font-size: 14px;
+  line-height: 16.8px;
   color: var(--utopia-text-black);
   white-space: nowrap;
   cursor: pointer;

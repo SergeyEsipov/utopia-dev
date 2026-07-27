@@ -49,6 +49,10 @@ export async function generateMetadata({
       type: "article",
       title: `${posting.title}${location ? ` · ${location}` : ""} — Utopia`,
       description,
+      // Declaring `openGraph` replaces the root object wholesale rather than
+      // merging into it, which drops the file-convention image every other
+      // route inherits from `src/app/opengraph-image.tsx`. Name it back.
+      images: ["/opengraph-image"],
     },
   };
 }

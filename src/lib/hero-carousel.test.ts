@@ -18,6 +18,10 @@ import {
   getRawSlideIndexFromSlideCenters,
   getRawSlideIndexFromSlideElements,
   getScrollLeftForSlide,
+  heroStepFromGesture,
+  heroStepGestureThresholdPx,
+  HERO_STEP_GESTURE_MIN_PX,
+  HERO_STEP_GESTURE_RATIO,
   getScrollLeftForSlideElement,
   heroCarouselDestinations,
   heroCarouselSlides,
@@ -373,5 +377,41 @@ describe("full swipe Roca to Cabarete journey", () => {
     assert.equal(mid.to, 1);
     assert.ok(mid.blend > 0);
     assert.ok(mid.blend < 1);
+  });
+});
+
+describe("heroStepFromGesture", () => {
+  // One desktop stride is a 590 slot plus a 40 gap, times --hero-card-unit:
+  // 630 at 1440, 709.7 at 1728, 800.1 at 1920.
+  const strides = [630, 709.7, 800.1];
+
+  it("commits at a fraction of the stride, not the half a mandatory snap needs", () => {
+    for (const stride of strides) {
+      const threshold = heroStepGestureThresholdPx(stride);
+      assert.equal(threshold, stride * HERO_STEP_GESTURE_RATIO);
+      assert.ok(threshold < stride / 2);
+      assert.equal(heroStepFromGesture(threshold - 1, stride), 0);
+      assert.equal(heroStepFromGesture(threshold + 1, stride), 1);
+      assert.equal(heroStepFromGesture(-(threshold + 1), stride), -1);
+    }
+  });
+
+  it("keeps a pixel floor so a phone stride stays usable", () => {
+    // 314 + 22 = 336 on mobile; 20% of it would be 67.2, above the floor.
+    assert.equal(heroStepGestureThresholdPx(120), HERO_STEP_GESTURE_MIN_PX);
+  });
+
+  it("ignores a gesture that already carried a whole card", () => {
+    // The native snap has moved it, or a loop wrap teleported scrollLeft by a
+    // whole copy — either way the carousel needs no extra step.
+    assert.equal(heroStepFromGesture(630, 630), 0);
+    assert.equal(heroStepFromGesture(4410, 630), 0);
+    assert.equal(heroStepFromGesture(-4410, 630), 0);
+  });
+
+  it("is inert on nonsense input", () => {
+    assert.equal(heroStepFromGesture(200, 0), 0);
+    assert.equal(heroStepFromGesture(Number.NaN, 630), 0);
+    assert.equal(heroStepFromGesture(0, 630), 0);
   });
 });

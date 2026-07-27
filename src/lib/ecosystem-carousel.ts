@@ -1,9 +1,19 @@
-import { destinationCategoriesContent } from "./slides-content.ts";
+import {
+  destinationCategoriesContent,
+  type DestinationSlideContent,
+} from "./slides-content.ts";
 
 export type EcosystemLocation = {
   id: string;
   label: string;
   bg: string;
+  /**
+   * desktop_v10's `strongShade`: one slide asks for the reinforced bottom
+   * wash because its own photograph is bright enough to swallow the white
+   * filter labels that now sit on it. Opt-in per slide, false everywhere
+   * else, so the component never learns which slide it is.
+   */
+  strongShade: boolean;
 };
 
 export type EcosystemCategory = {
@@ -37,6 +47,13 @@ export const ecosystemCategoryData: EcosystemCategory[] =
       id: slide.id,
       label: slide.label,
       bg: slide.image,
+      /* `strongShade` is optional in slides.json and not yet part of
+         `DestinationSlideContent`, so it is read defensively: the flag works
+         the moment the field is added to the file, and its absence is just
+         `false`. */
+      strongShade:
+        (slide as DestinationSlideContent & { strongShade?: boolean })
+          .strongShade === true,
     })),
   }));
 

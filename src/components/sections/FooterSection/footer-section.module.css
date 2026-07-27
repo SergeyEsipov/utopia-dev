@@ -478,9 +478,23 @@
     --footer-right-pad: calc(
       clamp(24px, calc(120px - (1440px - 100vw) * 0.2), 120px) + 12px
     );
-    height: 640px;
-    min-height: 640px;
-    padding: 72px var(--footer-right-pad) 32px var(--utopia-site-pad);
+    --footer-height: 640px;
+    /* The footer is a fixed 640 and the bar is fixed/sticky over it, so on a
+       viewport shorter than 640 + 72 the bar lands *inside* the footer's own
+       72px of top padding and the columns come out jammed against the top
+       edge — reported at 1280x656, where the two overlap by 56px and only 16px
+       of air is left. Give back exactly what the bar covers, capped at its own
+       height so a very short window cannot squeeze the content out of the
+       fixed box. Zero, and therefore inert, at any viewport ≥712 tall. */
+    --footer-nav-overlap: clamp(
+      0px,
+      var(--utopia-nav-height) - (100vh - var(--footer-height)),
+      var(--utopia-nav-height)
+    );
+    height: var(--footer-height);
+    min-height: var(--footer-height);
+    padding: calc(72px + var(--footer-nav-overlap)) var(--footer-right-pad) 32px
+      var(--utopia-site-pad);
   }
 
   .menu {
@@ -551,26 +565,55 @@
     white-space: nowrap;
   }
 
-  /* Desktop bottom bar is a single flex row. */
+  /* Desktop bottom bar rides the menu's own columns rather than running as a
+     flex row of its own (prototype desktop_v10 + desktop_v9, commit 61eb9d5
+     "Align footer legal links with destination columns"): Terms lands under
+     the Urban heading and Privacy under Alpine. Same `--footer-grid` the menu
+     uses, so the two rows cannot drift apart at any width, and the change is
+     shared by both variants — v9 (sharp) and v10 (rounded) carry it alike. */
   .bottom {
-    display: flex;
+    display: grid;
+    grid-template-columns: var(--footer-grid);
+    column-gap: 20px;
     align-items: center;
-    gap: 32px;
   }
 
   .copy {
+    grid-column: 1 / 3;
+    grid-row: 1;
     min-width: 0;
   }
 
+  /* Dissolved so Terms and Privacy are direct grid items and can take their
+     own columns; the wrapper stays in the DOM for the tablet layout. */
   .bottomLegal {
-    display: flex;
-    align-items: center;
-    gap: 32px;
-    white-space: nowrap;
+    display: contents;
   }
 
+  /* `justify-self: start` so each link shrink-wraps its text instead of
+     stretching to its whole track. The x is identical either way, but a
+     stretched Privacy cell runs to the end of column 4, which at 1024 is 6.9px
+     past the left edge of the social row that spans every column — a box
+     overlap under otherwise clear-looking text. */
+  .bottomCellTerms {
+    grid-column: 3;
+    grid-row: 1;
+    justify-self: start;
+  }
+
+  .bottomCellPrivacy {
+    grid-column: 4;
+    grid-row: 1;
+    justify-self: start;
+  }
+
+  /* Spans every column and pins itself right, so it keeps the screen edge
+     instead of being trapped in the 184fr track. */
   .social {
-    margin-left: auto;
+    grid-column: 1 / -1;
+    grid-row: 1;
+    justify-self: end;
+    margin-left: 0;
     margin-right: -8px;
   }
 }

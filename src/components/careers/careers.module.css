@@ -373,9 +373,11 @@
   gap: 12px;
 }
 
+/* Bug #41: the reviewer asked for this list two points larger than the 14 the
+   24.07 frame draws (`154:8363`), and left the same note on the Figma node. */
 .departmentItem {
   font-family: var(--utopia-font-body);
-  font-size: 14px;
+  font-size: 16px;
   line-height: 1.3;
   letter-spacing: -0.16px;
   color: var(--utopia-text-primary);
@@ -536,15 +538,27 @@ a.roleCard:hover {
   flex-shrink: 0;
 }
 
+/* Bug #40: one point up from the 14 of `154:8381`, on the reviewer's note.
+   Each row is a single clipped line — the ATS returns up to fifteen location
+   names for one posting and the card must keep its designed height, so the
+   overflow is cut rather than wrapped. The full list stays in the `title`. */
 .roleDetails {
   display: flex;
   flex-direction: column;
   gap: 12px;
+  min-width: 0;
   font-family: var(--utopia-font-body);
-  font-size: 14px;
+  font-size: 15px;
   line-height: 1.3;
   letter-spacing: -0.16px;
   color: var(--utopia-text-black);
+}
+
+.roleDetails p {
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
 }
 
 .roleLabel {
@@ -741,14 +755,14 @@ a.roleCard:hover {
   }
 }
 
-.teamImageWrap::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: rgba(92, 41, 35, 0.15);
-  pointer-events: none;
-  z-index: 1;
-}
+/* Bug #39, "жёлтый фильтр поверх": this tile used to carry
+   `.teamImageWrap::after { background: rgba(92, 41, 35, 0.15) }` — a 15% film
+   of the Careers brown over every team photograph, which is what warmed and
+   flattened them. It arrived with the first Careers commit (3bd09ff, against
+   the *old* 2:1 team plates) and is the one rule in this file that cites no
+   Figma node, while the 24.07 team frames (`154:8456`, `154:8464`, `154:8477`,
+   `154:8491`) draw the image fills with no overlay. Removed. To put it back,
+   restore that one declaration. */
 
 .teamImage {
   display: block;
@@ -841,6 +855,13 @@ a.roleCard:hover {
   }
 }
 
+/* Bug #27. The plate used to be an inline `background-image` pointing straight
+   at the 2048×2048 / 1.25 MB source: it bypassed the image pipeline entirely,
+   so nothing resized it, nothing served WebP, and a baseline JPEG painted
+   top-down over `background-color` — which is why the screenshot caught the
+   card half photograph and half flat grey with the `::before` scrim showing
+   through. It is a `next/image` now (`.valuesHeroImage`), sized to the three
+   real widths of the column. The grey stays as the fill behind it. */
 .valuesHero {
   position: relative;
   width: 100%;
@@ -848,9 +869,16 @@ a.roleCard:hover {
   border-radius: min(20px, var(--utopia-radius-cap-card));
   overflow: hidden;
   background-color: #c5c2b8;
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
+}
+
+.valuesHeroImage {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  z-index: 0;
 }
 
 @media (min-width: 640px) {
@@ -1413,9 +1441,18 @@ a.roleCard:hover {
   }
 }
 
+/* Bug #15. `.workTrackWrap` is a drag-scrolled snap track, so its photographs
+   must be both unselectable and undraggable: `user-select: none` alone still
+   lets Blink/WebKit peel the image off as a drag image and that kills the swipe
+   mid-gesture. `-webkit-user-drag` does not inherit, so both sit on the <img>
+   itself — the same pairing the hero, swiper, ecosystem, opening and
+   private-world media already carry. */
 .workSlideImage {
   object-fit: cover;
   object-position: center center;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-user-drag: none;
 }
 
 .workSlideOverlayCard .workSlideImage {
@@ -1447,6 +1484,83 @@ a.roleCard:hover {
     rgba(102, 102, 102, 0.1) 100%
   );
   pointer-events: none;
+}
+
+/* Progressive blur under the caption. Same treatment the Job Opening carousel
+   took for review #28 (`.jobWorkSlideBlur`); this track is its twin and reads
+   the same way. Six bands share one box pinned to the bottom of the card: band
+   n carries twice the blur of band n-1 and is masked to a window that stops
+   n/6 of the way up, so the softening accumulates towards the bottom edge and
+   tapers to nothing where the last window ends. Each band needs its own mask —
+   a single `backdrop-filter` blurs its whole box regardless of any gradient
+   painted on it, which is what leaves a hard horizontal seam (the same trap
+   the Team up right-edge fade documents).
+   Each band writes `-webkit-backdrop-filter` *before* the standard property,
+   the ordering `ecosystem-section.module.css` documents: lightningcss reads the
+   pair as one declaration and keeps only the last form it thinks the targets
+   need, so writing the standard one first leaves `-webkit-backdrop-filter`
+   alone in the output — and Chrome 150 no longer honours that alias, which
+   makes the computed value `none` and the blur silently vanish. Measured both
+   ways on this very block.
+   NOTE: the 52% height and the 0.25→8px ramp are calibrated by eye, not read
+   off Figma — the node the reviewer cited (`4114-15409`) is in a revision we
+   cannot open. Worth showing the designer. */
+.workSlideBlur {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  height: 52%;
+  z-index: 2;
+  pointer-events: none;
+}
+
+.workSlideBlur > span {
+  position: absolute;
+  inset: 0;
+  display: block;
+}
+
+.workSlideBlur > span:nth-child(1) {
+  -webkit-backdrop-filter: blur(0.25px);
+  backdrop-filter: blur(0.25px);
+  -webkit-mask-image: linear-gradient(to top, #000 83.33%, transparent 100%);
+  mask-image: linear-gradient(to top, #000 83.33%, transparent 100%);
+}
+
+.workSlideBlur > span:nth-child(2) {
+  -webkit-backdrop-filter: blur(0.5px);
+  backdrop-filter: blur(0.5px);
+  -webkit-mask-image: linear-gradient(to top, #000 66.67%, transparent 83.33%);
+  mask-image: linear-gradient(to top, #000 66.67%, transparent 83.33%);
+}
+
+.workSlideBlur > span:nth-child(3) {
+  -webkit-backdrop-filter: blur(1px);
+  backdrop-filter: blur(1px);
+  -webkit-mask-image: linear-gradient(to top, #000 50%, transparent 66.67%);
+  mask-image: linear-gradient(to top, #000 50%, transparent 66.67%);
+}
+
+.workSlideBlur > span:nth-child(4) {
+  -webkit-backdrop-filter: blur(2px);
+  backdrop-filter: blur(2px);
+  -webkit-mask-image: linear-gradient(to top, #000 33.33%, transparent 50%);
+  mask-image: linear-gradient(to top, #000 33.33%, transparent 50%);
+}
+
+.workSlideBlur > span:nth-child(5) {
+  -webkit-backdrop-filter: blur(4px);
+  backdrop-filter: blur(4px);
+  -webkit-mask-image: linear-gradient(to top, #000 16.67%, transparent 33.33%);
+  mask-image: linear-gradient(to top, #000 16.67%, transparent 33.33%);
+}
+
+.workSlideBlur > span:nth-child(6) {
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+  -webkit-mask-image: linear-gradient(to top, #000 0%, transparent 16.67%);
+  mask-image: linear-gradient(to top, #000 0%, transparent 16.67%);
 }
 
 .workSlideBadge {
@@ -1801,8 +1915,20 @@ a.roleCard:hover {
   cursor: pointer;
 }
 
-.departmentButton:hover {
-  opacity: 0.7;
+/* Bug #43 asked for a *colour* hover on these rows ("как в Figma
+   4110-12846"). That node lives in a revision newer than the 24.07 file we can
+   read, so the value is a RECONSTRUCTION: #5c2923 is the Careers accent this
+   page already owns (`.work` background, `.ctaBodyStrong`), and it replaces a
+   blanket `opacity: 0.7` that faded the muted count a second time and read as
+   a disabled state rather than a hover. Swap the literal if the designer
+   supplies the real token. */
+.departmentButton {
+  transition: color var(--utopia-transition-fast);
+}
+
+.departmentButton:hover,
+.departmentButton:hover .departmentCount {
+  color: #5c2923;
 }
 
 .departmentButtonActive {

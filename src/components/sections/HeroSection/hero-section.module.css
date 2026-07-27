@@ -115,15 +115,15 @@
   }
 }
 
-/* Figma desktop-1920 hero (1:1666): section grows to 860, banner content y=72 */
+/* Figma desktop-1920 hero (1:1666): section grows to 860.
+   The `.inner { padding-top: 72px }` that used to live here is gone: from 1024
+   up the banner's top is `--hero-banner-top` (see the ≥1024 block at the end
+   of this file), and this rule sits earlier in the file, so it only ever
+   produced a value that the later block overwrote. */
 @media (min-width: 1900px) {
   .heroMedia {
     height: 860px;
     min-height: 860px;
-  }
-
-  .inner {
-    padding-top: 72px;
   }
 }
 
@@ -486,11 +486,20 @@
 }
 
 @media (min-width: 768px) {
-  /* Defined on the wrapper so the track, the slides and the cards all read one
-     number; the width tiers below only ever reassign this. 1 keeps the design's
-     literal 1440 metrics, which is what every tier up to 1440 wants. */
-  .cardsWrap {
-    --hero-card-unit: 1px;
+  /* Declared on the section root, not on `.cardsWrap`, so the track, the
+     slides, the cards AND the banner above them all read one number. It has to
+     sit this high because `--hero-banner-top` (≥1024 block, end of file) reads
+     the card scale back to work out how far the column can drop, and a custom
+     property only ever inherits downward.
+
+     Two names, deliberately: the width tiers below only ever reassign
+     `--hero-card-width-unit`, and `--hero-card-unit` — what everything actually
+     renders from — is that value with the ≥1024 height cap folded in. 1 keeps
+     the design's literal 1440 metrics, which is what every tier up to 1440
+     wants; tablet (768–1023) has no height cap, so the two are the same there. */
+  .hero {
+    --hero-card-width-unit: 1px;
+    --hero-card-unit: var(--hero-card-width-unit);
   }
 
   .cardsTrack {
@@ -628,8 +637,8 @@
    the centre one (6 and 7 in the sharp build), so the corners grow with the
    card rather than staying pinned. */
 @media (min-width: 1441px) {
-  .cardsWrap {
-    --hero-card-unit: clamp(
+  .hero {
+    --hero-card-width-unit: clamp(
       1px,
       calc(1px + (100vw - 1440px) * 0.000439165),
       1.1752266px
@@ -642,17 +651,17 @@
    to 1.27–1.98) — this is what makes the widest screens show two extra cards
    peeking in rather than three cards adrift in empty space.
 
-   The second `min()` term is the prototype's `heightCap` in CSS form: on a
-   short window the cards must not eat the title and the CTA, so the scale
-   yields to the viewport height before the width. */
+   This is the width term only. The `calc(100vh * 0.00136)` that used to be
+   min()'d in here was a stand-in for the prototype's `heightCap`; the real one
+   is now folded into `--hero-card-unit` for the whole ≥1024 range (see the
+   block at the end of this file), so a stand-in that only covered this tier
+   would just fight it. */
 @media (min-width: 1897px) {
-  .cardsWrap {
-    --hero-card-unit: max(
-      1px,
-      min(
-        clamp(1.27px, calc(100vw * 0.000507961), 1.98px),
-        calc(100vh * 0.00136)
-      )
+  .hero {
+    --hero-card-width-unit: clamp(
+      1.27px,
+      calc(100vw * 0.000507961),
+      1.98px
     );
   }
 }
@@ -730,5 +739,103 @@
     height: 100%;
     min-height: 0;
     border-radius: 0;
+  }
+}
+
+/* ── The banner and the card track are ONE column ──
+   Both prototypes put the leaf mark, the title, the CTA and the card stage
+   inside a single `.hero__content` flex column (`css/style.css:721`) that is
+   anchored `top: var(--hero-banner-top)` and lets the cards follow the CTA by
+   a fixed `margin-top` (`.hero__cards`, 56px). Nothing is pinned to the bottom
+   edge — how much room is left under the cards is an *output* of the
+   composition, and it is what shrinks as the card scale ramps.
+
+   Our port had the two halves anchored to opposite edges instead: the banner
+   at a flat 48/72 from the top and `.cardsWrap { margin-top: auto }` dropping
+   the cards onto the bottom of the hero. Horizontally that is identical to the
+   prototype (measured: the centre card and the title share the viewport centre
+   to within 0.5px at every width), but vertically the gap between the CTA and
+   the cards was 313px at 1440 and closed to 185px at 2560 while the prototype
+   holds it at 56 — the two halves visibly drift apart as the screen widens,
+   which is the "hero, from about 1600px up the card placement goes off, it
+   should all be centred together with the title" report.
+
+   The two JS guards travel with it. `fitHeroVertically()` raises the whole
+   column by whatever the cards are short of `HERO_BOTTOM_GAP` (80), down to
+   `HERO_MIN_BANNER_TOP` (24); only once that budget is spent does `heightCap`
+   in `computeSlots` make the card scale itself yield. Both are pure arithmetic
+   over the viewport, so they are written here as `clamp()`/`min()` instead:
+   `--hero-banner-top` takes the room that is actually left, floored at 24, and
+   `--hero-card-unit` takes the width ramp capped by the height that survives
+   once the column has been raised as far as it may go.
+
+   `--hero-banner-stack` is the fixed part of the column above the cards —
+   100 leaf + 32 gap + 41 CTA — plus the title, which is exactly 1.2 line
+   heights of the display size, so it rides `--utopia-hero-title-size` and
+   tracks the 1800→1920 type ramp on its own. */
+@media (min-width: 1024px) {
+  .hero {
+    /* prototype `.hero__content { --hero-banner-top: clamp(56px, 7vh, 88px) }` */
+    --hero-banner-top-base: clamp(56px, 7vh, 88px);
+    /* HERO_MIN_BANNER_TOP */
+    --hero-banner-top-min: 24px;
+    /* HERO_BOTTOM_GAP */
+    --hero-cards-clear: 80px;
+    /* prototype `.hero__cards { margin-top: 56px }` */
+    --hero-cards-gap: 56px;
+    --hero-banner-stack: calc(173px + 1.2 * var(--utopia-hero-title-size));
+    --hero-column-above: calc(
+      var(--hero-banner-stack) + var(--hero-cards-gap)
+    );
+    /* `heightCap`: what is left for the cards once the column has been raised
+       all the way to --hero-banner-top-min and the clearance is reserved. */
+    --hero-card-height-cap: calc(
+      (
+          100vh - var(--hero-cards-clear) - var(--hero-column-above) -
+            var(--hero-banner-top-min)
+        ) / 331
+    );
+    --hero-card-unit: max(
+      0.6px,
+      min(var(--hero-card-width-unit), var(--hero-card-height-cap))
+    );
+    /* `fitHeroVertically`: sit at the designed top while there is room for it,
+       otherwise take whatever the cards leave, never closer than 24 to the
+       top edge. */
+    --hero-banner-top: clamp(
+      var(--hero-banner-top-min),
+      calc(
+        100vh - var(--hero-cards-clear) - var(--hero-column-above) - 331 *
+          var(--hero-card-unit)
+      ),
+      var(--hero-banner-top-base)
+    );
+  }
+
+  .inner {
+    padding-top: var(--hero-banner-top);
+    padding-bottom: 0;
+    justify-content: flex-start;
+  }
+
+  .cardsWrap {
+    margin-top: var(--hero-cards-gap);
+  }
+}
+
+/* prototype `@media (min-width: 1440px) and (min-aspect-ratio: 1101/1000)` —
+   the same aspect gate the wide-screen type scale already uses, so a tall
+   display does not get the wide composition. */
+@media (min-width: 1440px) and (min-aspect-ratio: 1101/1000) {
+  .hero {
+    --hero-banner-top-base: clamp(120px, calc(7vh + 64px), 152px);
+  }
+}
+
+/* prototype `@media (min-width: 2000px) and (min-aspect-ratio: 1101/1000)` */
+@media (min-width: 2000px) and (min-aspect-ratio: 1101/1000) {
+  .hero {
+    --hero-banner-top-base: clamp(156px, calc(4vh + 104px), 176px);
+    --hero-cards-gap: 60px;
   }
 }

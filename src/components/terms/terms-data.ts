@@ -32,10 +32,15 @@ const paragraphs = (...items: TermsParagraph[]): TermsChunk => ({
   blocks: [{ kind: "paragraphs", paragraphs: items }],
 });
 
+/**
+ * The subtitle is sentence case, not caps. It was stored upper-cased as a
+ * literal string (there is no `text-transform` anywhere on this page), which is
+ * what bug #49 reported — body copy is never set in caps on this site.
+ */
 export const termsHero = {
   title: "Website Terms",
   subtitle:
-    "PLEASE READ THESE TERMS AND CONDITIONS CAREFULLY BEFORE USING THIS SITE",
+    "Please read these terms and conditions carefully before using this site",
 } as const;
 
 export const termsGroups: TermsGroup[] = [

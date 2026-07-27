@@ -362,7 +362,14 @@
 .categoryTabIndicator {
   position: absolute;
   bottom: 0;
-  height: 1px;
+  /* Must match `.categoryTabTrack`'s height, radius included. It was 1px in
+     a 2px track, both bottom-anchored, so the fill sat in the lower half of
+     the groove and read as a bar stuck to the bottom edge that never filled
+     it — measured at 1440 as track y 493.19–495.19 against indicator
+     494.19–495.19. The prototype has no such gap: its `.filter-indicator`
+     and the `.filter-tab` border-bottom it covers are both 1px. */
+  height: 2px;
+  border-radius: var(--utopia-radius-progress);
   background: var(--utopia-text-inverse);
   pointer-events: none;
   transition:
@@ -378,6 +385,16 @@
 
 .categoryTabsLight .categoryTab {
   color: rgba(0, 0, 0, 0.5);
+}
+
+/* The hover above is the *dark* palette's and it is unqualified, so at
+   (0,3,0) it beat `.categoryTabsLight .categoryTab` at (0,2,0): hovering a
+   tab on the cream turned its label white on cream, i.e. invisible. On this
+   surface hover resolves toward black, which is what the prototype's
+   `.filter-tab:not(.filter-tab--active):hover .filter-tab__label { color:
+   #000 }` says. (0,4,0), so it wins without touching the dark rule. */
+.categoryTabsLight .categoryTab:not(.categoryTabActive):hover {
+  color: var(--utopia-text-black);
 }
 
 .categoryTabsLight .categoryTabActive {

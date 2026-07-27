@@ -7,7 +7,7 @@ import { useMenu } from "@/contexts/MenuContext";
 import { footerDestinations, menuFeaturedCard, menuLinks } from "@/lib/data";
 import { images } from "@/lib/media";
 import { triggerHaptic } from "@/lib/haptics";
-import { getCompanyHref } from "@/lib/routes";
+import { getCompanyHref, isCompanyLinkInert } from "@/lib/routes";
 import { DestinationsNav } from "./DestinationsNav";
 import styles from "./site-menu.module.css";
 
@@ -238,8 +238,15 @@ export function SiteMenu() {
                   .filter(Boolean)
                   .join(" ")}
               >
+                {/* Inert-ness comes from the routing table, not from the
+                    `disabled` flag in `menuLinks`: only About carries that
+                    flag, so Contact — which has no page either — rendered as a
+                    live anchor with no href, i.e. a link that looks clickable
+                    and does nothing. `isCompanyLinkInert` is true for anything
+                    `getCompanyHref` cannot resolve, so adding the page is the
+                    one edit that makes the link live again (routes.ts). */}
                 {menuLinks.map((link) =>
-                  "disabled" in link && link.disabled ? (
+                  isCompanyLinkInert(link.label) ? (
                     <span
                       key={link.label}
                       className={`${styles.link} ${styles.linkDisabled}`}
@@ -315,8 +322,9 @@ export function SiteMenu() {
                   data-menu-reveal
                   style={{ "--reveal-i": 4 } as React.CSSProperties}
                 >
+                  {/* Same rule as the compact tree above — see routes.ts. */}
                   {menuLinks.map((link) =>
-                    "disabled" in link && link.disabled ? (
+                    isCompanyLinkInert(link.label) ? (
                       <span
                         key={link.label}
                         className={`${styles.secondaryLink} ${styles.secondaryLinkDisabled}`}

@@ -43,8 +43,8 @@
 
 .dialog::backdrop {
   background: rgba(22, 21, 20, 0.45);
-  backdrop-filter: blur(2px);
   -webkit-backdrop-filter: blur(2px);
+  backdrop-filter: blur(2px);
 }
 
 .card {
@@ -113,8 +113,8 @@
   border: none;
   border-radius: min(16px, var(--utopia-radius-cap-control));
   background: transparent;
-  backdrop-filter: blur(2px);
   -webkit-backdrop-filter: blur(2px);
+  backdrop-filter: blur(2px);
   color: var(--utopia-text-primary);
   cursor: pointer;
   transition: opacity var(--utopia-transition-base);
@@ -136,6 +136,24 @@
 
 .close:hover {
   opacity: 0.6;
+}
+
+/* The dialog puts focus on Accept the moment it opens, which is a *programmatic*
+   focus: it must not paint a ring. Every engine still draws its own UA ring on
+   plain `:focus` in some situations (WebKit most eagerly), so the ring is opted
+   out here and re-declared for `:focus-visible` only — a keyboard user still
+   sees exactly where they are. */
+.close:focus,
+.accept:focus,
+.reject:focus {
+  outline: none;
+}
+
+.close:focus-visible,
+.accept:focus-visible,
+.reject:focus-visible {
+  outline: 2px solid var(--utopia-text-primary);
+  outline-offset: 2px;
 }
 
 .title {

@@ -10,19 +10,21 @@ import {
   PRIVACY_HREF,
   TERMS_HREF,
   getCompanyHref,
+  isCompanyLinkInert,
 } from "@/lib/routes";
 import styles from "./footer-section.module.css";
 import { FooterLeaves } from "./FooterLeaves";
 import { RevealGroup } from "../RevealGroup";
 
-/** Hover-reveal arrow link (prototype desktop_v9 .footer__link-with-arrow). */
-/** `href` is optional: a link whose page does not exist yet renders with the
-    same styling but no destination (see routes.ts). */
+/** Hover-reveal arrow link (prototype desktop_v9 .footer__link-with-arrow).
+    `href` is required: a company link with no page yet renders as the inert
+    span instead (see `isCompanyLinkInert`), so this never has to stand in for
+    a destination-less anchor. */
 function ArrowLink({
   href,
   children,
 }: {
-  href?: string;
+  href: string;
   children: React.ReactNode;
 }) {
   return (
@@ -58,13 +60,23 @@ export function FooterSection() {
               <DestinationsNav idPrefix="footer" defaultOpen={null} />
             </div>
 
+            {/* A link whose page does not exist yet is inert, not just
+                href-less: About was already marked `disabled` in the data,
+                Contact was not, so it rendered as a live-looking anchor that
+                went nowhere. `isCompanyLinkInert` covers both from the routing
+                table. The inert element is a <span>, which keeps it readable
+                and in the DOM while taking it out of the tab order — the
+                `pointer-events: none` on `.mobilePageLinkDisabled` alone would
+                leave a focusable-but-unclickable anchor. */}
             <nav className={styles.mobilePages} aria-label="Site">
-              {menuLinks.map((link) =>
-                "disabled" in link && link.disabled ? (
+              {menuLinks.map((link) => {
+                const href = getCompanyHref(link.label);
+                return isCompanyLinkInert(link.label) || !href ? (
                   <Text
                     key={link.label}
                     variant="base"
                     as="span"
+                    aria-disabled="true"
                     className={`${styles.mobilePageLink} ${styles.mobilePageLinkDisabled}`}
                   >
                     {link.label}
@@ -74,13 +86,13 @@ export function FooterSection() {
                     key={link.label}
                     variant="base"
                     as="a"
-                    href={getCompanyHref(link.label)}
+                    href={href}
                     className={styles.mobilePageLink}
                   >
                     {link.label}
                   </Text>
-                ),
-              )}
+                );
+              })}
             </nav>
           </div>
 
@@ -184,8 +196,9 @@ export function FooterSection() {
 
             <div className={`${styles.linksCol} ${styles.linksColContact}`} data-reveal>
               <div className={`${styles.colLinks} ${styles.colLinksDark}`}>
-                {menuLinks.map((link) =>
-                  "disabled" in link && link.disabled ? (
+                {menuLinks.map((link) => {
+                  const href = getCompanyHref(link.label);
+                  return isCompanyLinkInert(link.label) || !href ? (
                     <span
                       key={link.label}
                       className={styles.linkDisabled}
@@ -194,11 +207,11 @@ export function FooterSection() {
                       {link.label}
                     </span>
                   ) : (
-                    <ArrowLink key={link.label} href={getCompanyHref(link.label)}>
+                    <ArrowLink key={link.label} href={href}>
                       {link.label}
                     </ArrowLink>
-                  ),
-                )}
+                  );
+                })}
               </div>
             </div>
 

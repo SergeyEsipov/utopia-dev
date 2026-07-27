@@ -9,9 +9,12 @@
   padding: var(--utopia-space-15) var(--utopia-content-padding-x-lg);
 }
 
+/* Regular (400), not Light. Figma 24.07 always specified GT Ultra Median
+   Regular here; we ran 300 as a reported, deliberate deviation until the
+   designer asked for regular directly (bug #49). Shared by Terms and Privacy. */
 .heroTitle {
   font-family: var(--utopia-font-display);
-  font-weight: 300;
+  font-weight: 400;
   font-size: 26px;
   line-height: var(--utopia-leading-tight);
   letter-spacing: -0.78px;

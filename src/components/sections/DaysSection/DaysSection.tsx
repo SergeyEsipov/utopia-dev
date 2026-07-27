@@ -20,6 +20,7 @@ export function DaysSection() {
   const {
     cards,
     stageHeight,
+    activeWidth,
     isDragging,
     autoplayKey,
     activeIndex,
@@ -32,7 +33,7 @@ export function DaysSection() {
     swipeHandlers,
   } = useDaysCarousel();
   const revealRef = useReveal<HTMLElement>();
-  useDaysScaleCap(revealRef);
+  useDaysScaleCap(revealRef, activeWidth);
 
   return (
     <section
@@ -64,6 +65,9 @@ export function DaysSection() {
             "--days-transition-ms": `${DAYS_TRANSITION_MS}ms`,
             "--days-ease": DAYS_EASE,
             "--days-caption-ms": `${DAYS_CAPTION_MS}ms`,
+            /* Same name the prototype uses; the caption reads it so its box is
+               always the active card's box, at whatever scale the belt is. */
+            "--pw-active-w": `${activeWidth}px`,
           } as React.CSSProperties
         }
       >

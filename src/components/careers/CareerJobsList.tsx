@@ -50,9 +50,16 @@ function cx(...names: (string | false | null | undefined)[]): string {
   return names.filter(Boolean).join(" ");
 }
 
+/**
+ * Bug #40. This used to render `${names[0]} +${names.length - 1}`, which is
+ * where the "+3" the reviewer asked about came from — it is our own summary,
+ * not ATS copy: `locations[]` on a posting is a plain list of `{name, type}`
+ * and one posting can carry fifteen of them. The names are now spelled out and
+ * the row is clipped to one line in CSS, so the card keeps its designed height
+ * whatever the ATS returns; the full list stays in the row's `title`.
+ */
 function locationLine(names: string[]): string {
-  if (names.length <= 1) return names[0] ?? "";
-  return `${names[0]} +${names.length - 1}`;
+  return names.join(", ");
 }
 
 /**

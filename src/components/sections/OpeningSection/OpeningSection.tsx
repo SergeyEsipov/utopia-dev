@@ -2,9 +2,10 @@
 
 import { useRef } from "react";
 import { Heading, Text, Button, NavPill } from "@/design-system/components";
-import { openingCopy, normalizeOpeningSlideIndex } from "@/lib/opening-carousel";
+import { openingCopy, OPENING_WIDE_BREAKPOINT_PX } from "@/lib/opening-carousel";
 import { triggerHaptic } from "@/lib/haptics";
 import { useReveal } from "@/hooks/useReveal";
+import { useMediaQuery } from "@/hooks/useMediaQuery";
 import { useFullwidthScale } from "./useFullwidthScale";
 import {
   useOpeningCarousel,
@@ -15,7 +16,6 @@ import styles from "./opening-section.module.css";
 export function OpeningSection() {
   const slidesRef = useRef<HTMLDivElement>(null);
   const {
-    index,
     loopIndex,
     slide,
     allSlides,
@@ -29,6 +29,16 @@ export function OpeningSection() {
   const { setVideoRef } = useOpeningVideo(loopIndex, slidesRef);
   const revealRef = useReveal<HTMLElement>();
   useFullwidthScale(revealRef);
+
+  /* The section goes full-bleed at 640 (see its stylesheet), and the phone cut
+     of these three shots is PORTRAIT — 1076x1924, 1124x1844, 1032x2004. Blown
+     across a landscape viewport it was upscaled ~2.4x and cropped to a band.
+     Both desktop builds ship a landscape cut of the same footage for exactly
+     this reason, so from 640 up that is what we play.
+     Safe against the SSR `false` snapshot only because preload is "none": the
+     server markup starts no fetch, so the first request is already the right
+     tier's file. */
+  const wide = useMediaQuery(`(min-width: ${OPENING_WIDE_BREAKPOINT_PX}px)`);
 
   return (
     <section
@@ -56,7 +66,9 @@ export function OpeningSection() {
               .join(" ")}
           >
             {allSlides.map((item, i) => {
-              const slideIndex = normalizeOpeningSlideIndex(i);
+              // `key` carries the tier so a width change past 640 remounts the
+              // element instead of leaving the old cut's decoded frames in it.
+              const tier = wide ? "wide" : "portrait";
 
               return (
               <div
@@ -75,24 +87,46 @@ export function OpeningSection() {
                     .join(" ")}
                 >
                   <video
+                    key={tier}
                     ref={setVideoRef(i)}
                     className={styles.bgVideo}
                     muted
                     loop
                     playsInline
-                    preload={Math.abs(slideIndex - index) <= 1 ? "auto" : "metadata"}
-                    poster={item.poster}
+                    /* "none", exactly as both prototypes set it. This markup is
+                       server-rendered nine times over (three slides x three
+                       loop copies), so anything else starts nine downloads the
+                       moment the parser reaches the section — measured: nine
+                       concurrent requests at 2.1s on slow 3G, none of which
+                       ever finished, starving the hero images behind them.
+                       `useOpeningVideo` loads the active copy on intersection
+                       instead. */
+                    preload="none"
+                    poster={wide ? item.posterWide : item.poster}
                   >
-                    {/* Light encodes (orig clips were 4–6 MB → too heavy to start
-                        on phones). iOS picks HEVC, everyone else H.264. */}
-                    <source
-                      src={item.video.replace(/\.mp4$/, "-mobile.hevc.mp4")}
-                      type='video/mp4; codecs="hvc1"'
-                    />
-                    <source
-                      src={item.video.replace(/\.mp4$/, "-mobile.mp4")}
-                      type="video/mp4"
-                    />
+                    {wide ? (
+                      /* Landscape cut, both desktop builds' source order: VP9
+                         first (2.7/3.3/5.4 MB), H.264 only as the fallback
+                         (14.0/9.6/10.6 MB). */
+                      <>
+                        <source src={item.videoWideWebm} type="video/webm" />
+                        <source src={item.videoWide} type="video/mp4" />
+                      </>
+                    ) : (
+                      /* Portrait cut, light encodes (the originals are 4–6 MB →
+                         too heavy to start on phones). iOS picks HEVC,
+                         everyone else H.264. */
+                      <>
+                        <source
+                          src={item.video.replace(/\.mp4$/, "-mobile.hevc.mp4")}
+                          type='video/mp4; codecs="hvc1"'
+                        />
+                        <source
+                          src={item.video.replace(/\.mp4$/, "-mobile.mp4")}
+                          type="video/mp4"
+                        />
+                      </>
+                    )}
                   </video>
                 </div>
               </div>

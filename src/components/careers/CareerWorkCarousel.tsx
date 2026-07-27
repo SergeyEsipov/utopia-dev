@@ -69,6 +69,18 @@ function WorkSlideCard({
       </div>
       <div className={styles.workSlideOverlay} aria-hidden />
       <div className={styles.workSlideGradient} aria-hidden />
+      {/* Progressive blur under the caption — six stacked bands, each doubling
+          the blur of the one above and each masked to a shorter window from the
+          bottom edge. See `.workSlideBlur` for why one `backdrop-filter` is not
+          enough. */}
+      <div className={styles.workSlideBlur} aria-hidden>
+        <span />
+        <span />
+        <span />
+        <span />
+        <span />
+        <span />
+      </div>
       {slide.badge ? (
         <span className={styles.workSlideBadge}>{slide.badge}</span>
       ) : null}

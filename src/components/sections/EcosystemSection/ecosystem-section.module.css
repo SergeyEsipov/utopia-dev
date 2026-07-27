@@ -434,3 +434,174 @@
     bottom: 56px;
   }
 }
+
+/* ══ desktop_v10 — the rounded build's revision of this screen ══════════
+   `../Utopia/desktop_v10` is a fork of desktop_v8 (same corner language, so
+   it is the *rounded* variant only) committed after the tester filed the
+   destinations bugs. Three things change and they are one change really:
+
+   1. The screen is derived from the viewport instead of from an aspect
+      ratio. v8 drew a 1200/660 card and then clamped it; v10 spends the
+      whole viewport — pad-top + intro + inner-gap + card + pad-bottom — and
+      gives the remainder to the card. That is +56 at 1440 and +84 at 1920,
+      and it is what puts the photo back on the bottom edge of its frame.
+   2. The intro starts at 120, not at `min(80px, 8.9vh)`. Ours started at 80
+      (68 at 1024), i.e. 8px under a 72px fixed bar — the tester's "the title
+      does not fit under the navigation".
+   3. The filter row leaves the cream and moves *inside* the card, sitting
+      one control-height above the image nav, and the bottom shade that v8
+      had switched off comes back to carry it.
+
+   sharp (desktop_v9) has not been revised, so every rule here is gated on
+   `[data-variant="rounded"]` and v9's geometry above is left untouched.
+
+   Last in the file, and higher-specificity than the blocks above, so it wins
+   over both the ≥1441 and the ≥1800 rules regardless of source order. */
+@media (min-width: 1024px) {
+  :global(:root[data-variant="rounded"]) .section {
+    /* Content-driven, exactly like v10's `.destinations`: the sum of the
+       parts below is one viewport (900.2 at 1440×900), so `min-height`
+       only matters when the intro wraps shorter than its reserved block. */
+    height: auto;
+    min-height: var(--utopia-viewport-height);
+    padding: var(--utopia-dest-screen-pad-top) var(--utopia-site-pad)
+      var(--utopia-dest-screen-pad-bottom);
+  }
+
+  :global(:root[data-variant="rounded"]) .intro {
+    /* v10 holds the intro gap at 28 across every desktop tier and moves the
+       tier difference into `--utopia-dest-inner-gap` (48 → 56 at 1800). */
+    gap: 28px;
+    margin-bottom: var(--utopia-dest-inner-gap);
+  }
+
+  :global(:root[data-variant="rounded"]) .content {
+    /* The containing block for the filter row. `.visual` is the only
+       in-flow child, so `.content`'s bottom edge *is* the card's bottom
+       edge and v10's offsets can be written against it verbatim — no need
+       to move the tabs inside the card and re-solve the tablet layout. */
+    position: relative;
+    flex: 0 0 auto;
+    gap: var(--utopia-dest-content-gap);
+  }
+
+  :global(:root[data-variant="rounded"]) .visual {
+    flex: 0 0 auto;
+    height: max(
+      280px,
+      calc(
+        var(--utopia-viewport-height) - var(--utopia-dest-screen-pad-top) -
+          var(--utopia-dest-screen-pad-bottom) -
+          var(--utopia-dest-intro-fit-h) - var(--utopia-dest-inner-gap)
+      )
+    );
+    max-height: none;
+  }
+
+  /* The bottom shade: `display: none` in v8, back in v10 as a 260-tall wash
+     that hangs 60px past the bottom edge, so only 200 of it is inside the
+     card and the gradient never terminates on screen. `backdrop-filter`
+     ignores the background gradient and blurs the whole box, which draws a
+     hard horizontal seam on its own — the mask is what fades the blur out
+     with the wash (same fix as the Careers "Team up" right-edge fade). */
+  :global(:root[data-variant="rounded"]) .gradient {
+    inset: auto 0 var(--utopia-dest-shade-offset) 0;
+    height: var(--utopia-dest-shade-h);
+    z-index: 2;
+    /* Prefixed first, then standard — lightningcss reads the pair as one
+       declaration and keeps only the *last* form it thinks the targets need.
+       Written the other way round it emitted `-webkit-backdrop-filter`
+       alone, and Chrome's computed `backdrop-filter` came back `none`. */
+    -webkit-backdrop-filter: blur(2px);
+    backdrop-filter: blur(2px);
+    -webkit-mask-image: linear-gradient(
+      to top,
+      #000 0%,
+      #000 38%,
+      rgba(0, 0, 0, 0.72) 62%,
+      rgba(0, 0, 0, 0) 100%
+    );
+    mask-image: linear-gradient(
+      to top,
+      #000 0%,
+      #000 38%,
+      rgba(0, 0, 0, 0.72) 62%,
+      rgba(0, 0, 0, 0) 100%
+    );
+    background: linear-gradient(
+      0deg,
+      rgba(22, 21, 20, 0.72) 0%,
+      rgba(22, 21, 20, 0.44) 42%,
+      rgba(22, 21, 20, 0) 100%
+    );
+  }
+
+  /* Per-slide reinforcement. v10 flags exactly one slide (Dubai, whose
+     skyline is bright enough to swallow white labels) with `strongShade`;
+     the flag rides on the slide in slides.json, so nothing here knows which
+     slide it is. */
+  :global(:root[data-variant="rounded"]) .visual[data-strong-shade] .gradient {
+    background: linear-gradient(
+      0deg,
+      rgba(22, 21, 20, 0.83) 0%,
+      rgba(22, 21, 20, 0.73) 42%,
+      rgba(22, 21, 20, 0) 100%
+    );
+  }
+
+  /* The filter row, one control-height + gap above the image nav. 296 wide:
+     three 96px tabs with 4px gaps, where v8 had 352 (32px gaps). */
+  :global(:root[data-variant="rounded"]) .tabsDesktop.tabsDesktop {
+    position: absolute;
+    left: 50%;
+    bottom: calc(
+      var(--utopia-dest-imgnav-bottom) + var(--utopia-dest-control-h) +
+        var(--utopia-dest-tabs-nav-gap)
+    );
+    transform: translate(-50%, var(--utopia-dest-tabs-y));
+    width: calc(
+      3 * var(--utopia-dest-tab-w) + 2 * var(--utopia-dest-tab-gap)
+    );
+    gap: var(--utopia-dest-tab-gap);
+    height: 40px;
+    z-index: 3;
+  }
+
+  /* On the photograph the row reads white, not black-on-cream. The
+     `onLight` palette the component ships still applies in sharp, where the
+     row stays out on the cream. */
+  :global(:root[data-variant="rounded"]) .tabsDesktop [role="tab"] {
+    font-size: var(--utopia-dest-tab-size);
+    color: rgba(255, 255, 255, 0.65);
+  }
+
+  :global(:root[data-variant="rounded"])
+    .tabsDesktop
+    [role="tab"]:not([aria-selected="true"]):hover,
+  :global(:root[data-variant="rounded"])
+    .tabsDesktop
+    [role="tab"][aria-selected="true"] {
+    color: var(--utopia-text-inverse);
+  }
+
+  /* The underline pair follows the labels onto the dark surface: the track
+     is the span inside each tab, the travelling fill the one span the list
+     owns directly. (v10 hides both — see the report; that is a designer
+     decision the client has not signed off, so they stay.) */
+  :global(:root[data-variant="rounded"])
+    .tabsDesktop
+    [role="tab"]
+    > span[aria-hidden] {
+    background: var(--utopia-tab-border);
+  }
+
+  :global(:root[data-variant="rounded"]) .tabsDesktop > span[aria-hidden] {
+    background: var(--utopia-text-inverse);
+  }
+
+  :global(:root[data-variant="rounded"]) .navWrap {
+    bottom: var(--utopia-dest-imgnav-bottom);
+    /* Above the shade (2) and the filter row (3), as in v10. */
+    z-index: 4;
+  }
+}

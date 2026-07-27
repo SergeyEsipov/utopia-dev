@@ -192,6 +192,45 @@
   /* v9 alone shaves 2px off the section title on this screen. */
   --utopia-dest-title-delta: 0px;
 
+  /* ── desktop_v10: the destinations screen derived from the viewport ──
+     v10 is a revision of the *rounded* build (a fork of v8, same corner
+     language). It stops sizing the card by aspect ratio and instead spends
+     the whole viewport on it: the screen is pad-top + intro + inner-gap +
+     card + pad-bottom, and the card takes whatever is left. `intro-fit-h` is
+     the height the designers reserve for the title + body block (measured
+     125 at ≤1799 and 132 from 1800; ours lands on 125.2 / 135.7, i.e. the
+     same block), so the sum comes out at one viewport.
+
+     Also from v10: the filter row moves *inside* the card as an absolutely
+     positioned row above the image nav, its labels turn white, and the
+     bottom shade — `display: none` in v8 — comes back as a 260-tall blurred
+     wash hanging 60px past the bottom edge.
+
+     Ported for `rounded` only. The sharp build (v9) has not been revised, so
+     it keeps the v8/v9 geometry below; every consumer either reads a token
+     that sharp overrides or sits behind a `[data-variant="rounded"]` gate in
+     ecosystem-section.module.css. */
+  --utopia-dest-screen-pad-top: 120px;
+  --utopia-dest-screen-pad-bottom: 16px;
+  --utopia-dest-intro-fit-h: 125px;
+  --utopia-dest-inner-gap: 48px;
+  --utopia-dest-content-gap: 0px;
+  --utopia-dest-tab-gap: 4px;
+  --utopia-dest-tab-w: 96px;
+  /* v10 drops the filter label a point: 18 → 17, and 19 → 18 ultra-wide.
+     Tracking and leading are unchanged, so they still read the shared
+     `--utopia-filter-tab-*` tokens. */
+  --utopia-dest-tab-size: 17px;
+  --utopia-dest-imgnav-bottom: 40px;
+  /* The controls the tab row has to clear: one 44px nav pill plus its gap.
+     `--utopia-control-scale` is the ultra-wide multiplier v10 calls
+     `--screen-control-scale`; it is 1 below 2000. */
+  --utopia-dest-control-h: calc(44px * var(--utopia-control-scale));
+  --utopia-dest-tabs-nav-gap: calc(12px * var(--utopia-control-scale));
+  --utopia-dest-tabs-y: 4px;
+  --utopia-dest-shade-offset: -60px;
+  --utopia-dest-shade-h: 260px;
+
   /* ── Effects ── */
   --utopia-blur-logo: 16px;
   --utopia-backdrop-blur: 10px;
@@ -249,6 +288,33 @@
     --utopia-button-text-size: 19.55px;
     --utopia-button-text-tracking: -0.1955px;
     --utopia-control-line-height: 23px;
+    --utopia-dest-imgnav-bottom: 56px;
+    --utopia-dest-tab-size: 18px;
+  }
+}
+
+/* ── desktop_v10 destinations tokens, per tier ──
+   v10 states the two vertical bands the same way the type scale is stated: a
+   flat value, one ramp window, then the ultra-wide control scale. The three
+   queries below are mutually exclusive, so their order in this file does not
+   matter. Only `--utopia-dest-*` is set here.
+
+   The image nav sits 40px off the bottom edge at 1440+, 32 below that — and
+   also 32 on a *tall* display at any width, which is the prototype's
+   `(max-width: 1024px), (max-aspect-ratio: 11/10)` band talking: a portrait
+   screen gets the short-card treatment however wide it is. */
+@media (max-width: 1439px), (max-aspect-ratio: 11/10) {
+  :root {
+    --utopia-dest-imgnav-bottom: 32px;
+  }
+}
+
+/* The 1800 window that grows the type also grows the block it reserves for
+   the intro (125 → 132) and the gap under it (48 → 56). */
+@media (min-width: 1800px) and (min-aspect-ratio: 1101/1000) {
+  :root {
+    --utopia-dest-inner-gap: 56px;
+    --utopia-dest-intro-fit-h: 132px;
   }
 }
 

@@ -25,12 +25,23 @@ export function ApplyTermsDialog({
   onClose,
 }: ApplyTermsDialogProps) {
   const ref = useRef<HTMLDialogElement>(null);
+  const acceptRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
     const dialog = ref.current;
     if (!dialog) return;
 
-    if (open && !dialog.open) dialog.showModal();
+    if (open && !dialog.open) {
+      dialog.showModal();
+      // `autofocus` alone is not enough. React does emit the attribute, and
+      // Chrome honours it, but WebKit ignores it on `showModal()` and falls
+      // back to the first focusable descendant — the close X, which is why the
+      // dialog opened with a ring around the dismiss control instead of the
+      // primary action. Focusing after the dialog is open moves it in every
+      // engine; the ring itself is `:focus-visible`-only in the stylesheet, so
+      // this programmatic focus stays invisible to a mouse user.
+      acceptRef.current?.focus();
+    }
     if (!open && dialog.open) dialog.close();
   }, [open]);
 
@@ -94,6 +105,7 @@ export function ApplyTermsDialog({
 
         <div className={styles.actions}>
           <button
+            ref={acceptRef}
             type="button"
             className={styles.accept}
             onClick={accept}

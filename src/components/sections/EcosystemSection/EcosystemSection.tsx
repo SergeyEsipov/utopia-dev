@@ -57,7 +57,15 @@ export function EcosystemSection() {
           data-reveal
         />
 
-        <div className={styles.visual} data-scale-seed>
+        {/* desktop_v10 reinforces the bottom shade on the one slide whose
+            photograph is too bright for the white filter labels that now sit
+            on it. The flag comes off the slide, so this stays content-driven
+            (see `strongShade` in slides.json). */}
+        <div
+          className={styles.visual}
+          data-scale-seed
+          data-strong-shade={slide.strongShade ? "" : undefined}
+        >
           <div className={styles.swipeSurface} {...swipeHandlers}>
             <EcosystemBackground bgMix={bgMix} />
             <div className={styles.gradient} />

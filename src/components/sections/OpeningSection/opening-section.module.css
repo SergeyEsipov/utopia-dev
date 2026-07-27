@@ -128,35 +128,38 @@
   }
 }
 
+/* From 640 the section is full-bleed and plays the designers' LANDSCAPE cut of
+   each shot (`videoWide` in slides.json), so the framing is the prototype's
+   own and there is nothing per-slide left to correct:
+
+     .fullwidth__bg { inset: 0; width: 100%; height: 100%; object-fit: cover }
+
+   The oversized boxes and per-slide `object-position` this replaces existed
+   only to make the PORTRAIT phone cut (1076x1924 / 1124x1844 / 1032x2004)
+   survive a landscape frame — they pulled the subject back into view after
+   `cover` had already blown the clip up ~2.4x. With the right source there is
+   nothing to pull back, and a leftover `top: -36%; height: 136%` would now
+   crop the wide frame for no reason. The <640 block above keeps its tuning,
+   because below 640 the portrait cut is still what plays. */
 @media (min-width: 640px) {
   .bgVideo {
-    top: -24%;
-    height: 124%;
-    object-position: center 46%;
-  }
-
-  .bgSlidedunes .bgVideo {
+    inset: 0;
     width: 100%;
+    height: 100%;
     left: 0;
-    top: -12%;
-    height: 112%;
-    object-position: center 40%;
+    top: 0;
+    object-position: 50% 50%;
   }
 
+  .bgSlidekitesurf .bgVideo,
+  .bgSlidedunes .bgVideo,
   .bgSlidelocalvibes .bgVideo {
+    inset: 0;
     width: 100%;
+    height: 100%;
     left: 0;
-    top: -20%;
-    height: 120%;
-    object-position: center 64%;
-  }
-
-  .bgSlidekitesurf .bgVideo {
-    top: -36%;
-    height: 136%;
-    width: 100%;
-    left: 0;
-    object-position: 50% 66%;
+    top: 0;
+    object-position: 50% 50%;
   }
 }
 

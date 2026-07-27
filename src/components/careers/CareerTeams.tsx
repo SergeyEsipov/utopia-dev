@@ -10,17 +10,25 @@ import styles from "./careers.module.css";
  * API, so the two renditions are composed into a `<picture>` by hand — that
  * way a phone never downloads the desktop plate.
  */
+/* Bug #39, the soft featured tile. A `<source>` carries its own `sizes`, and
+   these two had none — so the browser fell back to the spec default of `100vw`
+   and picked by viewport rather than by the 318-wide tile, pulling the whole
+   1070×1337 rendition at 1440. The declarations are the *cover* widths, not the
+   box widths: the desktop tile is 318×425 (0.748) against a 1070×1337 source
+   (0.800), so the fit is height-driven and needs 425 × 1070/1337 ≈ 341 CSS px,
+   where a literal 318 would have under-served it. The band below 1024 is
+   width-driven (648 at 768, 346 at 378) and 708 covers it. */
+const FEATURED_WIDE_SIZES = "341px";
+const FEATURED_BAND_SIZES = "(min-width: 640px) 708px, 100vw";
+
 function FeaturedTeamImage() {
-  const shared = {
-    alt: "",
-    quality: 80,
-    sizes: "(min-width: 1024px) 318px, (min-width: 640px) 708px, 100vw",
-  } as const;
+  const shared = { alt: "", quality: 80 } as const;
 
   const {
     props: { srcSet: wideSrcSet },
   } = getImageProps({
     ...shared,
+    sizes: FEATURED_WIDE_SIZES,
     src: images[careerTeams.featured.wideImageKey],
     width: 636,
     height: 850,
@@ -30,6 +38,7 @@ function FeaturedTeamImage() {
     props: { srcSet: bandSrcSet, ...bandProps },
   } = getImageProps({
     ...shared,
+    sizes: FEATURED_BAND_SIZES,
     src: images[careerTeams.featured.imageKey],
     width: 1400,
     height: 1344,
@@ -37,8 +46,12 @@ function FeaturedTeamImage() {
 
   return (
     <picture>
-      <source media="(min-width: 1024px)" srcSet={wideSrcSet} />
-      <source srcSet={bandSrcSet} />
+      <source
+        media="(min-width: 1024px)"
+        srcSet={wideSrcSet}
+        sizes={FEATURED_WIDE_SIZES}
+      />
+      <source srcSet={bandSrcSet} sizes={FEATURED_BAND_SIZES} />
       <img {...bandProps} alt="" className={styles.teamImage} />
     </picture>
   );

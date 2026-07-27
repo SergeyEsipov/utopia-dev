@@ -45,8 +45,13 @@ export type OpeningSlideContent = {
   id: string;
   label: string;
   layout: string;
+  /** Portrait cut — the mobile builds' source (v3 / v9-mobile). */
   video: string;
   poster: string;
+  /** Landscape cut — desktop_v8/v9/v10's `fullwidth__bg-video` for the same slide. */
+  videoWide: string;
+  videoWideWebm: string;
+  posterWide: string;
 };
 
 export type PrivateWorldSlideContent = {

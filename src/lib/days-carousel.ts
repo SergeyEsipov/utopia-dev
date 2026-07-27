@@ -98,6 +98,21 @@ export const daysWideMetrics = {
   inactiveY: 70,
 };
 
+/**
+ * The desktop grid in `days-section.module.css`: a title column, then the
+ * belt. Both prototypes centre the *active card* on the screen at every width
+ * (`--pw-pad: max(120px, calc(50vw - 580px))` at 1440-1800, `50vw - 596` at
+ * 1800+ and `50vw - 740` past 2000 are all "half the screen minus title + gap
+ * + half a card"), and where the padding floors out they shrink the belt and
+ * the title instead — see `useDaysScaleCap`. `minTitleScale` is the
+ * prototype's own floor, 28/36: the title never drops below 28px.
+ */
+export const daysDesktopLayout = {
+  titleColumn: 387,
+  columnGap: 20,
+  minTitleScale: 28 / 36,
+};
+
 export type DaysStackedMetrics = typeof daysDesktopMetrics;
 
 /** Metrics for the desktop-style (stacked slots) layouts — every tier above mobile. */

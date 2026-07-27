@@ -160,27 +160,60 @@
         "description": "Brazil's ultimate kitesurfing mecca. Where dramatic white dunes meet an unmatched, laid-back vibe.",
         "cta": "Be Among the First"
       },
+      "_mediaNote": [
+        "Two crops of the same three shots, one per layout tier — this is the",
+        "one slider where the prototype really does ship per-width sources.",
+        "`video`/`poster` are the PORTRAIT cut the mobile builds use (v3 and",
+        "v9-mobile: assets/kitesurf.mp4, dunes.mp4, localvibes.mp4 — ours are",
+        "byte-identical to theirs, under opt/). `videoWide`/`posterWide` are the",
+        "LANDSCAPE cut desktop_v8/v9/v10 use for the same slides (their",
+        "fullwidth__bg-video, again byte-identical to ours under desktop/).",
+        "",
+        "Verified frame by frame, not by filename — the names do not line up:",
+        "the designers' `fullwidth-birds` IS our `localvibes` slide (the scarlet",
+        "ibis over the dunes), which is why the third entry pairs them.",
+        "",
+        "webm leads on desktop because the prototype's <source> order does:",
+        "the VP9 cut is 2.7/3.3/5.4 MB against 14.0/9.6/10.6 for the H.264 one.",
+        "That is only true of desktop/fullwidth-*.webm. Do NOT reinstate",
+        "/assets/opt/kitesurf.webm — it is an older edit of the kitesurf shot",
+        "(the kite enters from the opposite side), so webm-capable browsers",
+        "would silently play the wrong cut.",
+        "",
+        "The -mobile / .hevc encodes the component derives from `video` are",
+        "ours, not the designers': the mobile builds serve the full 5.8 MB",
+        "originals to phones."
+      ],
       "slides": [
         {
           "id": "kitesurfing",
           "label": "Kitesurfing",
           "layout": "kitesurf",
           "video": "/assets/opt/kitesurf.mp4",
-          "poster": "/assets/opt/opening-kitesurf.jpg"
+          "poster": "/assets/opt/opening-kitesurf.jpg",
+          "videoWide": "/assets/desktop/fullwidth-kitesurfing.mp4",
+          "videoWideWebm": "/assets/desktop/fullwidth-kitesurfing.webm",
+          "posterWide": "/assets/desktop/opening-kitesurf-wide.jpg"
         },
         {
           "id": "dunes",
           "label": "Dunes Exploration",
           "layout": "dunes",
           "video": "/assets/opt/dunes.mp4",
-          "poster": "/assets/opt/opening-dunes.jpg"
+          "poster": "/assets/opt/opening-dunes.jpg",
+          "videoWide": "/assets/desktop/fullwidth-dunes.mp4",
+          "videoWideWebm": "/assets/desktop/fullwidth-dunes.webm",
+          "posterWide": "/assets/desktop/opening-dunes-wide.jpg"
         },
         {
           "id": "localvibes",
           "label": "Local Vibes",
           "layout": "localvibes",
           "video": "/assets/opt/localvibes.mp4",
-          "poster": "/assets/opt/opening-localvibes.jpg"
+          "poster": "/assets/opt/opening-localvibes.jpg",
+          "videoWide": "/assets/desktop/fullwidth-birds.mp4",
+          "videoWideWebm": "/assets/desktop/fullwidth-birds.webm",
+          "posterWide": "/assets/desktop/opening-localvibes-wide.jpg"
         }
       ]
     },

@@ -19,22 +19,38 @@
   }
 }
 
+/* The left padding is what centres the active card on the screen, exactly as
+   both prototypes derive theirs (`--pw-pad: max(120px, calc(50vw - 580px))`,
+   where 580 = title + gap + half a card). Here 120 + 387 + 20 + 193 = 720 is
+   already half of the 1440 column, and the column is centred, so the card is
+   centred for free at 1440 and above. Below it the padding floors at 120 and
+   `--pw-scale` (useDaysScaleCap) shrinks the belt and the title instead — the
+   prototype's own fallback. */
 @media (min-width: 1024px) {
   .section {
     display: grid;
-    grid-template-columns: 387px minmax(0, 1fr);
+    grid-template-columns:
+      calc(387px * var(--pw-title-scale, 1))
+      minmax(0, 1fr);
     column-gap: 20px;
     align-items: center;
-    padding: 100px 120px;
+    padding: 100px 120px 100px clamp(96px, calc(50vw - 450px), 120px);
     min-height: var(--utopia-viewport-height);
   }
 }
 
-/* Desktop 1920 — Figma 1:1763: margins widen (200 + 128 row inset), imagery scales up. */
-@media (min-width: 1900px) {
+/* Desktop 1920+ — the prototypes' ultra tier is the only source past 1440
+   (Figma 24.07 has no wider frame), and it is the same rule again:
+   `--pw-pad: max(96px, calc(50vw - 740px))` with a 96px title gap, where
+   740 = 383 + 96 + 521/2. The old `328px` + 20px gap came from the 13.07
+   frames and left the card 31.5px right of centre at 1920 and 2560.
+   `min(100vw, 1920px)` is the page column (`.page` caps at 1920 here and is
+   centred), so screen centre and column centre are the same point. */
+@media (min-width: 1900px) and (min-aspect-ratio: 1101/1000) {
   .section {
     grid-template-columns: 383px minmax(0, 1fr);
-    padding: 120px 0 60px 328px;
+    column-gap: 96px;
+    padding: 120px 0 60px max(96px, calc(min(100vw, 1920px) / 2 - 740px));
   }
 }
 
@@ -58,24 +74,31 @@
   }
 }
 
+/* `--pw-title-scale` is 1 except on the narrow desktops where the belt has to
+   shrink to stay centred; there the title shrinks with it, floored at 28px,
+   which is the prototype's `.private-world__title` rule verbatim. */
 @media (min-width: 1024px) {
   .title {
     position: static;
     grid-column: 1;
     grid-row: 1;
     align-self: center;
-    max-width: 387px;
+    max-width: calc(387px * var(--pw-title-scale, 1));
     margin-left: 0;
     padding-right: 0;
-    font-size: var(--utopia-section-title-size);
-    letter-spacing: var(--utopia-section-title-tracking);
+    font-size: calc(
+      var(--utopia-section-title-size) * var(--pw-title-scale, 1)
+    );
+    letter-spacing: calc(
+      var(--utopia-section-title-tracking) * var(--pw-title-scale, 1)
+    );
     line-height: var(--utopia-leading-tight);
   }
 }
 
 /* Size/tracking now ride the shared section-title scale; only the measure
    changes here (prototype `--pw-title-w: 383px`). */
-@media (min-width: 1900px) {
+@media (min-width: 1900px) and (min-aspect-ratio: 1101/1000) {
   .title {
     max-width: 383px;
   }
@@ -94,17 +117,21 @@
   }
 }
 
+/* `--pw-shift` is the room a short viewport takes off the belt (useDaysScaleCap);
+   handing it back as a left offset keeps the active card on the screen centre
+   at any height. It sits on `.carousel` so the caption moves with the belt —
+   and because a margin on `.trackWrap` would itself be multiplied by its zoom. */
 @media (min-width: 1024px) {
   .carousel {
     grid-column: 2;
     grid-row: 1;
-    margin-left: 0;
+    margin-left: var(--pw-shift, 0px);
     width: 1044px;
     max-width: none;
   }
 }
 
-@media (min-width: 1900px) {
+@media (min-width: 1900px) and (min-aspect-ratio: 1101/1000) {
   .carousel {
     width: 1218px;
     gap: 40px;
@@ -151,6 +178,12 @@
   width: 100%;
 }
 
+/* Every card is a fixed active-size box that `scale()`s down (see
+   `getSlotStyle`), so `width`/`height` are constants and must stay out of this
+   list: the transition is transform + opacity + border-radius, exactly the
+   three the prototype animates, and all three are compositor properties. A
+   `width`/`height` track alongside transform is what let Safari land the two
+   halves of a move in different frames. */
 .card {
   position: absolute;
   top: 0;
@@ -158,13 +191,11 @@
   overflow: hidden;
   border-radius: var(--utopia-radius-card);
   transform-origin: top left;
-  will-change: transform, width, height, opacity;
+  will-change: transform, opacity;
   pointer-events: none;
   backface-visibility: hidden;
   transition:
     transform var(--days-transition-ms, 1000ms) var(--days-ease, cubic-bezier(0.22, 0.61, 0.36, 1)),
-    width var(--days-transition-ms, 1000ms) var(--days-ease, cubic-bezier(0.22, 0.61, 0.36, 1)),
-    height var(--days-transition-ms, 1000ms) var(--days-ease, cubic-bezier(0.22, 0.61, 0.36, 1)),
     opacity calc(var(--days-transition-ms, 1000ms) * 0.75)
       var(--days-ease, cubic-bezier(0.22, 0.61, 0.36, 1)),
     border-radius var(--days-transition-ms, 1000ms) var(--days-ease, cubic-bezier(0.22, 0.61, 0.36, 1));
@@ -178,11 +209,24 @@
   pointer-events: none;
   transition:
     transform var(--days-transition-ms, 1000ms) var(--days-ease, cubic-bezier(0.22, 0.61, 0.36, 1)),
-    width var(--days-transition-ms, 1000ms) var(--days-ease, cubic-bezier(0.22, 0.61, 0.36, 1)),
-    height var(--days-transition-ms, 1000ms) var(--days-ease, cubic-bezier(0.22, 0.61, 0.36, 1)),
     opacity calc(var(--days-transition-ms, 1000ms) * 0.55)
       var(--days-ease, cubic-bezier(0.22, 0.61, 0.36, 1)),
     border-radius var(--days-transition-ms, 1000ms) var(--days-ease, cubic-bezier(0.22, 0.61, 0.36, 1));
+}
+
+/* Stacked tiers only (mobile keeps v3's fade-in-place), and only the card
+   leaving *forwards* (it is the one that lands in the prev slot): it drifts
+   60px right and fades over 350ms ease-out, which is the prototype's
+   `transform 350ms ease-out, opacity 350ms ease-out` on `is-leaving`. Its
+   width/height do not change — it keeps the active card's box on the way out,
+   so neither is in this transition list. */
+@media (min-width: 640px) {
+  .cardDeparting.cardPrev {
+    transition:
+      transform 350ms ease-out,
+      opacity 350ms ease-out,
+      border-radius var(--days-transition-ms, 1000ms) var(--days-ease, cubic-bezier(0.22, 0.61, 0.36, 1));
+  }
 }
 
 .cardDeparting .cardImage {
@@ -197,17 +241,36 @@
 
 /* Radius does not change with width in either prototype — `.pw-card` is 12
    (6 sharp) and `.pw-card.is-active` 16 (6 sharp) at every breakpoint. The old
-   per-tier overrides here came from the 13.07 frames. */
+   per-tier overrides here came from the 13.07 frames.
+   The follower cards *paint* 12 × their scale (9.6 desktop and wide, 10.1
+   tablet, 8.0 mobile) because the card is scaled, not resized — that is the
+   prototype's painted radius too, for the same reason: it declares 12 on a
+   card it has scaled to 0.7995. Both are card tokens, never the control
+   family (see CLAUDE.md's two radius families). */
 
-.cardNext,
-.cardPrev {
+.cardNext {
   pointer-events: auto;
   cursor: pointer;
   z-index: 11;
 }
 
-.cardNext:focus-visible,
-.cardPrev:focus-visible {
+/* The prev card is `opacity: 0` at every width and is never `clickable`, so it
+   must not take pointer events — it now parks behind the active card while it
+   drifts out, where a live hit area would swallow clicks.
+   It also returns to its parking slot without a transition: once the drift has
+   finished the card is invisible, so animating it back is a second, pointless
+   1s compositor animation per slide change — and it left the belt's geometry
+   still moving for a second after everything visible had settled. While it is
+   still drifting out it carries `.cardDeparting`, which keeps its own timing. */
+.cardPrev {
+  pointer-events: none;
+}
+
+.cardPrev:not(.cardDeparting) {
+  transition: none;
+}
+
+.cardNext:focus-visible {
   outline: 2px solid var(--utopia-text-primary);
   outline-offset: 2px;
 }
@@ -288,6 +351,9 @@
   min-height: 99px;
 }
 
+/* Heading→body gap: prototype `.pw-caption__text` (12 stacked, 16 desktop,
+   18 ultra). Both layers share one grid cell, so the block keeps the height of
+   the tallest of the three slides and cannot move as the copy changes. */
 .captionLayer {
   grid-area: 1 / 1;
   display: flex;
@@ -308,34 +374,64 @@
   opacity: 0;
 }
 
-/* Tablet — Figma 1:1089: caption stays left-aligned under the active card. */
+/* Tablet — caption stays left-aligned under the active card, and its box is
+   that card's box (prototype's stacked tier: `width: var(--pw-active-w)`). */
 @media (min-width: 640px) and (max-width: 1023px) {
   .caption {
     gap: 16px;
-    width: 386px;
+    width: var(--pw-active-w, 386px);
     max-width: none;
     padding: 0 16px;
   }
+
+  .captionLayer {
+    gap: 12px;
+  }
 }
 
+/* The caption box *is* the active card's box — same left edge, same width, at
+   whatever scale the belt is running (prototype:
+   `width: calc(var(--pw-active-w) * var(--pw-scale))` with a matching
+   `margin-left`, measured identical to the card at every width in v8 and v9).
+   A bare `max-width: 386px` with only a left pad put the copy 8px off the card
+   at 1440 and 77px off once `--pw-scale` shrank the belt underneath it.
+   `--pw-active-w` comes from the carousel's own metrics (DaysSection), so the
+   tier it uses is the tier the cards use. */
 @media (min-width: 1024px) {
   .caption {
-    max-width: 386px;
-    padding-left: 16px;
+    width: calc(var(--pw-active-w, 386px) * var(--pw-scale, 1));
+    max-width: none;
+    gap: 16px;
+    padding: 0 16px;
     align-items: center;
     text-align: center;
   }
-}
 
-/* 1920 — Figma 1:1775: caption centered under the 458px active card. */
-@media (min-width: 1900px) {
-  .caption {
+  .captionLayer {
     gap: 16px;
-    margin-left: 36px;
-    padding: 0 16px;
   }
 }
 
+@media (min-width: 1900px) and (min-aspect-ratio: 1101/1000) {
+  .caption {
+    gap: 16px;
+    margin-left: 0;
+    padding: 0 24px;
+  }
+
+  .captionLayer {
+    gap: 18px;
+  }
+}
+
+/* Caption type is the prototype's `.pw-caption__heading` / `.pw-caption__body`,
+   identical in v8 and v9 and measured off both: 21/-0.21 over 18/-0.17 on
+   desktop, 22/-0.22 over 18/-0.18 in the stacked tier, and the ultra tier
+   scales the heading by 1.3 (`--menu-uw-scale`). The body sits one point above
+   the shared body-copy size at every tier — the prototype's own closing rule,
+   `.pw-caption__body { font-size: calc(var(--body-copy-size) + 1px) }` — so it
+   picks up the 1800→1920 ramp for free (18 → 19.89).
+   Mobile keeps v3's 18/15, which is what it already had. */
 .captionTitle {
   font-size: var(--utopia-text-lg);
   letter-spacing: var(--utopia-tracking-tight-lg);
@@ -344,17 +440,25 @@
 
 @media (min-width: 640px) and (max-width: 1023px) {
   .captionTitle {
-    font-size: 20px;
-    letter-spacing: -0.2px;
+    font-size: 22px;
+    letter-spacing: -0.22px;
     line-height: var(--utopia-leading-tight);
   }
 }
 
-@media (min-width: 1900px) {
+@media (min-width: 1024px) {
   .captionTitle {
-    font-size: var(--utopia-text-xl);
-    letter-spacing: -0.24px;
-    line-height: 26px;
+    font-size: 21px;
+    letter-spacing: -0.21px;
+    line-height: normal;
+  }
+}
+
+@media (min-width: 1900px) and (min-aspect-ratio: 1101/1000) {
+  .captionTitle {
+    font-size: calc((var(--utopia-body-copy-size) + 1px) * 1.3);
+    letter-spacing: calc(var(--utopia-body-copy-tracking) * 1.3);
+    line-height: 1.35;
   }
 }
 
@@ -364,17 +468,24 @@
 
 @media (min-width: 640px) and (max-width: 1023px) {
   .captionDesc {
-    max-width: 300px;
-    font-size: var(--utopia-text-md);
-    letter-spacing: var(--utopia-tracking-tight-md);
+    max-width: none;
+    font-size: calc(var(--utopia-body-copy-size) + 1px);
+    letter-spacing: -0.18px;
   }
 }
 
-@media (min-width: 1900px) {
+/* `width: min(300px, 100%)` in the prototype; 500 in its ultra tier. */
+@media (min-width: 1024px) {
   .captionDesc {
     max-width: 300px;
-    font-size: var(--utopia-text-md);
-    letter-spacing: var(--utopia-tracking-tight-md);
+    font-size: calc(var(--utopia-body-copy-size) + 1px);
+    letter-spacing: var(--utopia-body-copy-tracking);
+  }
+}
+
+@media (min-width: 1900px) and (min-aspect-ratio: 1101/1000) {
+  .captionDesc {
+    max-width: 500px;
   }
 }
 

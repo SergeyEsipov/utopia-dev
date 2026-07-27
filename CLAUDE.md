@@ -31,6 +31,11 @@ rather than silently picking one.**
    side on page `0:1`, each labelled by a small text frame:
    - `154:1961` = **"24.07" → the current revision; all its frames are `154:*`**
    - `44:1100` = "17.07" (`44:*`), `1:136` = "13.07" (`1:*`) — earlier revisions
+   - **This map is going stale.** The 2026-07-27 bug list links Figma nodes in a
+     `3649-*` / `3891-*` / `4073-*` / `4110-*` / `4114-*` series, which is a
+     *newer* revision than 24.07. Re-derive the node map from a fresh
+     `get_metadata` on `0:1` before trusting any `154:*` id below, and ask the
+     designers which revision is current.
    - Key 24.07 nodes: home desktop `154:4120`, tablet `154:5177`, mobile
      `154:6204`, footer `154:2140`, nav-bar states `154:7489`/`154:7512`, open
      menu `154:7535`, Careers `154:8340`, Job Opening `154:1974`, cookie card
@@ -144,10 +149,25 @@ centred. Sections that must be full-bleed break out with
 `width: 100vw; margin-left: calc(50% - 50vw)` — on desktop the hero, ecosystem,
 opening and footer all do this, and keep their own gutter via
 `--utopia-site-pad` (the prototype's `--site-grid-pad`). Days is deliberately
-left in the column: it is left-anchored (`padding-left: 328px`) and its cream
-background matches the page, so breaking it out would shift the composition
-without changing what you see. **If you add a section with its own background,
-it needs the breakout too** — otherwise it paints a 1440-wide band with gutters.
+left in the column: it stays left-anchored and its cream background matches the
+page, so breaking it out would shift the composition without changing what you
+see. **If you add a section with its own background, it needs the breakout
+too** — otherwise it paints a 1440-wide band with gutters.
+
+**Days' left padding is not a constant — it is what centres the active card.**
+Both prototypes derive it as `50vw − (title + gap + activeW/2)`: `max(120px,
+50vw − 580px)` on desktop, `50vw − 596px` past 1800, `max(96px, 50vw − 740px)`
+past 2000, where 580/596/740 are exactly those sums. Measured on v8 and v9, the
+card centre lands on the screen centre at 1600/1920/2560 and within 8.5px at
+1440. The old `padding-left: 328px` at ≥1900 came from the 13.07 frame
+`1:1763` and left the card **31.5px right of centre at both 1920 and 2560**,
+while the card metrics beside it (521/417/27) had already been taken from the
+prototype's ultra tier, whose pad formula is the one above. It is now
+`max(96px, calc(min(100vw, 1920px) / 2 - 740px))` with a **96px** title gap —
+the ultra tier's own numbers — which reproduces the prototype's x=1019 at 2560
+exactly. `min(100vw, 1920px)` is the page column, and the column is centred, so
+column centre and screen centre are the same point. Below 1440 the padding
+floors and the belt shrinks instead (`--pw-scale`, see the Days notes).
 
 Home section order (`src/app/page.tsx`): Hero → **Ecosystem** (this is the
 "destinations" section: heading + Tropical/Urban/Alpine tabs + big image) →
@@ -277,22 +297,40 @@ file. Its only per-image treatments are the two recorded in the JSON.
 - **CSS Modules obey source order** for same-specificity rules. The ≥1024
   blocks are deliberately last in `hero-section.module.css` /
   `ecosystem-section.module.css` so they beat the ≥768 and ≥1900 rules above.
-- **There is no bold font file, so any unstyled heading gets a fake one.** The
-  brand ships NB International at 400 and GT Ultra Median at 300/400 only. An
-  `<h2>`/`<h3>` whose class does not set `font-weight` inherits the UA's `bold`
-  and the browser synthesises it — that is what made the Careers role titles
-  and team names read heavier than Figma. `globals.css` now resets headings to
-  `font-weight: inherit`; keep it, and set the weight in the component rule.
-  A whole-project audit (every route × 1440/378, comparing each element's
-  computed family/weight/style against the three real `@font-face` rules) is
-  otherwise clean. What it still flags, both deliberate:
-  `<strong>` from the ATS rich text in `JobDescription.tsx` (synthesised bold —
-  the vendor means emphasis and there is no bold file; the same component can
-  emit `<em>`, which would be synthesised italic), and `<code>` on the internal
-  `/design-system` page. **Figma specifies NB International *Pro***
-  (`NBInternationalPro-Reg`) and we only have the non-Pro webfont — the one
-  font mismatch we cannot fix without the file from the designers. The three
-  files are also `.otf` with no `woff2` twin and no `<link rel="preload">`.
+- **The licensed fonts landed on 2026-07-27 (`06649c6`) and this section is the
+  post-swap state.** The designers supplied the real families as `.woff`, which
+  replaced the trial `.otf` cuts. `public/fonts/` now holds six faces:
+  `NB-International-Pro-{Regular,Italic,Bold,Bold-Italic}.woff` and
+  `GTUltraMedian-{Light,Regular}.woff`. The old
+  `nb-international-regular.otf` / `gt-ultra-median-{light,regular}.otf` are
+  still on disk but **no longer referenced** by `fonts.css` — they can go.
+  Three things this changed, all previously recorded here as permanent:
+  - **There is a real Bold now**, so `<strong>` from the ATS rich text in
+    `JobDescription.tsx` is no longer synthesised. Measured on
+    `/careers/<slug>` at 768 and 1440: 104 glyphs render from
+    `NBInternationalPro-Bol`. `<em>` likewise has a real Italic.
+  - **The family is NB International *Pro*** — the mismatch against Figma's
+    `NBInternationalPro-Reg` is closed. `--utopia-font-body` in `tokens.css`
+    reads `"NB International Pro"`; the old non-Pro name is gone from `src/`.
+  - The trial GT Ultra Median's missing punctuation (no apostrophe, so Chrome
+    fell back to Georgia mid-word in "It's all yours") is fixed: the licensed
+    cut carries 487 codepoints against the trial's 243.
+  Still true: **the brand has no weight beyond 400 for GT Ultra Median** (300
+  and 400 only), so an `<h2>`/`<h3>` whose class does not set `font-weight`
+  inherits the UA's `bold` and gets a synthesised face. `globals.css` resets
+  headings to `font-weight: inherit`; keep it, and set the weight in the
+  component rule. `button { font: inherit }` is there for the same reason — the
+  UA's default button font is not inherited.
+  A whole-project audit (`/`, `/careers`, `/careers/<slug>`, `/terms`,
+  `/privacy`, 404 × 378/768/1440, reading the *rendered* face per node via
+  CDP `CSS.getPlatformFontsForNode`) is **clean**: every glyph on every route
+  comes from one of the six real faces, and no button resolves to a non-brand
+  family. The one remaining synthesised case is `<code>` on the internal
+  `/design-system` page.
+  The files are `.woff` with no `woff2` twin. `layout.tsx` preloads
+  `NB-International-Pro-Regular.woff` (the dominant face on every route) to
+  shorten the `font-display: swap` window; the display face is deliberately not
+  preloaded.
 - **`scroll-snap-align: start` ignores the scroll container's padding.** A
   carousel with `padding-inline` for its gutter snaps straight past it on load,
   so the gutter silently disappears. Pair every such padding with a matching
@@ -676,8 +714,35 @@ Terms 8021/8062, Privacy 3314/3365, 404 1460/1460 at 1440.
   the bar keeps one height in both states.
 
 Known deviations, all deliberate and reported:
-- `.heroTitle` on Terms/Privacy is `font-weight: 300` where Figma specifies GT
-  Ultra Median **Regular**. Left alone per the standing instruction to report
-  weight mismatches rather than tune them (user confirmed).
+- ~~`.heroTitle` on Terms/Privacy is `font-weight: 300`~~ — **closed.** The
+  designer asked for regular directly (bug #49), so the deviation is lifted:
+  `terms.module.css` `.heroTitle` is now `font-weight: 400`, matching what
+  Figma always specified. The module is shared, so this moved both pages;
+  measured 300 → 400 on `/terms` and `/privacy` at 378/768/1440.
 - Figma's 404 body copy reads "The page you're looking for **have** been
   moved"; kept verbatim, same policy as "Design developement".
+
+Metadata / OG (bug #29), current state:
+- The root layout carries `metadataBase`, a bare `title` string, a description,
+  and the site-wide `openGraph` fields only (`type`, `siteName`, `locale`).
+  **Do not add `openGraph.title`/`description` there** — Next derives those per
+  route from each page's own `title`/`description`, and pinning them at the root
+  stamps the home page's copy onto every other route's share card (tried and
+  reverted).
+- **A child segment that declares `openGraph` replaces the root's object
+  wholesale** — Next does not deep-merge — and the file-convention og:image
+  goes with it. `/careers/[slug]` hits this: `generateMetadata` sets its own
+  `openGraph`, so job postings ship **no og:image and no twitter:image**. Fix is
+  one line (`images: ["/opengraph-image"]`) in
+  `src/app/careers/[slug]/page.tsx`. `/terms` and `/privacy` deliberately set
+  only `alternates` to stay clear of this.
+- **Canonicals only emit when `NEXT_PUBLIC_SITE_URL` is set** (`src/lib/site.ts`
+  returns `null` otherwise, by design). Without it `metadataBase` is null too,
+  so **og:image resolves against localhost** and social previews break. It must
+  be set on the deployment.
+- **`/404` returns HTTP 404** and does not render `src/app/404/page.tsx`; a real
+  404 renders `not-found.tsx`, which the App Router does not let you give a
+  `metadata` export. So the 404 title is the root layout's, and
+  `src/app/404/page.tsx` is dead code.
+- The titles and descriptions in the tree are **placeholders derived from page
+  content**, not the signed-off Figma copy, and are commented as such.

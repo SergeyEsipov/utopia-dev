@@ -415,22 +415,25 @@
    visible desktop frame is `154:2047`. */
 
 .jobWork {
+  /* One number for the band, because the desktop arrows are pinned level with
+     the heading and would otherwise drift the moment the padding changes. */
+  --job-work-pad-y: 120px;
+
   position: relative;
   width: 100%;
-  padding: 120px 0;
+  padding: var(--job-work-pad-y) 0;
   background: var(--utopia-bg-cream);
   overflow: hidden;
 }
 
+/* 160 top *and* bottom from 640 up (client review #47). Figma's frames draw
+   120 at the bottom on desktop and 120/160 on tablet; the larger, symmetric
+   band was asked for directly, so it overrides the frame here. Mobile stays at
+   120 — every neighbouring block on this page steps its vertical rhythm down on
+   phones (`.teamUp` is 80 there against 120 on desktop). */
 @media (min-width: 640px) {
   .jobWork {
-    padding: 160px 0 120px;
-  }
-}
-
-@media (min-width: 1024px) {
-  .jobWork {
-    padding: 120px 0;
+    --job-work-pad-y: 160px;
   }
 }
 
@@ -487,10 +490,12 @@
 }
 
 @media (min-width: 1024px) {
-  /* `154:2066`: pinned 120px from the right edge, level with the heading. */
+  /* `154:2066`: pinned 120px from the right edge, level with the heading —
+     y=172 in a frame whose section padding is 120, i.e. 52px below wherever the
+     heading starts. Written against the padding token so it tracks it. */
   .jobWorkNav {
     position: absolute;
-    top: 172px;
+    top: calc(var(--job-work-pad-y) + 52px);
     right: var(--utopia-site-pad, 120px);
     margin: 0;
   }
@@ -594,9 +599,14 @@
   overflow: hidden;
 }
 
+/* Drag-to-scroll track: without these the photograph is peeled off as the
+   drag image and the swipe dies mid-gesture. `-webkit-user-drag` does not
+   inherit, so it has to sit on the <img> itself, not on `.jobWorkSlideMedia`. */
 .jobWorkSlideImage {
   object-fit: cover;
   object-position: center center;
+  user-select: none;
+  -webkit-user-drag: none;
 }
 
 .jobWorkSlideText {
@@ -674,6 +684,71 @@
     rgba(102, 102, 102, 0.1) 100%
   );
   pointer-events: none;
+}
+
+/* Progressive blur under the caption — review #28, Figma `4114-15409`.
+   Six bands share one box pinned to the bottom of the card. Band n carries
+   twice the blur of band n-1 and is masked to a window that stops (n)/6 of the
+   way up, so the blurs accumulate towards the bottom edge and taper to nothing
+   where the last window ends. Every band needs its own mask: `backdrop-filter`
+   ignores whatever gradient is painted on the element and blurs the entire box,
+   which is what draws a hard edge when it is used on its own. */
+.jobWorkSlideBlur {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  height: 52%;
+  z-index: 2;
+  pointer-events: none;
+}
+
+.jobWorkSlideBlur > span {
+  position: absolute;
+  inset: 0;
+  display: block;
+}
+
+.jobWorkSlideBlur > span:nth-child(1) {
+  -webkit-backdrop-filter: blur(0.25px);
+  backdrop-filter: blur(0.25px);
+  mask-image: linear-gradient(to top, #000 83.33%, transparent 100%);
+  -webkit-mask-image: linear-gradient(to top, #000 83.33%, transparent 100%);
+}
+
+.jobWorkSlideBlur > span:nth-child(2) {
+  -webkit-backdrop-filter: blur(0.5px);
+  backdrop-filter: blur(0.5px);
+  mask-image: linear-gradient(to top, #000 66.67%, transparent 83.33%);
+  -webkit-mask-image: linear-gradient(to top, #000 66.67%, transparent 83.33%);
+}
+
+.jobWorkSlideBlur > span:nth-child(3) {
+  -webkit-backdrop-filter: blur(1px);
+  backdrop-filter: blur(1px);
+  mask-image: linear-gradient(to top, #000 50%, transparent 66.67%);
+  -webkit-mask-image: linear-gradient(to top, #000 50%, transparent 66.67%);
+}
+
+.jobWorkSlideBlur > span:nth-child(4) {
+  -webkit-backdrop-filter: blur(2px);
+  backdrop-filter: blur(2px);
+  mask-image: linear-gradient(to top, #000 33.33%, transparent 50%);
+  -webkit-mask-image: linear-gradient(to top, #000 33.33%, transparent 50%);
+}
+
+.jobWorkSlideBlur > span:nth-child(5) {
+  -webkit-backdrop-filter: blur(4px);
+  backdrop-filter: blur(4px);
+  mask-image: linear-gradient(to top, #000 16.67%, transparent 33.33%);
+  -webkit-mask-image: linear-gradient(to top, #000 16.67%, transparent 33.33%);
+}
+
+.jobWorkSlideBlur > span:nth-child(6) {
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+  mask-image: linear-gradient(to top, #000 0%, transparent 16.67%);
+  -webkit-mask-image: linear-gradient(to top, #000 0%, transparent 16.67%);
 }
 
 .jobWorkSlideBadge {
@@ -883,21 +958,71 @@
   background: #4a2018;
 }
 
-/* Every slot stacks all three photographs; opacity picks the current one. */
+/* The two follower slots are the manual control (review #12): clicking one
+   promotes its photograph into the lead slot, which is the larger of the two —
+   "the next image should get bigger" on mobile. Button reset only; the slot's
+   own geometry is untouched, so nothing about the row changes. */
+.teamUpCardButton {
+  display: block;
+  padding: 0;
+  border: none;
+  appearance: none;
+  cursor: pointer;
+  /* Otherwise a drag that starts on a photo peels the image off as the drag
+     payload and the swipe dies mid-gesture (see CLAUDE.md). */
+  -webkit-user-drag: none;
+  user-select: none;
+}
+
+.teamUpCardButton:focus {
+  outline: none;
+}
+
+.teamUpCardButton:focus-visible {
+  outline: 2px solid var(--utopia-bg-cream);
+  outline-offset: 3px;
+}
+
+/* Every slot stacks all three photographs; opacity picks the current one.
+   The incoming photograph also settles from 1.06 to 1 — the same 1.06 the home
+   page's Private World card image uses when it becomes active. It is a
+   transform on a child of a slot that is `overflow: hidden` and fixed-size, so
+   it cannot move or resize the slot: the row still cannot reflow.
+
+   This is a dissolve, not a symmetric cross-fade, and the difference is
+   visible. Fading both layers at once leaves them at 0.5 halfway through, and
+   `0.5*new + 0.25*old + 0.25*card-background` is a quarter of the way to the
+   flat brick fill — the whole row goes muddy and ghosted mid-change, which is
+   the "the fade shows" half of review #12. So the outgoing layer holds its last
+   frame at full opacity for the entire fade and only then drops out, hidden
+   underneath the incoming one, which is lifted above it and is the only thing
+   that animates. Nothing is ever partly transparent, so the fill never shows
+   through. */
 .teamUpPhoto {
   position: absolute;
   inset: 0;
+  z-index: 0;
   opacity: 0;
-  transition: opacity var(--job-teamup-fade, 700ms) ease;
+  transform: scale(1.06);
+  transition:
+    opacity 0s linear var(--job-teamup-fade, 700ms),
+    transform 0s linear var(--job-teamup-fade, 700ms);
 }
 
 .teamUpPhotoActive {
+  z-index: 1;
   opacity: 1;
+  transform: scale(1);
+  transition:
+    opacity var(--job-teamup-fade, 700ms) ease,
+    transform var(--job-teamup-fade, 700ms) ease;
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .teamUpPhoto {
+  .teamUpPhoto,
+  .teamUpPhotoActive {
     transition: none;
+    transform: none;
   }
 }
 
@@ -938,6 +1063,9 @@
 .teamUpImage {
   object-fit: cover;
   object-position: center center;
+  /* Does not inherit — it has to sit on the <img> itself. */
+  -webkit-user-drag: none;
+  user-select: none;
 }
 
 /* Pinned to the lead slot: 276 on mobile (`154:3311`), 386 from 768 up
@@ -1067,8 +1195,8 @@
   padding: 6px 8px;
   border-radius: var(--utopia-radius-progress);
   background: rgba(255, 255, 255, 0.2);
-  backdrop-filter: blur(2px);
   -webkit-backdrop-filter: blur(2px);
+  backdrop-filter: blur(2px);
 }
 
 @media (min-width: 768px) and (max-width: 1023px) {
@@ -1078,14 +1206,29 @@
   }
 }
 
+/* The dots are 4px wide, which is a 4x4 hit target. The padding grows the
+   target to 8x20 and the matching negative margin gives the space straight
+   back, so the pill's own box, the 4px gaps and every dot position are
+   unchanged — flex lays items out by their margin boxes. */
 .teamUpProgressItem {
   display: flex;
   align-items: center;
-  padding: 0;
+  padding: 8px 2px;
+  margin: -8px -2px;
   border: none;
   background: transparent;
   cursor: pointer;
   flex-shrink: 0;
+}
+
+.teamUpProgressItem:focus {
+  outline: none;
+}
+
+.teamUpProgressItem:focus-visible {
+  outline: 2px solid var(--utopia-bg-cream);
+  outline-offset: 1px;
+  border-radius: min(20px, var(--utopia-radius-cap-card));
 }
 
 .teamUpProgressItemActive {
@@ -1173,8 +1316,8 @@
     bottom: 0;
     width: min(405px, max(0px, calc(100vw - var(--job-teamup-lead-end))));
     background: linear-gradient(to left, #5c2923 0%, rgba(92, 41, 35, 0) 90%);
-    backdrop-filter: blur(4px);
     -webkit-backdrop-filter: blur(4px);
+    backdrop-filter: blur(4px);
     mask-image: linear-gradient(to left, #000 0%, transparent 90%);
     -webkit-mask-image: linear-gradient(to left, #000 0%, transparent 90%);
     pointer-events: none;

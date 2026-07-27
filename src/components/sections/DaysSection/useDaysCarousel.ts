@@ -24,6 +24,13 @@ const SWIPE_LOCK_X = 8;
 const SWIPE_LOCK_Y = 8;
 const MOBILE_ENTER_MS = 620;
 const ENTER_OPACITY_MS = 360;
+/* The card being replaced drifts to the *right* and fades out behind the belt
+   rather than sliding left across the section title — prototype v8/v9 `goTo()`:
+   `leaving.style.transform = cardTransform(60, 0, 1)` with `opacity: 0` and
+   `z-index: 0`, over 350ms ease-out. Mobile keeps v3's behaviour (the leaving
+   card fades in place at its peek slot), so this is stacked-tiers only. The
+   350ms ease-out that goes with it is `.cardDeparting` in the stylesheet. */
+const DEPART_DRIFT_PX = 60;
 
 type CarouselCard = {
   key: string;
@@ -90,57 +97,58 @@ function useDaysBreakpoint(): DaysBreakpoint {
   return breakpoint;
 }
 
+/**
+ * Every card is laid out at the *active* size and shrunk with `scale()` — it
+ * never animates `width`/`height`. That is the prototype's own construction
+ * (`applyCard()` in v8/v9 writes `width = ACTIVE_W`, `height = ACTIVE_H` on all
+ * three cards and moves them with
+ * `translate3d(x, y, 0) scale(INACTIVE_W / ACTIVE_W)`), and it is what keeps
+ * the whole transition on compositor-only properties: transform, opacity and
+ * border-radius. Interpolating width/height *and* transform gives Safari two
+ * separate tracks that land in different frames, which is the card-jumping in
+ * bug #24, and it relayouts the belt on every frame.
+ *
+ * It is visually identical because the two boxes are the same shape in every
+ * tier: 386/516 vs 309/413 = 0.7481/0.7482 (desktop), 386/516 vs 326/436 =
+ * 0.7481/0.7477 (tablet), 521/697 vs 417/557 = 0.7475/0.7486 (wide), 276/366
+ * vs 184/244 = 0.7541/0.7541 (mobile) — so `object-fit: cover` shows the same
+ * crop either way. `transform-origin` is `top left` (the prototype's `0 0`), so
+ * the slot's x/y still place the card's top-left corner exactly.
+ */
 function getSlotStyle(
   offset: CarouselCard["offset"],
   breakpoint: DaysBreakpoint,
 ): Pick<CSSProperties, "height" | "opacity" | "transform" | "width"> {
-  if (breakpoint !== "mobile") {
-    const m = getDaysStackedMetrics(breakpoint);
-    const thirdSlot = m.activeW + m.gap + m.inactiveW + m.gap;
-    const x =
-      offset === -1
-        ? -(m.inactiveW + m.gap)
-        : offset === 0
-          ? 0
-          : offset === 1
-            ? m.activeW + m.gap
-            : offset === 2
-              ? thirdSlot
-              : // Parked just off the right edge so the card that refills the
-                // belt has a from-state and visibly slides in, instead of
-                // popping into place (prototype parks its ghost at +60px).
-                thirdSlot + m.inactiveW + 60;
-    const y = offset === 0 ? 0 : m.inactiveY;
-    const active = offset === 0;
-
-    return {
-      width: `${active ? m.activeW : m.inactiveW}px`,
-      height: `${active ? m.activeH : m.inactiveH}px`,
-      transform: `translate3d(${x}px, ${y}px, 0)`,
-      opacity: offset === -1 ? 0 : 1,
-    };
-  }
-
-  const m = daysMobileMetrics;
+  const m =
+    breakpoint === "mobile"
+      ? daysMobileMetrics
+      : getDaysStackedMetrics(breakpoint);
   const thirdSlot = m.activeW + m.gap + m.inactiveW + m.gap;
   const x =
     offset === -1
-      ? m.peekLeft
+      ? // Mobile parks the outgoing card as a peeking sliver (v3); the wider
+        // tiers park it a full card-and-gap off the left edge.
+        breakpoint === "mobile"
+        ? daysMobileMetrics.peekLeft
+        : -(m.inactiveW + m.gap)
       : offset === 0
         ? 0
         : offset === 1
           ? m.activeW + m.gap
           : offset === 2
             ? thirdSlot
-            : thirdSlot + m.inactiveW + 60;
+            : // Parked just off the right edge so the card that refills the
+              // belt has a from-state and visibly slides in, instead of
+              // popping into place (prototype parks its ghost at +60px).
+              thirdSlot + m.inactiveW + 60;
   const active = offset === 0;
-
-  const y = offset === 0 ? 0 : m.inactiveY;
+  const y = active ? 0 : m.inactiveY;
+  const scale = active ? 1 : m.inactiveW / m.activeW;
 
   return {
-    width: `${active ? m.activeW : m.inactiveW}px`,
-    height: `${active ? m.activeH : m.inactiveH}px`,
-    transform: `translate3d(${x}px, ${y}px, 0)`,
+    width: `${m.activeW}px`,
+    height: `${m.activeH}px`,
+    transform: `translate3d(${x}px, ${y}px, 0) scale(${scale})`,
     opacity: offset === -1 ? 0 : 1,
   };
 }
@@ -386,6 +394,15 @@ export function useDaysCarousel() {
       const next = offset === 1;
       const prev = offset === -1;
       const slotStyle = getSlotStyle(offset, breakpoint);
+      /* Departing card, stacked tiers: keep the active card's box and drift it
+         60px right at full size, so it slips behind the cards to its right
+         instead of flying left over the title (see DEPART_DRIFT_PX). Only on
+         the way forward — stepping *back* leaves the old card at offset +1,
+         where it already travels rightwards into the second slot. */
+      const driftsOut = departing && prev && breakpoint !== "mobile";
+      const departStyle: CSSProperties | null = driftsOut
+        ? { transform: `translate3d(${DEPART_DRIFT_PX}px, 0, 0) scale(1)` }
+        : null;
       const useMobileEnterTransition =
         breakpoint === "mobile" &&
         isTransitioning &&
@@ -395,8 +412,6 @@ export function useDaysCarousel() {
         useMobileEnterTransition
           ? [
               `transform ${MOBILE_ENTER_MS}ms ${DAYS_EASE}`,
-              `width ${MOBILE_ENTER_MS}ms ${DAYS_EASE}`,
-              `height ${MOBILE_ENTER_MS}ms ${DAYS_EASE}`,
               `opacity ${ENTER_OPACITY_MS}ms ${DAYS_EASE}`,
               `border-radius ${MOBILE_ENTER_MS}ms ${DAYS_EASE}`,
             ].join(", ")
@@ -414,9 +429,11 @@ export function useDaysCarousel() {
         clickable: next && !isTransitioning,
         style: {
           ...slotStyle,
-          transform: slotStyle.transform,
+          ...departStyle,
           opacity: departing ? 0 : slotStyle.opacity,
-          zIndex: active ? 20 : departing ? 10 : next ? 11 : offset === 2 ? 5 : 0,
+          /* The leaving card goes *behind* every other card (prototype pins it
+             at z-index 0 while the belt sits at 1 and the active card at 3). */
+          zIndex: active ? 20 : departing ? 1 : next ? 11 : offset === 2 ? 5 : 0,
           transition,
         },
       };
@@ -445,6 +462,10 @@ export function useDaysCarousel() {
     slide: daysSlides[activeIndex],
     cards,
     stageHeight: metrics.activeH,
+    /* The caption box is the active card's box in both prototypes
+       (`.private-world__caption { width: calc(var(--pw-active-w) * var(--pw-scale)) }`),
+       and the scale cap has to solve against the same number. */
+    activeWidth: metrics.activeW,
     isDragging,
     autoplayKey,
     goTo,

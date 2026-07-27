@@ -81,6 +81,21 @@ function JobWorkSlideCard({
       </div>
       <div className={styles.jobWorkSlideOverlay} aria-hidden />
       <div className={styles.jobWorkSlideGradient} aria-hidden />
+      {/* Progressive blur under the caption (review #28, Figma `4114-15409`).
+          Six stacked bands, each doubling the blur of the one above it and each
+          masked to a shorter window measured from the bottom edge, so the
+          softening ramps into the photograph instead of ending on a seam. A
+          single `backdrop-filter` cannot do this: it applies evenly across its
+          whole box no matter what gradient sits on it — the same trap the Team
+          up right-edge fade documents. */}
+      <div className={styles.jobWorkSlideBlur} aria-hidden>
+        <span />
+        <span />
+        <span />
+        <span />
+        <span />
+        <span />
+      </div>
       {slide.badge ? (
         <span className={styles.jobWorkSlideBadge}>{slide.badge}</span>
       ) : null}

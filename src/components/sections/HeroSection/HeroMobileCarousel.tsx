@@ -27,7 +27,9 @@ import {
   getScrollLeftForSlide,
   getScrollLeftForSlideNode,
   heroCarouselSlides,
+  heroStepFromGesture,
   normalizeLoopSlideIndex,
+  normalizeSlideIndex,
   slideIndexForDestination,
   type HeroBackgroundMix,
   type HeroCarouselSlide,
@@ -95,6 +97,22 @@ function getTrackSlideElements(track: HTMLElement) {
     (element): element is HTMLElement => element instanceof HTMLElement,
   );
 }
+
+/** Centre-to-centre distance between two neighbouring slots, live off the DOM
+    so it follows `--hero-card-unit` instead of assuming a tier. */
+function measureStride(track: HTMLElement) {
+  const slides = getTrackSlideElements(track);
+  if (slides.length < 2) return HERO_CARD_WIDTH + HERO_CARD_GAP;
+  const stride = slides[1].offsetLeft - slides[0].offsetLeft;
+  return stride > 0 ? stride : HERO_CARD_WIDTH + HERO_CARD_GAP;
+}
+
+/** The reach of one user gesture, in scroll space, kept as its *peak* rather
+    than its end point: both the mandatory snap and the drag handler's
+    `scrollSnapType` restore pull the track back to the card it started on
+    before the gesture is settled, so the end point of a short swipe is always
+    ~0 and says nothing about how far the user actually pushed. */
+type HeroGesture = { slide: number; scrollLeft: number; stride: number; travel: number };
 
 function getCardFocus(rawIndex: number, slideIndex: number) {
   return clamp01(1 - Math.abs(rawIndex - slideIndex));
@@ -184,6 +202,8 @@ export function HeroMobileCarouselRoot({ children }: { children: ReactNode }) {
   const prevCenteredRef = useRef(START_SLIDE);
   const centeredSlideRef = useRef(START_SLIDE);
   const stableSlideRef = useRef(START_SLIDE);
+  const gestureRef = useRef<HeroGesture | null>(null);
+  const pointerActiveRef = useRef(false);
   const [ready, setReady] = useState(false);
   const [isScrolling, setIsScrolling] = useState(false);
   const [bgMix, setBgMix] = useState<HeroBackgroundMix>(() =>
@@ -446,6 +466,9 @@ export function HeroMobileCarouselRoot({ children }: { children: ReactNode }) {
   const finishScroll = useCallback(() => {
     if (initLockRef.current) return;
 
+    const gesture = gestureRef.current;
+    gestureRef.current = null;
+
     normalizeLoopInner();
     const state = readScrollState(true);
     if (state) {
@@ -476,6 +499,25 @@ export function HeroMobileCarouselRoot({ children }: { children: ReactNode }) {
     isScrollingRef.current = false;
     setTrackScrollLinked(false);
     setIsScrolling(false);
+
+    /* Mandatory snap on its own only commits once the gesture has crossed half
+       a stride (measured: 316px at 1440, 355 at 1728, 400 at 1920), which is
+       the "you have to yank it quite hard" report. A shorter but still
+       deliberate swipe has by now been pulled back onto the card it started
+       from — `gesture.travel` is the peak reach, not this end point, so it
+       still knows how far the user actually went. Issued last, after the
+       settle has written its state: `scrollToSlide` re-enters the interactive
+       -scroll state that the two lines above just cleared. */
+    if (gesture) {
+      const step = heroStepFromGesture(gesture.travel, gesture.stride);
+      const settled = centeredSlideRef.current;
+      if (
+        step !== 0 &&
+        normalizeSlideIndex(settled) === normalizeSlideIndex(gesture.slide)
+      ) {
+        scrollToSlide(settled + step, "smooth");
+      }
+    }
   }, [
     applyScrollState,
     normalizeLoopInner,
@@ -585,7 +627,7 @@ export function HeroMobileCarouselRoot({ children }: { children: ReactNode }) {
         clearTimeout(scrollEndTimerRef.current);
       }
       scrollEndTimerRef.current = setTimeout(() => {
-        if (programmaticScrollRafRef.current !== null) {
+        if (programmaticScrollRafRef.current !== null || pointerActiveRef.current) {
           scheduleScrollEnd();
           return;
         }
@@ -602,12 +644,32 @@ export function HeroMobileCarouselRoot({ children }: { children: ReactNode }) {
         return;
       }
       userScrollRef.current = true;
+      const gesture = gestureRef.current;
+      if (gesture) {
+        const travel = track.scrollLeft - gesture.scrollLeft;
+        if (Math.abs(travel) > Math.abs(gesture.travel)) gesture.travel = travel;
+      }
       onScroll();
       scheduleScrollEnd();
     };
 
     const onScrollEnd = () => {
       if (programmaticScrollRafRef.current !== null) {
+        return;
+      }
+
+      /* A pointer drag writes `scrollLeft` outright on every mousemove, and
+         Chrome ends a scroll *sequence* at each such write — so it fires a
+         `scrollend` per frame of the drag. Without this guard `finishScroll`
+         ran on every one of them and hard-snapped the track back to the card
+         the drag started on (measured at 1440: 24 scroll/scrollend pairs for a
+         200px drag, scrollLeft alternating 4427 → 4410 → 4443 → 4410 …). The
+         drag therefore never accumulated: the only way to change slide was for
+         a single instantaneous position to clear half a stride, which is what
+         "you have to yank it quite hard for the switch to happen" describes.
+         The gesture is settled from `pointerup` onward instead — momentum and
+         the snap-back still land in the normal `scrollend`/fallback path. */
+      if (pointerActiveRef.current) {
         return;
       }
 
@@ -627,11 +689,32 @@ export function HeroMobileCarouselRoot({ children }: { children: ReactNode }) {
     };
 
     const markUserScrollIntent = () => {
+      /* One gesture = one open record, opened by whichever of pointerdown /
+         touchstart / wheel arrives first and closed by finishScroll. Skipped
+         while a programmatic scroll owns the track (autoplay, a card click),
+         because its scroll writes are not the user's reach. */
+      if (!gestureRef.current && programmaticScrollRafRef.current === null) {
+        const element = trackRef.current;
+        if (element) {
+          gestureRef.current = {
+            slide: stableSlideRef.current,
+            scrollLeft: element.scrollLeft,
+            stride: measureStride(element),
+            travel: 0,
+          };
+        }
+      }
       userScrollIntentRef.current = true;
       setTrackScrollLinked(true);
     };
 
+    const markPointerDown = () => {
+      pointerActiveRef.current = true;
+      markUserScrollIntent();
+    };
+
     const clearIdleIntent = () => {
+      pointerActiveRef.current = false;
       if (isScrollingRef.current) return;
       userScrollIntentRef.current = false;
       setTrackScrollLinked(false);
@@ -639,19 +722,25 @@ export function HeroMobileCarouselRoot({ children }: { children: ReactNode }) {
 
     track.addEventListener("scroll", onScrollWithFallback, { passive: true });
     track.addEventListener("scrollend", onScrollEnd);
-    track.addEventListener("pointerdown", markUserScrollIntent, { passive: true });
-    track.addEventListener("touchstart", markUserScrollIntent, { passive: true });
+    track.addEventListener("pointerdown", markPointerDown, { passive: true });
+    track.addEventListener("touchstart", markPointerDown, { passive: true });
     track.addEventListener("wheel", markUserScrollIntent, { passive: true });
-    track.addEventListener("pointerup", clearIdleIntent, { passive: true });
-    track.addEventListener("pointercancel", clearIdleIntent, { passive: true });
-    track.addEventListener("touchend", clearIdleIntent, { passive: true });
-    track.addEventListener("touchcancel", clearIdleIntent, { passive: true });
+    /* On window, not on the track: a horizontal drag routinely ends with the
+       pointer outside the track's band, and a release the track never hears
+       would leave `pointerActiveRef` stuck true — which now means the carousel
+       would never settle again. */
+    for (const type of ["pointerup", "pointercancel", "touchend", "touchcancel"]) {
+      window.addEventListener(type, clearIdleIntent, { passive: true });
+    }
 
     return () => {
+      for (const type of ["pointerup", "pointercancel", "touchend", "touchcancel"]) {
+        window.removeEventListener(type, clearIdleIntent);
+      }
       track.removeEventListener("scroll", onScrollWithFallback);
       track.removeEventListener("scrollend", onScrollEnd);
-      track.removeEventListener("pointerdown", markUserScrollIntent);
-      track.removeEventListener("touchstart", markUserScrollIntent);
+      track.removeEventListener("pointerdown", markPointerDown);
+      track.removeEventListener("touchstart", markPointerDown);
       track.removeEventListener("wheel", markUserScrollIntent);
       track.removeEventListener("pointerup", clearIdleIntent);
       track.removeEventListener("pointercancel", clearIdleIntent);

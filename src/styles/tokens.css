@@ -103,6 +103,19 @@
   --utopia-mobile-width: 378px;
   --utopia-tablet-visual-max: 840px;
   --utopia-desktop-width: 1440px;
+  /* Height of the site header.
+
+     A genuine Figma ↔ prototype conflict, resolved toward Figma on the user's
+     call: both prototypes set `--nav-h: 64px`, while Figma 24.07 draws the
+     solid bar at 72 everywhere it appears — `154:7512` ("Closed Main"),
+     `154:7539` (the open menu's own row), `154:8717` (404 desktop) and
+     `154:7791` / `154:5384` (tablet). The 64 we shipped came from the
+     prototype. Figma additionally draws the *transparent over-hero* state at
+     80 (`154:7489`); that one is still open, so the bar keeps a single height
+     in both states for now. Anything positioned under the bar reads this
+     token — see `.menu`'s top offset. */
+  --utopia-nav-height: 72px;
+
   /* Where the nav bar stops growing and starts centring — Figma `154:5992`
      caps it at 1838 with 80px gutters; same content span as 1920 with ours. */
   --utopia-nav-max: 1920px;

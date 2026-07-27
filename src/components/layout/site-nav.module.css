@@ -64,7 +64,8 @@
    re-break the pin. Staying pinned also depends on SiteMenu locking <html>
    rather than <body> — a body lock makes body the scroll container and sticky
    silently stops working. */
-/* Only ≥1024: there the overlay starts below the bar (`.menu { top: 64px }`)
+/* Only ≥1024: there the overlay starts below the bar (`.menu` takes its top
+   from `--utopia-nav-height`)
    and needs it on top. At 640–1023 the overlay is full-viewport and carries
    its own logo, so lifting the bar above it would paint over that logo — the
    tablet dock closes the menu instead. */
@@ -99,7 +100,7 @@
   position: relative;
   align-items: center;
   justify-content: space-between;
-  height: 64px;
+  height: var(--utopia-nav-height);
   padding: 0 var(--utopia-site-pad);
   max-width: var(--utopia-nav-max);
   margin: 0 auto;
@@ -177,14 +178,16 @@
   border-color: rgba(255, 255, 255, 0.4);
 }
 
-/* ── Tablet bar, 640–1023 band (Figma home.tablet768.nav 1:982) ── */
+/* ── Tablet bar, 640–1023 band ──
+   Figma 24.07 draws this at 72 as well (`154:7791` in the menu states,
+   `154:5384` on the 404), not the 64 the older `1:982` frame had. */
 
 .tabletBar {
   display: none;
   position: relative;
   align-items: center;
   justify-content: space-between;
-  height: 64px;
+  height: var(--utopia-nav-height);
   padding: 0 24px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.03);
 }

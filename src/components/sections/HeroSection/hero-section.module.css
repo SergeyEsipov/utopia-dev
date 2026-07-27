@@ -131,6 +131,18 @@
   display: none;
 }
 
+/* Slider media is furniture, not content: a drag on the track must scroll the
+   carousel, never start a selection or peel the photo off as a drag image.
+   `-webkit-user-drag` is the only thing that stops the native image drag in
+   Blink/WebKit, and without it the ghost picture follows the cursor and the
+   drag-to-scroll gesture dies mid-swipe. */
+.bg,
+.bgVideo {
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-user-drag: none;
+}
+
 .bg {
   object-fit: cover;
   object-position: center;

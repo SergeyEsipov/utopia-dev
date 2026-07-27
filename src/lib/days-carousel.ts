@@ -44,12 +44,19 @@ export type CardSlot = {
 /** Section layout tiers: mobile <640, tablet 640–1023, desktop 1024–1919, wide >=1920. */
 export type DaysBreakpoint = "mobile" | "tablet" | "desktop" | "wide";
 
+/* Figma 24.07 mobile days section (`154:6311`): the 276x366 active card, then
+   two 184x244 followers at x=296 and x=500 — and at **y=61**, i.e. centred
+   against the active card ((366-244)/2), exactly like every wider tier. The
+   prototype v3 keeps its mobile followers top-aligned (`DESIGN_INACTIVE_Y = 0`
+   in v3/js/experiences.js) but its card sizes are the older ones too, and the
+   rest of this tier already follows 24.07 — so Figma leads here. */
 export const daysMobileMetrics = {
   activeW: 276,
   activeH: 366,
   inactiveW: 184,
   inactiveH: 244,
   gap: 20,
+  inactiveY: 61,
   peekLeft: -120,
 };
 

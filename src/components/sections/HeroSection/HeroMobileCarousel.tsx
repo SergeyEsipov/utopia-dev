@@ -11,6 +11,7 @@ import {
   type MouseEvent,
   type ReactNode,
 } from "react";
+import { flushSync } from "react-dom";
 import { Icon } from "@/design-system/components";
 import {
   HERO_CARD_GAP,
@@ -422,9 +423,23 @@ export function HeroMobileCarouselRoot({ children }: { children: ReactNode }) {
 
     if (normalizedSlide !== slideIndex) {
       loopLockRef.current = true;
-      scrollToSlide(normalizedSlide, "auto");
+      /* The hop between loop copies is only invisible if the new scrollLeft
+         and the card geometry that describes it land in the SAME frame. The
+         card sizes come from `rawScrollIndex` (React state), so without a
+         synchronous flush the browser paints at least one frame where the
+         scroll has already jumped back a whole copy but every card still
+         measures its distance against the OLD index: focus is 0 everywhere,
+         the centre card renders 472 wide instead of 590 and 236px off centre,
+         and `.cardAnimated`'s 500ms transition then eases it back — which is
+         the jump seen at the Jericoacoara -> Roca seam, the one place the
+         wrap fires. flushSync makes the scroll write and the re-render one
+         atomic update, still inside `.cardsTrackScrolling` so nothing
+         animates. */
+      flushSync(() => {
+        scrollToSlide(normalizedSlide, "auto");
+        applyScrollState(true);
+      });
       loopLockRef.current = false;
-      applyScrollState(true);
     }
   }, [applyScrollState, getMetrics, resolveRawScrollIndex, scrollToSlide]);
 

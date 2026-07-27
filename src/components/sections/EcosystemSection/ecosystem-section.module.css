@@ -169,10 +169,15 @@
   inset: 0;
 }
 
+/* See hero-section.module.css: the destinations photo must not be selectable
+   or draggable — a drag on it has to reach the carousel. */
 .bgImage {
   object-fit: cover;
   object-position: center;
   will-change: opacity;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-user-drag: none;
 }
 
 .gradient {

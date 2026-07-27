@@ -135,10 +135,12 @@ function getSlotStyle(
             : thirdSlot + m.inactiveW + 60;
   const active = offset === 0;
 
+  const y = offset === 0 ? 0 : m.inactiveY;
+
   return {
     width: `${active ? m.activeW : m.inactiveW}px`,
     height: `${active ? m.activeH : m.inactiveH}px`,
-    transform: `translate3d(${x}px, 0, 0)`,
+    transform: `translate3d(${x}px, ${y}px, 0)`,
     opacity: offset === -1 ? 0 : 1,
   };
 }

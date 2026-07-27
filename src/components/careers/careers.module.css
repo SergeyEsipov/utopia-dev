@@ -271,7 +271,15 @@
      inset, so the CSS padding gives the border back its pixel. */
   padding: 10px 23px;
   border: 1px solid rgba(28, 28, 28, 0.55);
-  border-radius: var(--utopia-radius-control);
+  /* Literal 100, not `--utopia-radius-control`: that token drops to 2px in
+     sharp, and these two are the one place on the site where that is wrong.
+     The variant fork comes from desktop_v8 vs v9, and neither prototype has a
+     Careers page — Figma 24.07 is the only source for this screen and it draws
+     both controls as full pills (`154:8352` / `154:8356` rounded-[100px],
+     same at 768 and 378). The other Careers controls (.rolePill, .showMore,
+     .workNavBtn, .ctaButton) still follow the token and do square off in
+     sharp; pin them the same way if the client picks that build. */
+  border-radius: 100px;
   background: transparent;
   font-family: var(--utopia-font-body);
   font-size: 15px;

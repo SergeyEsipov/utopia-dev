@@ -116,6 +116,17 @@
   overflow: hidden;
 }
 
+/* Mobile: the belt bleeds to the right screen edge. Figma `154:6307` is a
+   559.4-wide container inside a 378 artboard, so the follower card is cut by
+   the screen, not by the section gutter — clipping at the gutter instead left
+   a 16px cream strip beside it and lopped 16px off the visible card. The
+   section's own `overflow: hidden` still stops it at the viewport. */
+@media (max-width: 639px) {
+  .trackWrap {
+    margin-right: calc(-1 * var(--utopia-space-4));
+  }
+}
+
 @media (min-width: 640px) {
   .trackWrap {
     overflow: visible;
@@ -221,7 +232,13 @@
    it, so a per-slide crop and the animation can coexist. */
 .cardImage {
   object-fit: cover;
-  object-position: var(--slide-object-position, center 35%);
+  object-position: var(--slide-object-position, 50% 50%);
+  /* `.stage` already blocks selection, but `-webkit-user-drag` does not
+     inherit — without it the photo still peels off as a drag image and kills
+     the swipe (see hero-section.module.css). */
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-user-drag: none;
   background: var(--utopia-bg-placeholder);
   transform: scale(calc(1.06 * var(--slide-scale, 1)));
   transform-origin: var(--slide-transform-origin, 50% 50%);

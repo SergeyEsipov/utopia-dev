@@ -30,6 +30,14 @@
   overflow: hidden;
 }
 
+/* See hero-section.module.css: swiping the hero must never drag the photo. */
+.bgImage,
+.bgVideo {
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-user-drag: none;
+}
+
 .bgImage {
   object-fit: cover;
 }

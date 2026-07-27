@@ -54,16 +54,24 @@ test("every slide carries the media its component reads", () => {
 test("framing composes defaults, then slider, then slide", () => {
   assert.deepEqual(resolveFraming(), framingDefaults);
 
+  /* Synthetic layers, not the private-world one: what is under test is the
+     precedence, and the real slider value now matches the file default. */
   assert.equal(
-    resolveFraming(privateWorldFraming).objectPosition,
-    "center 35%",
+    resolveFraming({ objectPosition: "10% 90%" }).objectPosition,
+    "10% 90%",
     "the slider-wide value has to beat the file default",
   );
 
   assert.deepEqual(
-    resolveFraming(privateWorldFraming, { scale: 1.2 }),
-    { ...framingDefaults, objectPosition: "center 35%", scale: 1.2 },
+    resolveFraming({ objectPosition: "10% 90%" }, { scale: 1.2 }),
+    { ...framingDefaults, objectPosition: "10% 90%", scale: 1.2 },
     "a slide override has to beat both",
+  );
+
+  assert.deepEqual(
+    resolveFraming(privateWorldFraming),
+    { ...framingDefaults, ...privateWorldFraming },
+    "the real slider layer composes over the defaults",
   );
 });
 
@@ -74,7 +82,10 @@ test("destinations framing differs per variant, matching v8 and v9", () => {
 
 test("private-world cards ship the framing their CSS reads", () => {
   for (const slide of daysSlides) {
-    assert.equal(slide.framing.objectPosition, "center 35%");
+    /* Centred, as desktop_v8/v9 set on every `.pw-card img`. The old
+       `center 35%` came from the mobile prototype and pinned the crop to the
+       top of the photo at every width. */
+    assert.equal(slide.framing.objectPosition, "50% 50%");
     assert.equal(typeof slide.framing.scale, "number");
     assert.ok(slide.framing.transformOrigin.length > 0);
   }

@@ -15,18 +15,24 @@ export const contentType = "image/png";
  * board, so `og-backdrop.jpg` is that visible window already resolved — which
  * keeps this route from inlining a 4MB source on every render.
  *
- * The three destination cards come out of the Figma export as bordered,
- * *unfilled* rounded frames (their image fills did not survive), so they are
- * rendered here exactly as exported: white 1.053px outlines over the backdrop
- * with their captions. Worth confirming with the designers.
+ * The three destination cards carry no fill — confirmed against the node's own
+ * render, not just the export: they are white 1.053px outlines over the
+ * backdrop, echoing the hero's card track, each with a caption. The leftmost
+ * ("Prea, Brazil") hangs off the left edge and its caption is cropped away,
+ * which is what Figma shows too.
  */
 const asset = (p: string) => join(process.cwd(), "public", p);
 
 /** `154:8067` / `154:8072` / `154:8077` — the centre card is the large one. */
+const SIDE_SHADOW =
+  "0px 11.343px 22.686px rgba(0,0,0,0.1), 0px 1.418px 1.418px rgba(0,0,0,0.05)";
+const CENTRE_SHADOW =
+  "0px 14.179px 28.357px rgba(0,0,0,0.1), 0px 1.772px 1.772px rgba(0,0,0,0.05)";
+
 const CARDS = [
-  { w: 414.335, h: 233.502, r: 10.534, label: "Prea, Brazil", fs: 14.923, left: 12.99, bottom: 13.65, gap: 5.267, icon: 9.656 },
-  { w: 517.919, h: 290.561, r: 14.045, label: "Roca, Costa Rica", fs: 16, left: 20.01, bottom: 16.5, gap: 7.023, icon: 10.534 },
-  { w: 414.335, h: 233.502, r: 10.534, label: "Cabarete, Dominican Republic", fs: 13, left: 20.02, bottom: 16.94, gap: 5.267, icon: 9.656 },
+  { w: 414.335, h: 233.502, r: 10.534, label: "Prea, Brazil", fs: 14.923, left: 12.99, bottom: 13.65, gap: 5.267, icon: 9.656, shadow: SIDE_SHADOW },
+  { w: 517.919, h: 290.561, r: 14.045, label: "Roca, Costa Rica", fs: 16, left: 20.01, bottom: 16.5, gap: 7.023, icon: 10.534, shadow: CENTRE_SHADOW },
+  { w: 414.335, h: 233.502, r: 10.534, label: "Cabarete, Dominican Republic", fs: 13, left: 20.02, bottom: 16.94, gap: 5.267, icon: 9.656, shadow: SIDE_SHADOW },
 ];
 
 export default async function OpengraphImage() {
@@ -105,7 +111,7 @@ export default async function OpengraphImage() {
                 height: c.h,
                 borderRadius: c.r,
                 border: "1.053px solid #ffffff",
-                boxShadow: "0px 11.343px 22.686px rgba(0,0,0,0.1)",
+                boxShadow: c.shadow,
               }}
             >
               <div

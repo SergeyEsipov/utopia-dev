@@ -1,4 +1,6 @@
+import Link from "next/link";
 import { careerHero } from "@/lib/career-data";
+import { HOME_HREF } from "@/lib/routes";
 import styles from "./careers.module.css";
 
 type CareerHeroProps = {
@@ -26,9 +28,15 @@ export function CareerHero({ openPositions }: CareerHeroProps) {
           <p className={`${styles.bodyMd} ${styles.heroLead}`}>
             {careerHero.description}
           </p>
-          <button type="button" className={styles.linkUnderline}>
+          {/* TODO: temporary destination. "Learn more" has no page of its own
+              yet, and the standing rule (src/lib/routes.ts) is that a link with
+              nowhere to go stays inert rather than landing on /404 — the user
+              asked for the home page in the meantime, so this is a deliberate
+              exception. Swap HOME_HREF for the real about/company page when it
+              exists. */}
+          <Link href={HOME_HREF} className={styles.linkUnderline}>
             {careerHero.learnMoreLabel}
-          </button>
+          </Link>
         </div>
       </div>
     </section>

@@ -207,10 +207,22 @@
         }
       ],
       "framing": {
-        "objectPosition": "center 35%"
+        "objectPosition": "50% 50%"
       },
       "_framingNote": [
-        "desktop_v8/v9 crop card 0 with `scale(1.1)` from its bottom-left corner",
+        "The cards are centred: desktop_v8/v9 set `object-position: 50% 50%` on",
+        "all three (`.pw-card[data-index=N] img`) and Figma 24.07 draws the",
+        "mobile active card centred too (`154:6319` overhangs its 276x366 frame",
+        "by 8.9 left and 13.4 top, i.e. half the overflow on each axis). The",
+        "earlier `center 35%` came from the *mobile* prototype v3",
+        "(`.days__card img` in v3/css/sections.css) and rode over every width,",
+        "which is what pushed the crop toward the top of the photo.",
+        "Figma's two desktop cards sit ~12px lower still (`154:4229` 386x540 at",
+        "y=-24 and `154:4232` 308x431 at y=-19 are bottom-anchored, both a 4.65%",
+        "overflow), but the third (`154:4234`) is top-anchored, so the frames are",
+        "eyeballed rather than a rule — the prototype's 50% is the rule.",
+        "",
+        "desktop_v8/v9 also crop card 0 with `scale(1.1)` from its bottom-left corner",
         "(`.pw-card[data-index=\"0\"] img`). That correction belongs to THEIR asset:",
         "their pw-1.jpg is 1782x2383, ours is a tighter 1696x2528 crop of the same",
         "photograph, so our frame already shows what their 1.1 zoom produces.",

@@ -290,6 +290,27 @@ file. Its only per-image treatments are the two recorded in the JSON.
   heights make the page jitter as browser chrome hides/shows, and
   `env(safe-area-inset-bottom)` changes for the same reason — keep it out of
   anything that affects layout.
+- **A DOM scroll jump and the React state that describes it have to land in
+  the same frame.** The hero's loop normalisation writes `track.scrollLeft`
+  back a whole copy, but the card sizes come from `rawScrollIndex` state; React
+  committed it a frame later, so one paint showed every card unfocused (472
+  instead of 590, centre 236px off) and `.cardAnimated`'s 500ms transition then
+  eased it back — the visible jerk at the Jericoacoara → Roca seam, the one
+  place the wrap fires. `normalizeLoopInner` wraps both in `flushSync`.
+  Measured across the seam: `dx/dw/dh = 0` at 768/1440/1920, both directions.
+- **`theme-color` is a page meta tag, not the manifest.** `manifest.ts` only
+  reaches an installed PWA; a plain Safari tab paints the Dynamic Island strip
+  white without `<meta name="theme-color">`. It comes from `export const
+  viewport` in `src/app/layout.tsx`, which must repeat `width`/`initialScale`
+  (exporting `viewport` drops Next's defaults). Do **not** add
+  `viewportFit: "cover"` — that pulls the layout under the cutout and into
+  `env(safe-area-inset-*)`, which the bullet above forbids.
+- **Slider media must be unselectable *and* undraggable.** `user-select: none`
+  alone still lets Blink/WebKit peel the photo off as a drag image, which kills
+  drag-to-scroll mid-swipe; `-webkit-user-drag: none` is the only thing that
+  stops it, and it does **not** inherit, so it goes on the `<img>`/`<video>`
+  itself (hero `.bg`/`.bgVideo`, swiper `.bgImage`, ecosystem `.bgImage`,
+  opening `.bgVideo`, private-world `.cardImage`).
 
 ## Verifying visual/scroll work
 
@@ -313,6 +334,31 @@ the `/_next/static/chunks/*.css` chunks to confirm which rule actually wins.
 
 Nothing is committed yet — **all work sits uncommitted in the working tree on
 `main`**. Offer to branch and commit when the user is ready.
+
+Latest batch (six fixes, all measured):
+
+- **Private World framing was the mobile prototype's, applied everywhere.**
+  `center 35%` comes from v3's `.days__card img`; desktop_v8/v9 set
+  `object-position: 50% 50%` on all three cards and Figma's mobile active card
+  is centred too (`154:6319` overhangs its 276×366 frame by half the overflow
+  on each axis). Now `50% 50%` in `slides.json`. Figma's two desktop cards sit
+  ~12px lower still (`154:4229`/`154:4232` are bottom-anchored, 4.65% overflow)
+  while the third is top-anchored — eyeballed, so the prototype's rule leads.
+- **Mobile Private World followers are centred, not top-aligned**
+  (`inactiveY: 61` = (366−244)/2, Figma `154:6322`/`154:6327`). Every wider
+  tier already centred them; only mobile carried v3's `DESIGN_INACTIVE_Y = 0`.
+  The belt also bleeds to the right screen edge now (Figma's container is
+  559.4 wide inside a 378 artboard) — `.trackWrap` had been clipping at the
+  16px gutter, which lopped 16px off the peeking card and left a cream strip.
+- **The Careers filter pills keep a literal `100px` radius in both variants.**
+  The variant fork comes from v8 vs v9 and neither prototype has a Careers
+  page, so Figma 24.07 is the only source and it draws pills. The page's other
+  controls (`.rolePill`, `.showMore`, `.workNavBtn`, `.ctaButton`) still read
+  `--utopia-radius-control` and do square off in sharp — **still open**: pin
+  them the same way if the client picks v9.
+- "Learn more" on Careers now links to `/` — a **deliberate exception** to the
+  no-destination-stays-inert rule in `src/lib/routes.ts`, marked with a TODO.
+- `theme-color`, `-webkit-user-drag` and the hero loop seam: see Gotchas.
 
 **Home is aligned** to v8/v9 and Figma 24.07 across 1440/1920/2560 in both
 variants, verified by measurement: nav gutters and the 1920 cap, the whole
@@ -462,7 +508,7 @@ not apply to our tighter crop), whether to delete four unused ecosystem images
 should go (Figma 24.07 has five teams, not six).
 
 **Terms, Privacy, 404, menu, icons** are now aligned too, all measured:
-Terms 8013/8062, Privacy 3306/3365, 404 1460/1460 at 1440.
+Terms 8021/8062, Privacy 3314/3365, 404 1460/1460 at 1440.
 
 - **The 404's three frames are `154:8707` / `154:5381` / `154:6614`**, in the
   group under the `154:1973` label at x=43849. The desktop one is still *named*
@@ -508,15 +554,22 @@ Terms 8013/8062, Privacy 3306/3365, 404 1460/1460 at 1440.
   256×256 artwork (beige mark + wordmark on `#161514`, per `154:6832`).
 - The OG (`154:8063`) backdrop is **pre-cropped** to the window Figma shows
   (a 2437×1174 image at −619,−323 in the 1200×630 board) so the route does not
-  inline a 4MB source per render. Its three destination cards export as
-  bordered *unfilled* frames — flagged to the user.
+  inline a 4MB source per render. Its three destination cards genuinely have
+  **no fill** — checked against the node's own render, not just the export:
+  white 1.053px outlines over the backdrop echoing the hero card track. The
+  leftmost card hangs off the left edge and its "Prea, Brazil" caption is
+  cropped away, in Figma too. Do not go hunting for missing card images.
+- **The nav bar is 72, and that is Figma over the prototypes.** Both prototypes
+  set `--nav-h: 64px`; Figma 24.07 draws the solid bar at 72 everywhere it
+  appears (`154:7512`, `154:7539`, `154:8717`, and `154:7791` / `154:5384` on
+  tablet). The user chose Figma, so it is `--utopia-nav-height` and both `.bar`
+  and `.tabletBar` read it, as does the menu overlay's `top`. **Figma also
+  draws the transparent over-hero state at 80** (`154:7489`) — still open, so
+  the bar keeps one height in both states.
 
 Known deviations, all deliberate and reported:
-- Figma's nav bar is **72** tall (`154:7539`, `154:8717`) and ours is **64**;
-  the 404's tablet frame is 64px taller than Figma for the same reason, because
-  our tablet nav sits in flow rather than over the photo.
 - `.heroTitle` on Terms/Privacy is `font-weight: 300` where Figma specifies GT
   Ultra Median **Regular**. Left alone per the standing instruction to report
-  weight mismatches rather than tune them.
+  weight mismatches rather than tune them (user confirmed).
 - Figma's 404 body copy reads "The page you're looking for **have** been
   moved"; kept verbatim, same policy as "Design developement".

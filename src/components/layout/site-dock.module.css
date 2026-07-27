@@ -15,15 +15,20 @@
   pointer-events: none;
 }
 
-/* Tablet keeps its previous treatment until that tier is revisited. */
-@media (min-width: 640px) {
-  .dockWrap {
-    padding: 0 10px 12px;
-    background: none;
-  }
-}
+/* The dock is a phone-only object, and it switches off at exactly the width the
+   nav bar switches on (`site-nav.module.css` `.nav`, 640) — the two are the same
+   affordance in two shapes, so showing both is always wrong. It used to hide
+   only at 1024, which put a 72-tall bar and a 52-tall dock on screen together
+   across the whole 640–1023 band.
 
-@media (min-width: 1024px) {
+   640 is Figma's answer, from three independent 24.07 frames: the tablet home
+   (`154:5211`), tablet Careers (`154:5473`) and the hero study's 768 frame
+   (`154:6196`) all draw a 768×72 `Navigation bar` and none of them draws a
+   "Request a stay" dock. The dock band is only ever drawn on a 378 artboard
+   (`154:8318`, and `154:6395` in the mobile footer). Both tablet open-menu
+   states (`154:7787`/`154:7861`) put the close X in that 72-tall bar, which is
+   why SiteMenu now starts below the bar from 640 rather than 1024. */
+@media (min-width: 640px) {
   .dockWrap {
     display: none;
   }

@@ -201,7 +201,14 @@
   /* Side gutter for full-bleed sections — prototype `--site-grid-pad`. */
   --utopia-site-pad: 24px;
 
-  /* ── Z-index ── */
+  /* ── Z-index ──
+     Sections stack among themselves with small local values (1–30) and must all
+     lose to the header, which is fixed over the home hero and would otherwise be
+     painted over by whichever section comes later in the DOM. `.nav` used to
+     carry a bare `z-index: 2`, exactly tying DaysSection's `.section` — so Days
+     won on source order and covered the bar. Anything that has to sit above the
+     sections belongs on this scale, not on a hand-picked integer. */
+  --utopia-z-nav: 100;
   --utopia-z-dock: 210;
   --utopia-z-menu: 200;
   --utopia-z-overlay: 150;

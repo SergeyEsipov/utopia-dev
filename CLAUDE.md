@@ -223,6 +223,23 @@ file. Its only per-image treatments are the two recorded in the JSON.
 
 ## Gotchas (each of these cost real debugging time)
 
+- **A section that ties the header's z-index wins, because it comes later.**
+  The bar is `position: fixed` on the home page, so anything with an equal
+  `z-index` and a later DOM position paints straight over it — that is what a
+  bare `z-index: 2` on `.nav` did against DaysSection. The header reads
+  `--utopia-z-nav` (100); sections keep their small local values. Two follow-on
+  traps: a section's `z-index` may sit on an *inner* element whose root is
+  `position: relative` with `z-index: auto`, which creates no stacking context,
+  so it still competes with the bar (Ecosystem and Opening are both like this);
+  and once the bar correctly paints on top, any content sitting under 72px from
+  the top of a pinned section is now hidden by it — which is how the Opening
+  copy's 8px error surfaced. Figma pins that copy at exactly y=72 for this
+  reason, so use `var(--utopia-nav-height)`, not a literal.
+- **The nav bar and the dock are one affordance in two shapes**, so they switch
+  at the same width (640) — `.nav`'s `display: block` and `.dockWrap`'s
+  `display: none` must stay in lockstep or both appear at once. The dock is
+  phone-only; from 640 up the close X lives in the bar, which means the menu
+  overlay has to start *below* the bar and let it stay on top.
 - **The nav has a cap, but it is not the 1440 layout column.** `max-width:
   1440px` parked the wordmark 360px from the edge at 1920 and 680px at 2560.
   The real cap is `--utopia-nav-max` (1920) with `--utopia-site-pad` gutters:
@@ -335,7 +352,98 @@ the `/_next/static/chunks/*.css` chunks to confirm which rule actually wins.
 Nothing is committed yet — **all work sits uncommitted in the working tree on
 `main`**. Offer to branch and commit when the user is ready.
 
-Latest batch (six fixes, all measured):
+Latest batch (five fixes plus one follow-up, all measured):
+
+- **The dock is phone-only now, and the boundary is 640.** `.nav` switched on at
+  640 while `.dockWrap` only switched off at 1024, so the whole 640–1023 band
+  showed a 72-tall bar *and* a 52-tall dock. Figma answers 640 from three
+  independent 24.07 frames — tablet home `154:5211`, tablet Careers `154:5473`
+  and the hero study's 768 frame `154:6196` all draw a 768×72 `Navigation bar`
+  and none draws a "Request a stay" dock; the dock band is only ever on a 378
+  artboard (`154:8318`, `154:6395`). Verified at 639/640/767/768/1023/1024 in
+  both variants: exactly one of the two is on screen at every width.
+  **This forced a second change**: at 640–1023 the overlay used to be
+  full-viewport and relied on the *dock* to close the menu, so removing the dock
+  would have left the tablet menu with no way out. Both tablet open-menu states
+  (`154:7787`/`154:7861`) keep the close X in the 72-tall bar with the panel
+  starting at y=104, so `.menu { top }` and `.navOpen`'s z-index lift both moved
+  from 1024 down to 640, and the menu's own centred wordmark is hidden from 640
+  (the bar already carries one — it was drawing twice, stacked).
+  **The tablet dock offsets were deliberately left alone.** `--utopia-dock-band`
+  and `--utopia-dock-offset` looked like they would leave a 72px hole, but
+  measured: every tablet consumer is either hidden at ≥640 (the mobile footer,
+  the cookie band) or falls inside the hero photograph, so nothing blank
+  appears — the footer still ends within 0.4px of the document bottom at 378,
+  640, 768, 1023 and 1440. Zeroing them would instead have dropped the 768 hero
+  cards 72px (clearance 211 → 139) *away* from Figma's `154:6178`, which wants
+  267.5. Our 768 `.cardsTrack` is h=331, byte-identical to that frame, but the
+  whole 768 hero is 855 tall against the frame's 994 — **a pre-existing
+  deviation, not part of this batch, and worth its own pass.**
+- **The header has its own layer, `--utopia-z-nav: 100`.** `.nav` carried a bare
+  `z-index: 2`, exactly tying DaysSection's `.section`, so Days won on source
+  order and painted over the fixed bar. Proven at 1440: Days overlaps the bar by
+  all 72px and the bar is now topmost with Days directly beneath it. Ecosystem
+  and Opening carry their `z-index: 2` on inner elements, not section roots, but
+  they were latent cases of the same thing — a sweep that parks every section at
+  the top of the viewport and hit-tests the bar band is clear at 1440/1024/768 in
+  both variants. (The hero flags its backdrop images, correctly: the bar is
+  `rgba(0,0,0,0)` there.) **Do not give the bar a hand-picked integer** — the
+  scale is nav 100 < overlay 150 < menu 200 < dock 210, and `.navOpen` still
+  lifts to `calc(var(--utopia-z-menu) + 1)`.
+- **The menu's featured card is aligned to the close X by construction.** The
+  panel had its own `--panel-inset` ramp and capped at `--utopia-desktop-width`
+  (1440) while the bar caps at `--utopia-nav-max` (1920) — at 1024 the panel
+  inset came out 36.8px against the bar's 85.3px, so the card could not line up
+  at any width except by accident. `.panelGrid` now shares the bar's exact box
+  (same cap, same `--utopia-site-pad` gutters, and `.tabletBar` reads that token
+  too), and the card fills its track instead of a fixed 374. Measured delta
+  between the card's right edge and the close button's right edge: **0.0 at 640,
+  768, 1023, 1024, 1270, 1440, 1920 and 2560, both variants.**
+  The split is `793fr 387fr` — a *ratio*, because Figma's two desktop instances
+  scale it (793/387 of 1180 at 1440; 680/330 of 1010 in the 1270 instance
+  `154:7635` — the same 66.1/32.25 split). That reproduces both to within a
+  pixel where a fixed left column starved the card to 40px at 1024 and a bare
+  `1fr` blew it to 867 at 1920. **Past 1440 Figma has no open-menu frame**, so
+  the card just keeps the ratio (544 at the 1920 cap, and it stops there) —
+  the one unverified width.
+  `.cardImage` is now percentages of the card (155% tall, `top: 53.571%`), not a
+  fixed 403×434, so it survives the fluid width. Both Figma sizes agree once
+  written that way: it lands the layer top at −67, which is literally the tablet
+  instance's `154:7852` y=−67 and equals the desktop "centred, nudged 10px down".
+  **The card is new on tablet** (`154:7851`, 648×280 below the links with a 40px
+  gap, spanning the content column) and stays absent on phones — neither
+  `154:7936` nor `154:7993` contains a Pic frame at all.
+- **The footer brand signature links home.** `aria-label` is on the link, not
+  left to the images: only the wordmark has a non-empty alt and it is
+  `display: none` on tablet, so the accessible name would have been "Utopia" on
+  desktop and *nothing* on tablet. Not added to the mobile footer, which has no
+  brand mark — Figma `154:6340` opens straight on the link columns.
+- **The footer video never played, at any width, and it was a race.** With
+  `preload="none"` nothing loads until something calls `play()`, so `readyState`
+  is 0 at mount and the `loadeddata` listener is always still armed; the
+  IntersectionObserver's `play()` is what starts the load, and `loadeddata` then
+  landed *after* it and called a handler that **paused**. Measured before:
+  `readyState: 4`, `paused: true`, `currentTime: 0` at 1440, 768 and 378 alike —
+  which is why mobile was dead too, not just desktop and tablet. **desktop_v9
+  already only seeks in that handler; v3's `footer-video.js`, which this was
+  ported from, calls the pausing variant** — so the port carried the older bug.
+  Now it seeks without pausing and re-issues `play()` if the footer is still in
+  view. Verified with real wheel scrolling at all three widths: playing, and the
+  event log shows `loadeddata` and `playing` in the same millisecond, i.e.
+  exactly the window the old `pause()` sat in.
+- **Follow-up, and a direct consequence of the z-index fix**: the Opening
+  section's copy was `padding-top: 64px` where Figma says **72** at both tiers
+  (desktop `154:4206` and tablet `154:5263` are both at y=72) — and 72 is the
+  bar's height, which is the point, since the section is pinned full-viewport so
+  the copy has to start where the bar ends. It is now
+  `var(--utopia-nav-height)`. Nothing showed for the 8px error while the bar lost
+  the stacking contest; the moment the header took its own layer the bar sliced
+  the "Opening in 2027" eyebrow in half. Measured after: eyebrow top 72 (Figma
+  72), heading 118 (Figma 117), clearing the bar exactly at 1440 and 768.
+  Worth knowing: **`154:4162`, the nav instance over the home sections, is
+  `hidden` in Figma** — the only bar it draws is the one inside the hero.
+
+Previous batch (six fixes, all measured):
 
 - **Private World framing was the mobile prototype's, applied everywhere.**
   `center 35%` comes from v3's `.days__card img`; desktop_v8/v9 set

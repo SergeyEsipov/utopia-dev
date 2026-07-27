@@ -21,10 +21,13 @@
   pointer-events: none;
 }
 
-/* Desktop keeps the nav bar visible above the overlay (it holds the only close
-   affordance ≥1024), so the sheet starts below it — prototype v9
-   `.nav-menu { top: var(--nav-h) }`. */
-@media (min-width: 1024px) {
+/* From 640 up the nav bar stays visible above the overlay and holds the only
+   close affordance, so the sheet starts below it — prototype v9
+   `.nav-menu { top: var(--nav-h) }`, and Figma's tablet open-menu states
+   (`154:7787`/`154:7861`) draw exactly that: the 72-tall bar with the close X,
+   panel below. It used to begin at 1024, leaving 640–1023 full-viewport and
+   dependent on the dock to close — and the dock is now phone-only. */
+@media (min-width: 640px) {
   .menu {
     top: var(--utopia-nav-height);
   }
@@ -67,6 +70,18 @@
   position: relative;
   flex-shrink: 0;
   height: 124px;
+}
+
+/* The centred wordmark and the rule under it belong to the phone sheet, which
+   covers the whole viewport. From 640 the bar stays on screen above the overlay
+   and already carries a centred wordmark (`.tabletLogo`), so keeping these drew
+   the mark twice, stacked. Figma's tablet open menu has no logo inside the panel
+   — `154:7787` goes straight from the 72-tall bar to the content at y=104. */
+@media (min-width: 640px) {
+  .header,
+  .rule {
+    display: none;
+  }
 }
 
 .logoLink {
@@ -310,34 +325,81 @@
   .panel {
     display: block;
   }
+
+  /* Only the desktop picture frame is over-scaled horizontally — see
+     `.cardImage`. */
+  .card {
+    --card-img-zoom: 1.0776;
+  }
+}
+
+/* ── The featured card on tablet (640–1023) ──
+   Figma's tablet open menu does carry it, and we rendered nothing: `154:7851`
+   is a 648×280 "Pic" at x=0,y=476 inside the 648-wide content column, i.e.
+   below the link block with a 40px gap, spanning the column edge to edge. Its
+   right edge (708 of a 768 frame) is the close button's right edge — the same
+   alignment the desktop panel gets from `.panelGrid`, which is why the gutter
+   here is `--utopia-site-pad`, the token `.tabletBar` also reads.
+
+   Hidden below 640: the phone open menu has no card at all — neither
+   `154:7936` (collapsed) nor `154:7993` (expanded) contains a Pic frame. */
+.compactCard {
+  display: none;
+}
+
+@media (min-width: 640px) {
+  .compactCard {
+    /* `154:7854` insets the caption row 28px here, against the desktop 22. */
+    --card-pad: 28px;
+
+    display: block;
+    margin-top: 40px;
+    padding-inline: var(--utopia-site-pad);
+  }
 }
 
 /* ── Desktop panel (prototype desktop_v9 .nav-menu__panel, Figma 24.07
       `154:7535`): four destination columns + a secondary link row on the
       left, featured card pinned right. ── */
 
-/* Side inset tracks the prototype's `.nav-menu__panel`: 120px at 1440 and
-   above, easing down to 24px on narrow desktops. A flat 120px starved the four
-   columns between 1024 and ~1350 and made them collide. */
-/* `154:7568`: the body is a 20px-gap row inside 120px gutters, holding a 793
-   column of destinations and the 374 card. It sits 32px below the 72-tall nav
-   row (`154:7539`, the 1px #ebdfd2 rule).
+/* The panel shares the nav bar's box exactly — same cap (`--utopia-nav-max`,
+   1920) and same gutters (`--utopia-site-pad`) as `.bar` in
+   site-nav.module.css. That is the whole mechanism behind "the card is aligned
+   to the X": `.bar`'s content box ends at the burger's right edge (it is the
+   last flex child under `justify-content: space-between`), so a card flush to
+   the right of *this* grid is flush to the close button, structurally, at every
+   width.
 
-   The two children are their designed widths rather than a 1fr/auto split:
-   793 + 20 + 374 = 1187 against the 1200 the gutters leave, so Figma keeps
-   ~13px of slack at the right edge and the card is deliberately *not* flush
-   to the gutter. A `1fr` left column would eat that slack and push the card
-   out to 120 from the edge. */
+   It previously used `--utopia-desktop-width` (1440) with its own
+   `--panel-inset` ramp, and neither matched the bar: at 1024 the panel inset
+   came out at 36.8px against the bar's 85.3px, and past 1440 the panel capped
+   at 1440 while the bar kept going to 1920. The card could not line up with the
+   burger at any width except by accident.
+
+   `154:7568`: a 20px-gap row holding the destinations column and the card, 32px
+   below the 72-tall nav row (`154:7539`, the 1px #ebdfd2 rule). The card takes
+   its whole track rather than a fixed 374 — Figma's own instances leave 12–13px
+   of slack there (374 in a 387 track at 1440, 318 in a 330 track in the 1270
+   instance `154:7635`), which is exactly the misalignment being fixed.
+
+   The split is `793fr 387fr` — a ratio, not two fixed widths, because Figma's
+   two desktop instances scale it: 793/387 of the 1180 the row has left after
+   the gap at 1440, and 680/330 of 1010 in the 1270 instance. Both are the same
+   66.1%/32.25% split and this one declaration reproduces both to within a pixel
+   (387.0 and 331.2 against Figma's 387 and 330). A fixed left column instead
+   starved the card to 40px at 1024, and a bare `1fr` on the card blew it out to
+   867 at 1920.
+   Past 1440 Figma has no open-menu frame, so the card simply keeps the ratio —
+   544 at the 1920 nav cap, and it stops growing there because `--utopia-nav-max`
+   caps the whole panel. Flagged to the user as the one unverified width. */
 .panelGrid {
-  --panel-inset: clamp(24px, calc(120px - (1440px - 100vw) * 0.2), 120px);
-
   display: grid;
-  grid-template-columns: minmax(0, 793px) 374px;
+  grid-template-columns: 793fr 387fr;
   gap: 20px;
   align-items: flex-start;
-  max-width: var(--utopia-desktop-width);
+  max-width: var(--utopia-nav-max);
   margin: 0 auto;
-  padding: 32px var(--panel-inset) 60px;
+  padding: 32px var(--utopia-site-pad) 60px;
   border-top: 1px solid #ebdfd2;
   box-sizing: border-box;
 }
@@ -444,7 +506,13 @@
   transform: translateX(0);
 }
 
-/* ── Featured card — Figma 24.07 "Pic" `154:7596`: 374×280, r16, on Black ── */
+/* ── Featured card — Figma 24.07 "Pic" `154:7596`: 280 tall, r16, on Black ──
+
+   Width is fluid: it fills its track so the right edge lands on the nav bar's
+   close button (see `.panelGrid` above, and `.compactCard` for 640–1023). The
+   old fixed 374px is what left it short of the gutter. 280 tall is the one
+   number Figma holds at every width — the desktop component, the 1270 instance
+   and the tablet instance `154:7851` (648×280) all draw the same height. */
 
 /* Hover scales the whole card as one frame — prototype `.nav-menu__card`
    (1.0776 is the 403/374 ratio between the card and the picture frame that
@@ -452,9 +520,9 @@
 .card {
   position: relative;
   display: block;
-  width: 374px;
+  width: 100%;
   height: 280px;
-  flex-shrink: 0;
+  min-width: 0;
   border-radius: var(--utopia-radius-card-lg);
   overflow: hidden;
   background: var(--utopia-text-primary);
@@ -478,16 +546,24 @@
   }
 }
 
-/* `154:7597` — the picture is *not* stretched to the card: Figma places a
-   403×434 frame centred in the 374×280 box and nudged 10px down, so the crop
-   is tighter and sits lower than an `inset: 0` cover would give. Reproduced as
-   an explicitly-sized, centred layer rather than an `object-position` guess. */
+/* `154:7597` — the picture is *not* stretched to the card: Figma over-scales it
+   and nudges it down, so the crop is tighter and sits lower than an `inset: 0`
+   cover would give. Expressed in percentages of the card rather than the old
+   fixed 403×434px, so it survives the card becoming fluid.
+
+   Both of Figma's sizes agree on the vertical treatment once written this way:
+   155% of 280 = 434, and `top: 53.571%` puts the layer's top at
+   0.53571·280 − 217 = −67 — which is literally the tablet instance's
+   `154:7852` y=−67, and equals the desktop component's "centred, nudged 10px
+   down" (−77 + 10). Only the horizontal zoom differs: the desktop picture frame
+   is 403 against a 374 card (1.0776, set in the ≥1024 block), the tablet one is
+   the card's own width (1). */
 .cardImage {
   position: absolute;
   left: 50%;
-  top: calc(50% + 10px);
-  width: 403px;
-  height: 434px;
+  top: 53.571%;
+  width: calc(100% * var(--card-img-zoom, 1));
+  height: 155%;
   transform: translate(-50%, -50%);
   object-fit: cover;
   max-width: none;
@@ -508,8 +584,8 @@
    (`154:7596` is px-22/py-20, and the row is bottom-aligned). */
 .cardFooter {
   position: absolute;
-  left: 22px;
-  right: 22px;
+  left: var(--card-pad, 22px);
+  right: var(--card-pad, 22px);
   bottom: 20px;
   display: flex;
   align-items: center;

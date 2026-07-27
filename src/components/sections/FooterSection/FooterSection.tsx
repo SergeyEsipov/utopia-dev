@@ -1,10 +1,16 @@
 /* eslint-disable @next/next/no-img-element -- brand/arrow/social icons are SVGs;
    the Next image optimizer rejects SVG (dangerouslyAllowSVG is off), so they
    are served as plain <img>. */
+import Link from "next/link";
 import { Text } from "@/design-system/components";
 import { DestinationsNav } from "@/components/layout/DestinationsNav";
 import { footerDestinations, menuLinks, footerSocials } from "@/lib/data";
-import { PRIVACY_HREF, TERMS_HREF, getCompanyHref } from "@/lib/routes";
+import {
+  HOME_HREF,
+  PRIVACY_HREF,
+  TERMS_HREF,
+  getCompanyHref,
+} from "@/lib/routes";
 import styles from "./footer-section.module.css";
 import { FooterLeaves } from "./FooterLeaves";
 import { RevealGroup } from "../RevealGroup";
@@ -118,7 +124,19 @@ export function FooterSection() {
 
         <div className={styles.top}>
           <div className={styles.menu}>
-            <div className={styles.brand} data-reveal>
+            {/* The brand signature goes home, matching the dock's home button.
+                `aria-label` is on the link rather than left to the images: of
+                the three only the wordmark has a non-empty alt, and it is
+                `display: none` on tablet — so the accessible name would have
+                been "Utopia" on desktop and nothing at all on tablet.
+                Deliberately not added to the mobile footer, which has no brand
+                mark: Figma `154:6340` opens straight on the link columns. */}
+            <Link
+              href={HOME_HREF}
+              className={styles.brand}
+              aria-label="Utopia home"
+              data-reveal
+            >
               <img
                 className={`${styles.brandMark} ${styles.brandMarkDesktop}`}
                 src="/assets/footer-logo-mark.svg"
@@ -134,7 +152,7 @@ export function FooterSection() {
                 src="/assets/footer-wordmark2.svg"
                 alt="Utopia"
               />
-            </div>
+            </Link>
 
             {(Object.keys(footerDestinations) as (keyof typeof footerDestinations)[]).map(
               (category) => (

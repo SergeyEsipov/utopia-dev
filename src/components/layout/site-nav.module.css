@@ -1,7 +1,11 @@
+/* z-index from the token scale, not a bare `2`: on the home page this bar is
+   `position: fixed` (see .navOverlay) and DaysSection's `.section` also declared
+   `z-index: 2`, so the tie broke on source order and Days — being later in the
+   DOM — painted straight over the header. See `--utopia-z-nav` in tokens.css. */
 .nav {
   display: none;
   position: relative;
-  z-index: 2;
+  z-index: var(--utopia-z-nav);
   background: var(--utopia-bg-cream);
 }
 
@@ -64,12 +68,15 @@
    re-break the pin. Staying pinned also depends on SiteMenu locking <html>
    rather than <body> — a body lock makes body the scroll container and sticky
    silently stops working. */
-/* Only ≥1024: there the overlay starts below the bar (`.menu` takes its top
-   from `--utopia-nav-height`)
-   and needs it on top. At 640–1023 the overlay is full-viewport and carries
-   its own logo, so lifting the bar above it would paint over that logo — the
-   tablet dock closes the menu instead. */
-@media (min-width: 1024px) {
+/* From 640, not 1024. The overlay starts below the bar at both tiers now
+   (`.menu` takes its top from `--utopia-nav-height`), so the bar has to be on
+   top for its X to be clickable. Previously the 640–1023 band left the overlay
+   full-viewport and relied on the *dock* to close the menu; the dock is now
+   phone-only (see site-dock.module.css), so without this the tablet menu would
+   have had no way out. It is also what Figma's tablet open-menu states draw —
+   `154:7787`/`154:7861` keep the 72-tall bar with the close X in it and start
+   the panel below at y=104. */
+@media (min-width: 640px) {
   .navOpen {
     z-index: calc(var(--utopia-z-menu) + 1);
     /* Beige Dark #ebdfd2 — Figma 1:3231 divider (no matching token) */
@@ -182,13 +189,22 @@
    Figma 24.07 draws this at 72 as well (`154:7791` in the menu states,
    `154:5384` on the 404), not the 64 the older `1:982` frame had. */
 
+/* The side gutter is `--utopia-site-pad` — 24px here, which is the literal value
+   this rule already carried, but taken from the token so SiteMenu's panel can
+   read the same one. That is what makes the featured card's right edge land on
+   this bar's close button at every width instead of drifting (see
+   `.panelGrid` / `.compactCard` in site-menu.module.css).
+   NOTE: Figma disagrees with itself on this number — the closed tablet bar
+   (`154:5211`, `154:6196`) draws 40px gutters and the open-menu tablet bar
+   (`154:7791`) draws 60px, against the 24px shipped here. Raised with the user;
+   changing it now is a one-line token edit and moves every tablet header. */
 .tabletBar {
   display: none;
   position: relative;
   align-items: center;
   justify-content: space-between;
   height: var(--utopia-nav-height);
-  padding: 0 24px;
+  padding: 0 var(--utopia-site-pad);
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.03);
 }
 

@@ -34,6 +34,62 @@ function MenuLink({
   );
 }
 
+/**
+ * The "Jericoacoara 2027" featured card. Rendered once per layout tier — inside
+ * the desktop panel's grid (≥1024) and below the links in the compact tree
+ * (640–1023, `.compactCard`) — because Figma places it differently in each:
+ * pinned to the right of the columns on desktop (`154:7596`), full width below
+ * them on tablet (`154:7851`), and absent on phones (`154:7936`/`154:7993`
+ * carry no Pic frame at all). Both copies are in the DOM and CSS hides the
+ * wrong one, matching how this file already duplicates the destinations and the
+ * secondary links across the two trees.
+ *
+ * Width comes from the container, never from here — that is what keeps the
+ * right edge on the nav bar's close button. No destination yet, so it stays an
+ * inert <a> (see routes.ts).
+ */
+function FeaturedCard({ revealIndex }: { revealIndex?: number }) {
+  return (
+    <a
+      className={styles.card}
+      data-menu-reveal
+      style={
+        revealIndex === undefined
+          ? undefined
+          : ({ "--reveal-i": revealIndex } as React.CSSProperties)
+      }
+    >
+      {/* Sized in CSS as a percentage of the card, not by these attributes —
+          see `.cardImage`. They only give next/image the intrinsic ratio. */}
+      <Image
+        src={menuFeaturedCard.image}
+        alt=""
+        width={403}
+        height={434}
+        sizes="(min-width: 1024px) 420px, 100vw"
+        className={styles.cardImage}
+      />
+      <span className={styles.cardShade} aria-hidden />
+      <span className={styles.cardFooter}>
+        <span className={styles.cardText}>
+          <span className={styles.cardTitle}>{menuFeaturedCard.title}</span>
+          <span className={styles.cardSubtitle}>
+            {menuFeaturedCard.subtitle}
+          </span>
+        </span>
+        <span className={styles.cardAction} aria-hidden>
+          <Image
+            src="/assets/menu/card-chevron.svg"
+            alt=""
+            width={12}
+            height={12}
+          />
+        </span>
+      </span>
+    </a>
+  );
+}
+
 const MENU_STAGGER_MS = 1200;
 const MENU_CLOSE_MS = 980;
 
@@ -204,6 +260,12 @@ export function SiteMenu() {
                 )}
               </div>
             </nav>
+
+            {/* Tablet only — CSS hides it below 640, and ≥1024 the whole
+                compact tree goes. */}
+            <div className={styles.compactCard}>
+              <FeaturedCard />
+            </div>
           </div>
 
           {/* ── Desktop (≥1024): prototype desktop_v9 .nav-menu__panel,
@@ -284,41 +346,7 @@ export function SiteMenu() {
                 </div>
               </div>
 
-              {/* No destination yet — inert, see routes.ts. */}
-              <a
-                className={styles.card}
-                data-menu-reveal
-                style={{ "--reveal-i": 5 } as React.CSSProperties}
-              >
-                {/* 403×434, not the card's own 374×280 — see .cardImage. */}
-                <Image
-                  src={menuFeaturedCard.image}
-                  alt=""
-                  width={403}
-                  height={434}
-                  sizes="403px"
-                  className={styles.cardImage}
-                />
-                <span className={styles.cardShade} aria-hidden />
-                <span className={styles.cardFooter}>
-                  <span className={styles.cardText}>
-                    <span className={styles.cardTitle}>
-                      {menuFeaturedCard.title}
-                    </span>
-                    <span className={styles.cardSubtitle}>
-                      {menuFeaturedCard.subtitle}
-                    </span>
-                  </span>
-                  <span className={styles.cardAction} aria-hidden>
-                    <Image
-                      src="/assets/menu/card-chevron.svg"
-                      alt=""
-                      width={12}
-                      height={12}
-                    />
-                  </span>
-                </span>
-              </a>
+              <FeaturedCard revealIndex={5} />
             </div>
           </div>
         </div>

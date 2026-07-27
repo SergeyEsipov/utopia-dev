@@ -193,12 +193,21 @@
   pointer-events: none;
 }
 
+/* padding-top is the nav height, not a literal 64. Figma puts this block at
+   exactly y=72 inside the section at both tiers — desktop `154:4206` and tablet
+   `154:5263` are both "Full-width section subcontent" at y=72 — and 72 is the
+   bar's height, which is the point: the section is pinned full-viewport, so the
+   copy has to start where the bar ends. The old 64 was 8px short and the
+   "Opening in 2027" eyebrow (25 tall, so 64→89) ran up under the bar. Nothing
+   showed for it while `.nav` carried a bare `z-index: 2` and this section's
+   `.content` won on source order; the moment the header took its own layer
+   (`--utopia-z-nav`) the bar sliced the eyebrow in half. */
 @media (min-width: 640px) {
   .content {
     align-items: center;
     max-width: 589px;
     margin: 0 auto;
-    padding-top: 64px;
+    padding-top: var(--utopia-nav-height);
     text-align: center;
     gap: 32px;
   }

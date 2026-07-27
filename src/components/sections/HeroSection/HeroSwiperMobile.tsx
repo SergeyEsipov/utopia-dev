@@ -28,7 +28,7 @@ function HeroSlideVideo({
   src: string;
   poster: string;
   playing: boolean;
-  preloadHint: "auto" | "metadata";
+  preloadHint: "auto" | "metadata" | "none";
 }) {
   const ref = useRef<HTMLVideoElement>(null);
 
@@ -151,12 +151,26 @@ export function HeroSwiperMobile() {
     }
   }, []);
 
-  // Preload the active clip and its immediate neighbours (metadata for the
-  // rest) so the incoming video is already decoded before its layer fades in.
+  /**
+   * The active clip, and metadata for the one autoplay will reach next — the
+   * other five stay at "none" until their turn.
+   *
+   * This used to be "auto" for both neighbours and "metadata" for the rest,
+   * which is seven fetches for seven destinations: measured at 378 that pulled
+   * ~20 MB of hero clips on one page view, all seven starting inside the same
+   * 200ms and then competing. "metadata" is not a cheap probe here — Chrome
+   * takes a real chunk of the file for it.
+   *
+   * The mobile prototype (v3/js/hero-video.js) goes further and mounts a video
+   * for the *first destination only*, leaving the other six as stills; keeping
+   * a clip per destination is our deviation and is left alone. This changes
+   * only when each one is fetched, never whether it exists.
+   */
   const count = heroCarouselDestinations.length;
-  const preloadFor = (i: number): "auto" | "metadata" => {
-    const d = Math.min((i - active + count) % count, (active - i + count) % count);
-    return d <= 1 ? "auto" : "metadata";
+  const preloadFor = (i: number): "auto" | "metadata" | "none" => {
+    if (i === active) return "auto";
+    if ((i - active + count) % count === 1) return "metadata";
+    return "none";
   };
 
   return (

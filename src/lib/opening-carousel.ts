@@ -6,23 +6,39 @@ import {
 export type OpeningSlide = {
   id: string;
   label: string;
+  /** Portrait cut, phones only. The -mobile/.hevc encodes derive from it. */
   video: string;
-  videoWebm?: string;
   poster: string;
+  /** Landscape cut, >=OPENING_WIDE_BREAKPOINT_PX. webm leads, as in both desktop builds. */
+  videoWide: string;
+  videoWideWebm: string;
+  posterWide: string;
   layout: "kitesurf" | "dunes" | "localvibes";
 };
 
 /* Copy and media come from `src/content/slides.json`. */
 export const openingCopy = openingCopyContent;
 
+/**
+ * Where the section stops being the phone layout and goes full-bleed
+ * (`opening-section.module.css`'s own 640 block), so it is also where the
+ * portrait clip stops fitting and the landscape one takes over. Deliberately
+ * not the hero's 768: this section switches its own layout at 640.
+ */
+export const OPENING_WIDE_BREAKPOINT_PX = 640;
+
 export const openingSlides: OpeningSlide[] = openingSlidesContent.map(
   (slide) => ({
     id: slide.id,
     label: slide.label,
-    // No videoWebm: the design retired /assets/opt/kitesurf.webm — keeping it
-    // would make webm-capable browsers play the old clip over the new mp4 cut.
+    // No webm on the portrait cut: the design retired /assets/opt/kitesurf.webm
+    // — keeping it would make webm-capable browsers play the old edit over the
+    // current mp4. The landscape cut's webm is a different, current file.
     video: slide.video,
     poster: slide.poster,
+    videoWide: slide.videoWide,
+    videoWideWebm: slide.videoWideWebm,
+    posterWide: slide.posterWide,
     layout: slide.layout as OpeningSlide["layout"],
   }),
 );

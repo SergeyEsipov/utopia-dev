@@ -245,7 +245,12 @@ export function useOpeningVideo(
   // always be paused, otherwise React nulls the detached ref and the previous
   // video keeps playing off-screen.
   const videoRefs = useRef<(HTMLVideoElement | null)[]>([]);
-  const visibleRef = useRef(true);
+  // Starts false, not true: the elements are `preload="none"` and this is the
+  // only thing that ever calls load(), so seeding it true made the active clip
+  // fetch at mount — while the section is still a screen and a half below the
+  // fold — before the observer's first callback could say otherwise. An
+  // IntersectionObserver always delivers an initial entry, so nothing is lost.
+  const visibleRef = useRef(false);
   const reducedMotionRef = useRef(false);
 
   const playActive = useCallback(() => {
@@ -305,10 +310,16 @@ export function useOpeningVideo(
       if (i === activeLoopIndex) {
         video.currentTime = 0;
         playActive();
-      } else {
-        video.pause();
-        video.currentTime = 0;
+        return;
       }
+
+      video.pause();
+      // Only rewind a clip that actually holds frames. Writing currentTime to a
+      // `preload="none"` element with readyState 0 is itself a load trigger, so
+      // this line used to pull all nine copies down — three fetches per file,
+      // measured at 4.0 MB of wire for a 1.35 MB clip. There is nothing to
+      // rewind on an element that has never loaded.
+      if (video.readyState >= HTMLMediaElement.HAVE_METADATA) video.currentTime = 0;
     });
   }, [activeLoopIndex, playActive]);
 

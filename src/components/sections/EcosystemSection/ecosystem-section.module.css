@@ -621,4 +621,45 @@
     /* Above the shade (2) and the filter row (3), as in v10. */
     z-index: 4;
   }
+
+  /* ── v10's per-slide width-anchored crop ──
+     Every destination is framed individually in v10; one `object-position`
+     for the whole slider is what put the photos in the wrong place. See
+     `DestinationCrop` in slides-content.ts for what the numbers mean.
+
+     Only the *horizontal* half of the crop lives here, because only it is a
+     percentage of the card width and so needs nothing but CSS. The vertical
+     half needs the card's width **and** its height in one expression, and
+     `useDestinationCrop` computes it in JS exactly as v10 does.
+
+     **It was declarative, and it cost image quality.** Container-query units
+     express the whole crop in CSS (`100cqh` is the card height), but they
+     need `container-type: size` on an ancestor of the photograph, and the
+     containment that comes with it makes Chrome rasterize the contents at a
+     lower scale. Measured on the same pixels at 1440, Laplacian variance of
+     the rendered card: prototype 1074, ours **763** with the container,
+     **1062** without it. `will-change: transform` on the image recovers only
+     part of it (895) and `translateZ(0)` none (763); moving the container up
+     to `.visual` changes nothing (763). So the crop is worth a
+     ResizeObserver — which is what the source of truth uses anyway.
+
+     `!important` for the same reason `.navPillBtn` needs it in the
+     design-system module: `next/image` with `fill` writes
+     `position:absolute;height:100%;width:100%;left:0;top:0;right:0;bottom:0`
+     as an *inline* style, which no stylesheet specificity can outrank.
+     Measured before this: every box came back 1200×994 at x=0,y=0 — the crop
+     was computing correctly and losing the cascade. `top` is deliberately
+     *not* here: the hook writes it inline, which would lose to `!important`.
+
+     `right`/`bottom` must become `auto`: a replaced element with `top`,
+     `bottom` and an auto height is over-constrained, and the box would stop
+     at the card's bottom edge instead of taking its own aspect. */
+  .bgImage[data-crop] {
+    left: var(--slide-crop-left) !important;
+    width: var(--slide-crop-width) !important;
+    right: auto !important;
+    bottom: auto !important;
+    height: auto !important;
+    max-width: none;
+  }
 }

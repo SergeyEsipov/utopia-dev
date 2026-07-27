@@ -1,6 +1,7 @@
 import {
   destinationCategoriesContent,
-  type DestinationSlideContent,
+  type DestinationCrop,
+  type SlideFraming,
 } from "./slides-content.ts";
 
 export type EcosystemLocation = {
@@ -14,6 +15,10 @@ export type EcosystemLocation = {
    * else, so the component never learns which slide it is.
    */
   strongShade: boolean;
+  /** v10's per-slide width-anchored crop; absent on Barcelona alone. */
+  crop?: DestinationCrop;
+  /** Per-slide framing override (Barcelona's `50% 100%`). */
+  framing?: Partial<SlideFraming>;
 };
 
 export type EcosystemCategory = {
@@ -47,13 +52,9 @@ export const ecosystemCategoryData: EcosystemCategory[] =
       id: slide.id,
       label: slide.label,
       bg: slide.image,
-      /* `strongShade` is optional in slides.json and not yet part of
-         `DestinationSlideContent`, so it is read defensively: the flag works
-         the moment the field is added to the file, and its absence is just
-         `false`. */
-      strongShade:
-        (slide as DestinationSlideContent & { strongShade?: boolean })
-          .strongShade === true,
+      strongShade: slide.strongShade === true,
+      crop: slide.crop,
+      framing: slide.framing,
     })),
   }));
 

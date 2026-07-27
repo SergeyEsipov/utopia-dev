@@ -94,27 +94,44 @@
             {
               "id": "jericoacoara",
               "label": "Jericoacoara, Brazil",
-              "image": "/assets/opt/enhanced_ecosystem-bg-jeri-lobby.jpg"
+              "image": "/assets/opt/ecosystem-bg-jeri-v10.jpg",
+              "crop": { "left": "-13.281%", "width": "114.431%", "topW": -34.567 }
             },
             {
               "id": "flora",
               "label": "Flora, Costa Rica",
-              "image": "/assets/opt/enhanced_ecosystem-bg-flora-tropical.jpg"
+              "image": "/assets/opt/ecosystem-bg-flora-v10.jpg",
+              "crop": {
+                "left": "-6.65%",
+                "width": "114.188%",
+                "topW": -29.417,
+                "anchor": "bottom",
+                "nudgeY": 60
+              }
             },
             {
               "id": "prea",
               "label": "Prea, Brazil",
-              "image": "/assets/opt/enhanced_ecosystem-bg-prea-tropical.jpg"
+              "image": "/assets/opt/ecosystem-bg-prea-v10.jpg",
+              "crop": { "left": "-2.119%", "width": "102.224%", "topW": -26.319 }
             },
             {
               "id": "roca",
               "label": "Roca, Costa Rica",
-              "image": "/assets/opt/enhanced_ecosystem-bg-roca-tropical.jpg"
+              "image": "/assets/opt/ecosystem-bg-roca-v10.jpg",
+              "crop": { "left": "-8.022%", "width": "111.750%", "topW": -18.347 }
             },
             {
               "id": "cabarete",
               "label": "Cabarete, Dominican Republic",
-              "image": "/assets/opt/ecosystem-bg-cabarete-v9.jpg"
+              "image": "/assets/opt/ecosystem-bg-cabarete-v10.jpg",
+              "crop": {
+                "left": "-20.919%",
+                "width": "152.115%",
+                "topW": -19.375,
+                "anchor": "bottom",
+                "nudgeY": 60
+              }
             }
           ]
         },
@@ -125,17 +142,21 @@
             {
               "id": "dubai",
               "label": "Dubai, UAE",
-              "image": "/assets/opt/ecosystem-bg-dubai-v9.jpg"
+              "image": "/assets/opt/ecosystem-bg-dubai-v9.jpg",
+              "strongShade": true,
+              "crop": { "left": "0%", "width": "105.521%", "topW": -67.188 }
             },
             {
               "id": "barcelona",
               "label": "Barcelona, Spain",
-              "image": "/assets/opt/enhanced_ecosystem-bg-barcelona-urban.jpg"
+              "image": "/assets/opt/ecosystem-bg-barcelona-v10.jpg",
+              "framing": { "objectPosition": "50% 100%" }
             },
             {
               "id": "cape-town",
               "label": "Cape Town, South Africa",
-              "image": "/assets/opt/ecosystem-bg-capetown-v9.jpg"
+              "image": "/assets/opt/ecosystem-bg-capetown-v9.jpg",
+              "crop": { "left": "0%", "width": "100%", "topW": -4.857 }
             }
           ]
         },
@@ -146,7 +167,13 @@
             {
               "id": "alpine",
               "label": "Alpine",
-              "image": "/assets/opt/ecosystem-bg-alpine-v9.jpg"
+              "image": "/assets/opt/ecosystem-bg-alpine-v9.jpg",
+              "crop": {
+                "left": "-2.986%",
+                "width": "106.042%",
+                "topW": -5.691,
+                "anchor": "bottom"
+              }
             }
           ]
         }

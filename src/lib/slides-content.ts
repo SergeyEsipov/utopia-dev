@@ -29,10 +29,44 @@ export type HeroSlideContent = {
   video: string;
 };
 
+/**
+ * desktop_v10's width-anchored crop, one per destination slide.
+ *
+ * It is not an `object-position`. The photo is laid into a box whose *width*
+ * is `width` of the card and whose left edge is `left` of the card, and whose
+ * top is derived from the card's width too — `topW` is a percentage of the
+ * CARD WIDTH, not of its height. That is the whole point: the numbers were
+ * measured against a 1440×680 reference frame (`REF_FRAME_ASPECT`), and
+ * driving the vertical off the width keeps the visible slice identical at any
+ * card aspect ratio, where percentages of height would silently re-frame it.
+ *
+ * `anchor` says which edge of that reference frame stays put when the real
+ * card is a different height: `bottom` pins the reference bottom to the card
+ * bottom, `center` (the default) splits the difference. `nudgeY` lifts a
+ * specific photo, and only from 1441px up — it is the designers' hand
+ * correction on the wide layout, not a formula.
+ */
+export type DestinationCrop = {
+  /** Left edge of the photo, as a percentage of the card width. */
+  left: string;
+  /** Photo width, as a percentage of the card width. */
+  width: string;
+  /** Top edge in the reference frame, as a NUMBER of percent of card width. */
+  topW: number;
+  anchor?: "top" | "center" | "bottom";
+  /** Extra downward nudge in px, applied from 1441px up only. */
+  nudgeY?: number;
+};
+
 export type DestinationSlideContent = {
   id: string;
   label: string;
   image: string;
+  crop?: DestinationCrop;
+  /** v10 flags one slide for the reinforced bottom shade. */
+  strongShade?: boolean;
+  /** Per-slide override of the slider-wide framing (Barcelona's 50% 100%). */
+  framing?: Partial<SlideFraming>;
 };
 
 export type DestinationCategoryContent = {
@@ -74,8 +108,12 @@ export const framingDefaults: SlideFraming = {
 
 export const heroSlidesContent: HeroSlideContent[] = content.sliders.hero.slides;
 
-export const destinationCategoriesContent: DestinationCategoryContent[] =
-  content.sliders.destinations.categories;
+/* The cast is the one place the JSON's widened types are narrowed: a string
+   literal in a `.json` import is `string`, so `crop.anchor` cannot satisfy
+   the "top" | "center" | "bottom" union on its own. Everything downstream
+   reads the narrow type. */
+export const destinationCategoriesContent =
+  content.sliders.destinations.categories as DestinationCategoryContent[];
 
 export const openingCopyContent = content.sliders.opening.copy;
 
@@ -117,6 +155,66 @@ export function resolveFraming(
 /** Slider-wide framing for the private-world cards. */
 export const privateWorldFraming = content.sliders.privateWorld
   .framing as Partial<SlideFraming>;
+
+/**
+ * The frame desktop_v10's destination crops were measured against: 1440×680.
+ * Exported as a number so the percentage lives in exactly one place — the CSS
+ * reads it back as `calc(var(--slide-crop-ref) * 1cqw)`.
+ */
+export const DESTINATION_REF_FRAME_ASPECT = 680 / 1440;
+
+/**
+ * The `sizes` hint for a destination photo.
+ *
+ * `100vw` under-declares it: a v10 crop draws the photo at up to 152% of the
+ * card, and in the sharp build the card is already the full viewport — so the
+ * browser was choosing a candidate up to a third narrower than the box it
+ * then had to fill. The card is never wider than the viewport, so the crop's
+ * own width percentage is a correct upper bound.
+ */
+export function destinationSizes(crop?: DestinationCrop): string {
+  const pct = crop ? Number.parseFloat(crop.width) : 100;
+  return `${Math.ceil(Number.isFinite(pct) ? Math.max(pct, 100) : 100)}vw`;
+}
+
+/** v10's `anchorK`: which edge of the reference frame holds still. */
+export function destinationCropAnchor(crop: DestinationCrop): number {
+  return crop.anchor === "bottom" ? 1 : crop.anchor === "top" ? 0 : 0.5;
+}
+
+/**
+ * The half of the crop that is a percentage of the card's width, and so needs
+ * no measuring: CSS applies it directly. The vertical half needs the card's
+ * height in the same expression and is solved in `useDestinationCrop`.
+ */
+export function destinationCropStyle(
+  crop?: DestinationCrop,
+): Record<string, string> {
+  if (!crop) return {};
+
+  return {
+    "--slide-crop-left": crop.left,
+    "--slide-crop-width": crop.width,
+  };
+}
+
+/**
+ * The crop's numbers as data attributes, so the hook can read them off the
+ * DOM instead of the component threading them through. `data-crop` alone is
+ * what opts an image into the CSS half of the crop.
+ */
+export function destinationCropAttrs(
+  crop?: DestinationCrop,
+): Record<string, string> {
+  if (!crop) return {};
+
+  return {
+    "data-crop": "",
+    "data-crop-topw": String(crop.topW),
+    "data-crop-anchor": String(destinationCropAnchor(crop)),
+    ...(crop.nudgeY ? { "data-crop-nudge": String(crop.nudgeY) } : {}),
+  };
+}
 
 /**
  * Framing as custom properties, so a slide can carry its own crop without the

@@ -22,7 +22,11 @@ const FEATURED_WIDE_SIZES = "341px";
 const FEATURED_BAND_SIZES = "(min-width: 640px) 708px, 100vw";
 
 function FeaturedTeamImage() {
-  const shared = { alt: "", quality: 80 } as const;
+  // `quality` is deliberately absent: Next only accepts qualities declared in
+// `images.qualities`, and with none configured anything but 75 is rejected
+// outright ("q parameter of 80 is not allowed"). The prop was silently
+// dropped from the srcSet, so it only ever misdescribed what we serve.
+  const shared = { alt: "" } as const;
 
   const {
     props: { srcSet: wideSrcSet },

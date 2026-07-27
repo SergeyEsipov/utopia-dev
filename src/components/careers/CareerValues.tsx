@@ -70,7 +70,6 @@ export function CareerValues() {
               alt=""
               fill
               sizes="(min-width: 1024px) 996px, (min-width: 640px) 648px, 100vw"
-              quality={80}
               className={styles.valuesHeroImage}
             />
             <div className={styles.valuesHeroContent}>

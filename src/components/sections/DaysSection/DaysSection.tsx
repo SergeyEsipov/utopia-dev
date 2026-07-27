@@ -10,8 +10,10 @@ import {
   DAYS_TRANSITION_MS,
 } from "@/lib/days-carousel";
 import { images } from "@/lib/media";
+import { framingStyle } from "@/lib/slides-content";
 import { useReveal } from "@/hooks/useReveal";
 import { useDaysCarousel } from "./useDaysCarousel";
+import { useDaysScaleCap } from "./useDaysScaleCap";
 import styles from "./days-section.module.css";
 
 export function DaysSection() {
@@ -30,6 +32,7 @@ export function DaysSection() {
     swipeHandlers,
   } = useDaysCarousel();
   const revealRef = useReveal<HTMLElement>();
+  useDaysScaleCap(revealRef);
 
   return (
     <section
@@ -117,8 +120,18 @@ export function DaysSection() {
                     alt=""
                     fill
                     className={styles.cardImage}
-                    sizes="(max-width: 639px) 276px, (max-width: 1023px) 426px, (max-width: 1899px) 386px, 458px"
+                    sizes="(max-width: 639px) 276px, (max-width: 1023px) 386px, (max-width: 1899px) 386px, 521px"
                     priority={card.offset >= 0}
+                    /* Framing from slides.json, handed over as custom
+                       properties rather than a literal `transform`: the card
+                       image animates its own scale (1.06 → 1) as it becomes
+                       active, so an inline transform would overwrite that
+                       instead of composing with it. */
+                    style={
+                      framingStyle(
+                        item.framing,
+                      ) as React.CSSProperties
+                    }
                   />
                 </article>
               );

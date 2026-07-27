@@ -171,8 +171,13 @@
   display: flex;
   flex-direction: column;
   gap: 30px;
+  /* 32px insets, no width cap. `max-width: 314px` equalled the content box at
+     exactly 378 and did nothing there, but on any wider phone it froze the copy
+     at 314 and left dead space on the right — the design fixes the inset, not
+     the measure. */
   padding: 60px 32px 0;
-  max-width: 314px;
+  width: 100%;
+  box-sizing: border-box;
   pointer-events: none;
 }
 
@@ -215,24 +220,19 @@
   font-size: var(--utopia-text-2xl);
 }
 
+/* Shared section-title scale: 36px flat, growing to 40 across 1800→1920 and
+   holding there. Replaces the old hardcoded 38/40 pair, which came from the
+   13.07 frames and stopped responding to width entirely past 1900. */
 @media (min-width: 640px) {
   .title {
-    font-size: 38px;
-    letter-spacing: -1.14px;
-  }
-}
-
-/* Desktop 1920 — Figma 1:1746: card grows to 1872x860 (viewport-driven here);
-   heading bumps to 40px, rest of the text block keeps 1440 sizes. */
-@media (min-width: 1900px) {
-  .title {
-    font-size: 40px;
-    letter-spacing: -1.2px;
+    font-size: var(--utopia-section-title-size);
+    letter-spacing: var(--utopia-section-title-tracking);
   }
 }
 
 .description {
-  max-width: 314px;
+  /* Fills the 32px-inset column; see .content. */
+  max-width: none;
 }
 
 @media (min-width: 640px) {
@@ -272,6 +272,8 @@
   left: 32px;
   right: 32px;
   width: auto;
+  /* The pill is a control, not body copy — it keeps its designed 314 width and
+     centres inside the inset column. */
   max-width: 314px;
   margin-inline: auto;
   display: flex;
@@ -308,14 +310,37 @@
    The card scales/rounds imperatively; these rules only cover the copy and the
    nav pill appearing as it finishes. The attribute is absent until the hook
    runs, so with JS off — or on mobile / reduced motion — both stay visible. */
-.content,
-.navWrap {
-  transition: opacity 450ms cubic-bezier(0.22, 0.61, 0.36, 1);
-}
-
-.content[data-fullwidth-visible="false"],
+/* Hidden only when the driver explicitly says so: the attribute is absent
+   until useFullwidthScale runs, and on mobile / reduced motion it never does —
+   keying on "true" instead would leave the copy invisible there. */
 .navWrap[data-fullwidth-visible="false"] {
   opacity: 0;
+  transform: translate3d(0, 20px, 0);
+}
+
+/* Nav pill rises in once the section has finished growing (prototype img-nav:
+   0.6s ease, 20px). */
+.navWrap {
+  transition:
+    opacity 0.6s ease,
+    transform 0.6s ease;
+}
+
+/* The copy climbs in on a 140ms ladder rather than as one block. A transition
+   (not keyframes) is right here: the section is always mounted, so the
+   from-state is painted and the transition has something to run from. */
+@media (prefers-reduced-motion: no-preference) {
+  .content [data-fullwidth-reveal] {
+    transition:
+      opacity 0.75s cubic-bezier(0.22, 0.61, 0.36, 1),
+      transform 0.75s cubic-bezier(0.22, 0.61, 0.36, 1);
+    transition-delay: calc(var(--reveal-i, 0) * 140ms);
+  }
+
+  .content[data-fullwidth-visible="false"] [data-fullwidth-reveal] {
+    opacity: 0;
+    transform: translate3d(0, 22px, 0);
+  }
 }
 
 /* The media card scales about its centre and keeps its own clipping. */

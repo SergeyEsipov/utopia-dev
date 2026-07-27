@@ -1,4 +1,3 @@
-import { NOT_FOUND_HREF } from "@/lib/routes";
 import {
   termsGroups,
   type TermsBlock,
@@ -16,9 +15,11 @@ function Paragraph({ paragraph }: { paragraph: TermsParagraph }) {
     <p>
       {paragraph.map((part, index) =>
         part.underlined ? (
-          <a key={index} href={NOT_FOUND_HREF} className={styles.inlineLink}>
+          // Underlined references in the legal copy have no page yet, so they
+          // are marked up as emphasis rather than links into the 404.
+          <span key={index} className={styles.inlineLink}>
             {part.text}
-          </a>
+          </span>
         ) : (
           <span key={index}>{part.text}</span>
         ),

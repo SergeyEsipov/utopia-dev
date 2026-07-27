@@ -1,9 +1,11 @@
 .glass {
   position: relative;
   /* Token, not a fixed px: this is what carries the rounded/sharp variant into
-     every glass control. Override per surface with the `radius` prop only when
-     a different token is wanted. */
-  border-radius: var(--utopia-radius-sm);
+     every glass control. Glass is only ever used for controls here (nav pills,
+     arrows, CTAs), so it takes the control radius — `--utopia-radius-sm` is a
+     card value and froze every one of them at 16px in the rounded language.
+     Override per surface with the `radius` prop only when a card is wanted. */
+  border-radius: var(--utopia-radius-control);
   overflow: hidden;
   display: inline-flex;
   align-items: center;

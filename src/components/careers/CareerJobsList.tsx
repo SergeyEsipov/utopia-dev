@@ -2,7 +2,15 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useCallback, useEffect, useId, useMemo, useRef, useState } from "react";
+import {
+  Fragment,
+  useCallback,
+  useEffect,
+  useId,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { images } from "@/lib/media";
 import {
   OTHER_DEPARTMENT,
@@ -21,11 +29,20 @@ type CareerJobsListProps = {
   unavailable?: boolean;
 };
 
-type LocationFilterProps = {
-  options: LocationOption[];
+type SelectOption = { name: string; count: number; group?: string };
+
+type SelectFilterProps = {
+  /** Placeholder from 640 up, and the accessible name at every width. */
+  label: string;
+  /** Shorter placeholder mobile uses instead (`154:3569` reads "Department"). */
+  shortLabel: string;
+  /** Label of the "no filter" row, e.g. "All locations". */
+  allLabel: string;
+  options: SelectOption[];
   total: number;
   value: string | null;
   onChange: (value: string | null) => void;
+  className?: string;
 };
 
 function cx(...names: (string | false | null | undefined)[]): string {
@@ -44,7 +61,7 @@ function departmentKey(posting: JobPostingSummary): string {
   return posting.department ?? OTHER_DEPARTMENT;
 }
 
-function getLocationOptions(postings: JobPostingSummary[]): LocationOption[] {
+function getLocationOptions(postings: JobPostingSummary[]): SelectOption[] {
   const options = new Map<string, LocationOption>();
   for (const posting of postings) {
     const seen = new Set<string>();
@@ -56,11 +73,17 @@ function getLocationOptions(postings: JobPostingSummary[]): LocationOption[] {
       else options.set(location.name, { name: location.name, type: location.type, count: 1 });
     }
   }
-  return [...options.values()].sort(
-    (a, b) =>
-      (a.type === b.type ? 0 : a.type === "office" ? -1 : 1) ||
-      a.name.localeCompare(b.name),
-  );
+  return [...options.values()]
+    .sort(
+      (a, b) =>
+        (a.type === b.type ? 0 : a.type === "office" ? -1 : 1) ||
+        a.name.localeCompare(b.name),
+    )
+    .map(({ name, count, type }) => ({
+      name,
+      count,
+      group: type === "office" ? "Offices" : "Remote",
+    }));
 }
 
 function locationLine(names: string[]): string {
@@ -68,7 +91,22 @@ function locationLine(names: string[]): string {
   return `${names[0]} +${names.length - 1}`;
 }
 
-function LocationFilter({ options, total, value, onChange }: LocationFilterProps) {
+/**
+ * The outlined pill dropdown used by both filter controls. Figma 24.07 draws
+ * two of them side by side below 1024 (`154:3566`, `154:5489`); at 1024 the
+ * department one is replaced by the sidebar list and only Location remains
+ * (`154:8352`).
+ */
+function SelectFilter({
+  label,
+  shortLabel,
+  allLabel,
+  options,
+  total,
+  value,
+  onChange,
+  className,
+}: SelectFilterProps) {
   const rootRef = useRef<HTMLDivElement>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
   const [open, setOpen] = useState(false);
@@ -101,10 +139,7 @@ function LocationFilter({ options, total, value, onChange }: LocationFilterProps
     triggerRef.current?.focus();
   };
 
-  const offices = options.filter((option) => option.type === "office");
-  const remote = options.filter((option) => option.type === "remote");
-
-  const renderOption = (option: LocationOption) => (
+  const renderOption = (option: SelectOption) => (
     <li key={option.name}>
       <button
         type="button"
@@ -121,22 +156,34 @@ function LocationFilter({ options, total, value, onChange }: LocationFilterProps
     </li>
   );
 
+  const groups: { group: string | undefined; items: SelectOption[] }[] = [];
+  for (const option of options) {
+    const last = groups[groups.length - 1];
+    if (last && last.group === option.group) last.items.push(option);
+    else groups.push({ group: option.group, items: [option] });
+  }
+
   return (
-    <div
-      className={cx(styles.filterField, styles.filterFieldLocation)}
-      ref={rootRef}
-    >
+    <div className={cx(styles.filterField, className)} ref={rootRef}>
       <button
         type="button"
         ref={triggerRef}
-        className={cx(styles.filterControl, styles.filterLocation)}
+        className={styles.filterControl}
         aria-haspopup="true"
         aria-expanded={open}
         aria-controls={listId}
+        aria-label={label}
         onClick={() => setOpen((current) => !current)}
       >
-        <span className={value ? undefined : styles.filterPlaceholder}>
-          {value ?? "Select location"}
+        {/* Figma keeps the dropdown label ink even when nothing is picked —
+            only the search placeholder is muted (`154:3569` vs `154:3564`). */}
+        <span>
+          {value ?? (
+            <>
+              <span className={styles.filterLabelShort}>{shortLabel}</span>
+              <span className={styles.filterLabelLong}>{label}</span>
+            </>
+          )}
         </span>
         <Image
           src={images.careerChevronDown}
@@ -159,22 +206,20 @@ function LocationFilter({ options, total, value, onChange }: LocationFilterProps
                 aria-pressed={value === null}
                 onClick={() => select(null)}
               >
-                <span>All locations</span>
+                <span>{allLabel}</span>
                 <span className={styles.filterOptionCount}>{total}</span>
               </button>
             </li>
-            {offices.length > 0 ? (
-              <li className={styles.filterGroupLabel} aria-hidden>
-                Offices
-              </li>
-            ) : null}
-            {offices.map(renderOption)}
-            {remote.length > 0 ? (
-              <li className={styles.filterGroupLabel} aria-hidden>
-                Remote
-              </li>
-            ) : null}
-            {remote.map(renderOption)}
+            {groups.map(({ group, items }) => (
+              <Fragment key={group ?? "ungrouped"}>
+                {group ? (
+                  <li className={styles.filterGroupLabel} aria-hidden>
+                    {group}
+                  </li>
+                ) : null}
+                {items.map(renderOption)}
+              </Fragment>
+            ))}
           </ul>
         </div>
       ) : null}
@@ -193,6 +238,10 @@ export function CareerJobsList({
   const [visible, setVisible] = useState(ROLES_PAGE_SIZE);
 
   const locationOptions = useMemo(() => getLocationOptions(postings), [postings]);
+  const departmentOptions = useMemo<SelectOption[]>(
+    () => departments.map((dept) => ({ name: dept.name, count: dept.count })),
+    [departments],
+  );
   const hasFilters = location !== null || department !== null || query.trim() !== "";
 
   const ordered = useMemo(() => {
@@ -236,16 +285,10 @@ export function CareerJobsList({
   return (
     <div className={styles.jobsInner}>
       <div className={styles.filters}>
-        <LocationFilter
-          options={locationOptions}
-          total={postings.length}
-          value={location}
-          onChange={selectLocation}
-        />
         <div className={cx(styles.filterField, styles.filterFieldSearch)}>
           <input
             type="search"
-            className={cx(styles.filterControl, styles.filterSearch, styles.filterInput)}
+            className={cx(styles.filterControl, styles.filterInput)}
             placeholder={`Search from ${postings.length} open positions`}
             aria-label="Search open positions"
             value={query}
@@ -262,6 +305,26 @@ export function CareerJobsList({
             className={styles.filterFieldIcon}
           />
         </div>
+        <SelectFilter
+          label="Select department"
+          shortLabel="Department"
+          allLabel="All departments"
+          options={departmentOptions}
+          total={postings.length}
+          value={department}
+          onChange={selectDepartment}
+          className={styles.filterFieldDepartment}
+        />
+        <SelectFilter
+          label="Select location"
+          shortLabel="Location"
+          allLabel="All locations"
+          options={locationOptions}
+          total={postings.length}
+          value={location}
+          onChange={selectLocation}
+          className={styles.filterFieldLocation}
+        />
       </div>
 
       <div className={styles.jobsLayout}>
@@ -335,11 +398,14 @@ export function CareerJobsList({
                 return (
                   <li key={posting.id}>
                     <Link href={`/careers/${posting.slug}`} className={styles.roleCard}>
+                      {/* Figma 24.07 `154:3579` stacks the department chip
+                          above the title; the old side-by-side header put them
+                          on one row. */}
                       <div className={styles.roleHeader}>
-                        <h3 className={styles.roleTitle}>{posting.title}</h3>
                         <span className={styles.rolePill}>
                           {posting.department ?? "Utopia"}
                         </span>
+                        <h3 className={styles.roleTitle}>{posting.title}</h3>
                       </div>
                       {office || remote ? (
                         <div className={styles.roleMeta}>

@@ -1,3 +1,5 @@
+import { heroSlidesContent } from "./slides-content.ts";
+
 export type HeroDestination = {
   id: string;
   label: string;
@@ -21,57 +23,17 @@ export type HeroBackgroundMix = {
   blend: number;
 };
 
-export const heroCarouselDestinations: HeroDestination[] = [
-  {
-    id: "roca",
-    label: "Roca, Costa Rica",
-    bg: "/assets/opt/enhanced_hero-bg-roca.jpg",
-    poster: "/assets/desktop/hero-bg-roca.jpg",
-    video: "/assets/desktop/hero-bg-roca.mp4",
-  },
-  {
-    id: "cabarete",
-    label: "Cabarete, Dominican Republic",
-    bg: "/assets/opt/enhanced_hero-bg-cabarete.jpg",
-    poster: "/assets/desktop/hero-bg-cabarete.jpg",
-    video: "/assets/desktop/hero-bg-cabarete.mp4",
-  },
-  {
-    id: "flora",
-    label: "Flora, Costa Rica",
-    bg: "/assets/opt/enhanced_hero-bg-flora.jpg",
-    poster: "/assets/desktop/hero-bg-flora.jpg",
-    video: "/assets/desktop/hero-bg-flora.mp4",
-  },
-  {
-    id: "barcelona",
-    label: "Barcelona, Spain",
-    bg: "/assets/opt/enhanced_hero-bg-barcelona-urban.jpg",
-    poster: "/assets/desktop/hero-bg-barcelona.jpg",
-    video: "/assets/desktop/hero-bg-barcelona.mp4",
-  },
-  {
-    id: "dubai",
-    label: "Dubai, UAE",
-    bg: "/assets/opt/hero-bg-dubai.jpg",
-    poster: "/assets/desktop/hero-bg-dubai.jpg",
-    video: "/assets/desktop/hero-bg-dubai.mp4",
-  },
-  {
-    id: "cape-town",
-    label: "Cape Town, South Africa",
-    bg: "/assets/opt/hero-bg-cape-town.jpg",
-    poster: "/assets/desktop/hero-bg-capetown.jpg",
-    video: "/assets/desktop/hero-bg-capetown.mp4",
-  },
-  {
-    id: "jericoacoara",
-    label: "Jericoacoara, Brazil",
-    bg: "/assets/opt/enhanced_hero-bg-jericoacoara-suite.jpg",
-    poster: "/assets/desktop/hero-bg-jericoacoara.jpg",
-    video: "/assets/desktop/hero-bg-jericoacoara.mp4",
-  },
-];
+/* Slide copy and media now come from `src/content/slides.json` (see
+   src/lib/slides-content.ts). The shape is unchanged, so every consumer of
+   `heroCarouselDestinations` is untouched. */
+export const heroCarouselDestinations: HeroDestination[] =
+  heroSlidesContent.map((slide) => ({
+    id: slide.id,
+    label: slide.label,
+    bg: slide.image,
+    poster: slide.poster,
+    video: slide.video,
+  }));
 
 export const HERO_DESTINATION_COUNT = heroCarouselDestinations.length;
 

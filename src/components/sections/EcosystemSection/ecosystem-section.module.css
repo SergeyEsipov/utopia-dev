@@ -287,20 +287,6 @@
   }
 }
 
-/* Desktop 1920 (Figma node 1:1712): heading takes the 1920/H2 style;
-   image widens to 1014, overhanging the 996 card column 9px per side. */
-@media (min-width: 1900px) {
-  .heading {
-    font-size: 40px;
-    letter-spacing: -1.2px;
-  }
-
-  .visual {
-    width: 1014px;
-    max-width: none;
-  }
-}
-
 /* ── Desktop ≥1024: its own full-height screen (prototype desktop_v8/v9) ──
    The earlier port followed desktop_v5, where this section rode up over the
    pinned hero (`margin-top: -60vh`) behind a 40px rounded edge that squared
@@ -308,12 +294,138 @@
    with no overlap and no radius, and the snap engine (useScrollSnap) steps
    between the screens instead.
 
-   Last in the file so it beats the ≥1024 / ≥1900 rules above. */
+   Every number below is measured off desktop_v8/v9 at 1440/1920/2560, not
+   taken from the old 996-wide card column — that column was the 13.07 design
+   and is what made the screen look clipped on wide displays. The section now
+   follows the viewport through `--utopia-site-pad` (120px once past 1440),
+   and the image itself is variant-driven (see the tokens).
+
+   Last in the file so it beats the ≥1024 / tablet rules above. */
 @media (min-width: 1024px) {
   .section {
     position: relative;
-    /* Full-bleed like the hero above it; inner content stays centred. */
+    /* Full-bleed like the hero above it; the gutters come from the padding. */
     width: 100vw;
     margin-left: calc(50% - 50vw);
+    /* 80px in the prototype at 900-tall; the `min()` keeps short windows from
+       spending their whole height on the top gutter. */
+    padding: min(80px, 8.9vh) var(--utopia-site-pad) var(--utopia-dest-pad-bottom);
+    align-items: center;
+  }
+
+  .intro {
+    flex: 0 0 auto;
+    width: 100%;
+    max-width: none;
+    padding: 0;
+    gap: 28px;
+    margin-bottom: 40px;
+  }
+
+  .heading {
+    font-size: calc(
+      var(--utopia-section-title-size) + var(--utopia-dest-title-delta)
+    );
+    letter-spacing: var(--utopia-section-title-tracking);
+    line-height: var(--utopia-leading-tight);
+    text-transform: capitalize;
+    width: min(836px, 100%);
+    max-width: none;
+  }
+
+  .subheading {
+    font-size: calc(var(--utopia-body-copy-size) + 1px);
+    letter-spacing: var(--utopia-body-copy-tracking);
+    line-height: var(--utopia-leading-relaxed);
+    width: min(534px, 100%);
+    max-width: none;
+  }
+
+  .content {
+    flex: 1 1 auto;
+    min-height: 0;
+    width: 100%;
+    max-width: none;
+    padding: 0;
+    gap: 32px;
+  }
+
+  /* 3 tabs of 96 with 32px gaps — the same 352 row Figma `154:4169` draws.
+     Doubled class so it outranks `.categoryTabs` regardless of which module
+     the bundler emits first. */
+  .tabsDesktop.tabsDesktop {
+    flex: 0 0 auto;
+    display: flex;
+    width: 352px;
+    max-width: none;
+    gap: 32px;
+  }
+
+  .visual {
+    /* Rounded (v8): stays inside the gutters as a 28px card.
+       Sharp (v9): 100vw with a negative inline margin that cancels the
+       section's own padding, so it lands exactly on both screen edges.
+       `align-self: stretch` + `width` from the token avoids the percentage
+       maths that `margin-left: calc(50% - 50vw)` would need here — `.content`
+       is not viewport-wide, so that idiom does not apply inside it. */
+    align-self: stretch;
+    width: var(--utopia-dest-image-width);
+    max-width: none;
+    margin-inline: var(--utopia-dest-image-bleed);
+    flex: 1 1 auto;
+    min-height: 0;
+    border-radius: min(
+      var(--utopia-dest-image-radius),
+      var(--utopia-radius-cap-card)
+    );
+  }
+
+  .navWrap {
+    /* 44 + 8 + 320 + 8 + 44 = 424 (Figma `154:4183`, both prototypes). */
+    bottom: 32px;
+    max-width: calc(
+      var(--utopia-dest-label-w) +
+        (2 * 44px + 2 * var(--utopia-control-gap)) * var(--utopia-control-scale)
+    );
+  }
+}
+
+/* Past 1440 the gutter has stopped growing, so the prototype spends the extra
+   room on the top gutter instead. */
+@media (min-width: 1441px) {
+  .section {
+    padding-top: min(96px, 8.9vh);
+  }
+
+  .navWrap {
+    bottom: 40px;
+  }
+}
+
+/* 1441–1799 tightens the vertical rhythm before the type starts growing. */
+@media (min-width: 1441px) and (max-width: 1799px) {
+  .intro {
+    gap: 20px;
+    margin-bottom: 36px;
+  }
+
+  .content {
+    gap: 24px;
+  }
+}
+
+@media (min-width: 1800px) {
+  .intro {
+    margin-bottom: 56px;
+  }
+
+  .subheading {
+    width: min(640px, 100%);
+  }
+}
+
+@media (min-width: 2000px) {
+  .navWrap {
+    bottom: 56px;
   }
 }

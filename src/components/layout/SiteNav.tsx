@@ -7,7 +7,6 @@ import { Icon } from "@/design-system/components";
 import { GlassSurface } from "@/design-system/liquid-glass";
 import { useMenu } from "@/contexts/MenuContext";
 import { triggerHaptic } from "@/lib/haptics";
-import { NOT_FOUND_HREF } from "@/lib/routes";
 import { useNavSolid } from "./useNavSolid";
 import styles from "./site-nav.module.css";
 
@@ -75,9 +74,8 @@ export function SiteNav({ overlay = false }: SiteNavProps) {
         </Link>
 
         <div className={styles.actions}>
-          <a href={NOT_FOUND_HREF} className={styles.requestPill}>
-            Request a stay
-          </a>
+          {/* No destination yet: styled as live, does nothing (routes.ts). */}
+          <a className={styles.requestPill}>Request a stay</a>
           <button
             type="button"
             className={styles.burger}

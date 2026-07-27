@@ -2,7 +2,7 @@ export const careerHero = {
   eyebrow: "Open positions",
   title: "Careers at Utopia",
   description:
-    "Utopia is an ultra-luxury hospitality and lifestyle brand creating a global ecosystem of properties and experiences.",
+    "Utopia is an ultra-luxury hospitality and lifestyle brand bringing together exceptional properties and experiences around the world.",
   learnMoreLabel: "Learn more",
 } as const;
 
@@ -64,62 +64,77 @@ export const careerFeaturedRoles: CareerRole[] = [
   },
 ];
 
+/**
+ * Figma 24.07 `154:8443` / `154:5577` / `154:3654`. The heading is singular
+ * ("Our team") and the description is one paragraph whose opening sentence is
+ * ink and whose remainder is muted — hence `description` + `subdescription`
+ * render as two spans of a single `<p>`, not two paragraphs.
+ *
+ * `featured` is the Hospitality card: a tall 318×425 tile beside the 2×2 grid
+ * on desktop, a full-width 160-tall band above the grid on tablet/mobile. The
+ * two layouts carry different photographs by design.
+ */
 export const careerTeams = {
-  heading: "Our teams",
-  description:
-    "Utopia designs and builds its properties in-house.",
+  heading: "Our team",
+  description: "Every Utopia property is brought to life in-house.",
   subdescription:
-    "Our team works across the full journey: from concept and architecture to construction, interiors, landscape, guest experience, and long-term operation.",
+    "Our team is involved at every stage, from concept and architecture through to construction, interiors, landscape, guest experience and day-to-day operations.",
+  featured: {
+    id: "hospitality",
+    name: "Hospitality",
+    positions: 6,
+    imageKey: "careerTeamHospitality" as const,
+    wideImageKey: "careerTeamHospitalityWide" as const,
+  },
   items: [
-    { id: "design", name: "Design developement", positions: 6, imageKey: "careerTeamDesign" as const },
-    { id: "operations", name: "Operations", positions: 6, imageKey: "careerTeamOperations" as const },
-    { id: "resorts", name: "Hospitality", positions: 6, imageKey: "careerTeamResorts" as const },
-    { id: "legal", name: "Legal", positions: 6, imageKey: "careerTeamLegal" as const },
-    { id: "technical", name: "Technical", positions: 6, imageKey: "careerTeamTechnical" as const },
-    { id: "finance", name: "Finance", positions: 6, imageKey: "careerTeamFinance" as const },
+    { id: "design", name: "Design development", positions: 6, imageKey: "careerTeamDesignDev" as const },
+    { id: "legal", name: "Legal", positions: 6, imageKey: "careerTeamLegalDesk" as const },
+    { id: "finance", name: "Finance", positions: 6, imageKey: "careerTeamFinanceDesk" as const },
+    { id: "operations", name: "Operations", positions: 6, imageKey: "careerTeamOperationsSuite" as const },
   ],
 } as const;
 
+/** Figma 24.07 `154:8552` / `154:5639` / `154:3714`. */
 export const careerValues = {
   hero: {
     title: "5 values",
     description:
-      "Ultra-luxury hospitality is shaped by exceptional individuals working within a thriving, high performance culture.",
+      "Ultra-luxury hospitality is built by exceptional people operating in an exceptional culture.",
   },
   items: [
     {
       id: "never-settle",
       title: "Never settle",
       description:
-        "We hold ourselves to the highest standards in everything we do — from guest experience to the smallest operational detail. Good enough is not enough when every stay is expected to feel exceptional.",
+        "We hold ourselves to the highest standards in everything we do, from guest experience to the smallest operational detail. We’ll never settle for anything less than the very best.",
       imageKey: "careerValueNeverSettle" as const,
     },
     {
       id: "dream-team",
       title: "Dream Team",
       description:
-        "We build teams of people who are excellent at what they do, deeply responsible, and fully committed to the guest experience. Talent matters, but so do trust, discipline, and the ability to work together with clarity and respect.",
+        "We build teams of people who are among the best at what they do. Talent matters, but so do integrity, discipline, a commitment to delivering an outstanding guest experience - and the ability to bring out the best in others.",
       imageKey: "careerValueDreamTeam" as const,
     },
     {
       id: "think-deeper",
       title: "Think Deeper",
       description:
-        "We look beyond the obvious to understand what each guest, property, and situation truly needs. Great hospitality comes from attention, intuition, and the ability to solve problems before they become visible.",
+        "We look beyond the obvious to understand what each guest, property and situation really needs. Great hospitality comes from attention to detail, expert judgement, and problems solved before anyone notices.",
       imageKey: "careerValueThinkDeeper" as const,
     },
     {
       id: "get-it-done",
       title: "Get It Done",
       description:
-        "We take ownership from start to finish. Whether it's a guest request, an operational task, or an unexpected challenge, we act with focus, urgency, and care.",
+        "We take ownership from start to finish. Whatever the challenge, wherever we find it, we see it through.",
       imageKey: "careerValueGetItDone" as const,
     },
     {
-      id: "deliver-wow",
-      title: "Deliver WOW",
+      id: "always-delight",
+      title: "Always Delight",
       description:
-        "We create moments that feel effortless, thoughtful, and memorable. From service to atmosphere, every detail should leave guests with the sense that they are in the right hands.",
+        "We create experiences that stay with people long after they've left. We see every moment as an opportunity to surprise, delight and go beyond expectations.",
       imageKey: "careerValueDeliverWow" as const,
     },
   ],
@@ -136,36 +151,46 @@ export type WorkSlide = {
   body?: string;
 };
 
+/**
+ * Figma 24.07 `154:8592`. The desktop frame renames four of the five cards;
+ * the mobile frame `154:3771` still carries the older wording (including the
+ * "Expectional guests" typo), so the desktop naming leads.
+ */
+export const careerWorkHeading =
+  "Work defined by extraordinary places and exceptional standards";
+
 export const careerWorkSlides: WorkSlide[] = [
   {
+    /* No badge: `154:8595` carries only the title. The mobile frame still
+       draws an "everywhere" pill, but that is the older wording — the same
+       frame keeps the "Expectional guests" typo the desktop one fixed. */
     id: "guests",
     title: "Exceptional guests",
     layout: "overlay",
     imageKey: "careerWorkGuests",
-    badge: "everywhere",
   },
   {
     id: "remote",
     title: "Remote and on-site roles",
     layout: "text",
     body:
-      "Some roles are fully remote. Others are based on-site, in some of the world's most beautiful destinations — from Brazil, Costa Rica and the Dominican Republic to Spain, South Africa and the UAE.",
+      "Some roles are fully remote. Others are based on-site in some of the world's most beautiful destinations, from Brazil, Costa Rica and the Dominican Republic to Spain, South Africa and the UAE.",
   },
   {
     id: "locations",
-    title: "Rare locations",
+    title: "Extraordinary locations",
     layout: "overlay",
     imageKey: "careerWorkLocations",
   },
   {
     id: "team",
-    title: "A team of professionals",
+    title: "Exceptional colleagues",
     layout: "overlay",
     imageKey: "careerWorkTeam",
   },
   {
     id: "compensation",
-    title: "Strong compensation",
+    title: "Competitive package",
     layout: "overlay",
     imageKey: "careerWorkCompensation",
   },
@@ -285,11 +310,18 @@ export const careerTeamUp = {
   ],
 } as const;
 
+/**
+ * Figma 24.07 `154:8620`. One paragraph in which the middle clause is ink and
+ * the rest is muted, so the copy is carried as a lead/highlight/tail triple.
+ */
+/* Apostrophes are copied exactly as `154:8623` sets them — the frame mixes a
+   straight quote in "We're"/"we'd" with a curly one in "you’re". */
 export const careerCta = {
-  title: "If this feels like your level",
-  description:
-    "We're a young, ambitious team with high standards and a hands-on approach.",
-  subdescription:
-    "We value strong ideas, practical thinking, attention to detail, and people who are ready to take responsibility for their part of the work. If you feel aligned with our standard of hospitality, we invite you to introduce yourself.",
-  buttonLabel: "Submit your request",
+  title: "Join Utopia",
+  descriptionLead:
+    "We're building a team of people who take pride in doing exceptional work. We value ",
+  descriptionHighlight: "practical judgement, independent thinking",
+  descriptionTail:
+    " and people who take ownership. If you’re driven by the same standards that we are, we'd love to hear from you.",
+  buttonLabel: "Start your application",
 } as const;

@@ -1,8 +1,17 @@
+import {
+  privateWorldFraming,
+  privateWorldSlidesContent,
+  resolveFraming,
+  type SlideFraming,
+} from "./slides-content.ts";
+
 export type DaysSlide = {
   id: string;
   title: string;
   description: string;
   image: "daysExclusivelyYours" | "daysHyperPersonal" | "daysBeyondService";
+  /** How the photo is cropped inside the card. */
+  framing: SlideFraming;
 };
 
 export const DAYS_AUTOPLAY_MS = 4000;
@@ -14,28 +23,18 @@ export const DAYS_TRANSITION_MS = 1000;
 export const DAYS_CAPTION_MS = 650;
 export const DAYS_EASE = "cubic-bezier(0.22, 0.61, 0.36, 1)";
 
-export const daysSlides: DaysSlide[] = [
-  {
-    id: "exclusively-yours",
-    title: "Exclusively Yours",
-    description: "We do not book rooms — we hand over keys to entire estates.",
-    image: "daysExclusivelyYours",
-  },
-  {
-    id: "hyper-personal",
-    title: "Hyper-Personal",
-    description:
-      "We curate a dedicated team for your stay — from master instructors and specialized sports gear to local guides.",
-    image: "daysHyperPersonal",
-  },
-  {
-    id: "beyond-service",
-    title: "Beyond Seven-Star Service",
-    description:
-      "Private chefs, world-class gastronomy, and seamless entertainment, delivered flawlessly.",
-    image: "daysBeyondService",
-  },
-];
+/* Copy, image key and per-card framing come from `src/content/slides.json`.
+   Card 0 carries the prototype's only per-slide crop: scale(1.1) anchored to
+   its bottom-left corner (`.pw-card[data-index="0"] img`, identical in v8/v9). */
+export const daysSlides: DaysSlide[] = privateWorldSlidesContent.map(
+  (slide) => ({
+    id: slide.id,
+    title: slide.title,
+    description: slide.description,
+    image: slide.image as DaysSlide["image"],
+    framing: resolveFraming(privateWorldFraming, slide.framing),
+  }),
+);
 
 export type CardSlot = {
   x: number;

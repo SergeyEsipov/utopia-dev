@@ -1,21 +1,25 @@
 import { careerCta } from "@/lib/career-data";
-import { NOT_FOUND_HREF } from "@/lib/routes";
 import styles from "./careers.module.css";
 
+/** Figma 24.07 `154:3797` / `154:5707` / `154:8618`. */
 export function CareerCta() {
   return (
     <section className={styles.cta} aria-labelledby="career-cta-title">
-      <div className={`${styles.sectionNarrow} ${styles.ctaContent}`}>
-        <h2 id="career-cta-title" className={styles.displayTitle}>
-          {careerCta.title}
-        </h2>
+      <div className={styles.ctaContent}>
         <div className={styles.ctaCopy}>
-          <p className={styles.bodyMd}>{careerCta.description}</p>
-          <p className={styles.bodySm}>{careerCta.subdescription}</p>
+          <h2 id="career-cta-title" className={styles.ctaTitle}>
+            {careerCta.title}
+          </h2>
+          <p className={styles.ctaBody}>
+            {careerCta.descriptionLead}
+            <span className={styles.ctaBodyStrong}>
+              {careerCta.descriptionHighlight}
+            </span>
+            {careerCta.descriptionTail}
+          </p>
         </div>
-        <a href={NOT_FOUND_HREF} className={styles.ctaButton}>
-          {careerCta.buttonLabel}
-        </a>
+        {/* No destination yet — see routes.ts. */}
+        <a className={styles.ctaButton}>{careerCta.buttonLabel}</a>
       </div>
     </section>
   );

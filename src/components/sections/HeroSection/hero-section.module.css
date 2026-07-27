@@ -341,9 +341,12 @@
 
 @media (min-width: 768px) {
   .title {
-    font-size: 40px;
-    letter-spacing: -1.2px;
-    max-width: 794px;
+    font-size: var(--utopia-hero-title-size);
+    letter-spacing: var(--utopia-hero-title-tracking);
+    /* Figma `154:4134` caps the heading at 794px against a 40px type size.
+       Expressed in em so the cap grows with the type on wide screens instead
+       of forcing a second line the design does not have. */
+    max-width: 19.85em;
   }
 }
 
@@ -471,10 +474,17 @@
 }
 
 @media (min-width: 768px) {
+  /* Defined on the wrapper so the track, the slides and the cards all read one
+     number; the width tiers below only ever reassign this. 1 keeps the design's
+     literal 1440 metrics, which is what every tier up to 1440 wants. */
+  .cardsWrap {
+    --hero-card-unit: 1px;
+  }
+
   .cardsTrack {
-    height: 331px;
-    gap: 40px;
-    padding-inline: calc(50% - 295px);
+    height: calc(331 * var(--hero-card-unit));
+    gap: calc(40 * var(--hero-card-unit));
+    padding-inline: calc(50% - 295 * var(--hero-card-unit));
     margin-top: auto;
     align-items: center;
     overflow-y: visible;
@@ -482,7 +492,7 @@
   }
 
   .cardsSlide {
-    flex: 0 0 590px;
+    flex: 0 0 calc(590 * var(--hero-card-unit));
     display: flex;
     align-items: center;
     justify-content: center;
@@ -507,7 +517,7 @@
   position: relative;
   flex-shrink: 0;
   border: 1px solid var(--utopia-card-border);
-  border-radius: var(--utopia-radius-sm);
+  border-radius: var(--utopia-radius-card);
   background: rgba(255, 255, 255, 0.01);
   box-shadow:
     0 16px 32px -8px rgba(0, 0, 0, 0.1),
@@ -527,9 +537,9 @@
 
 @media (min-width: 768px) {
   .cardSm {
-    width: 472px;
-    height: 265.5px;
-    border-width: 1.2px;
+    width: calc(472 * var(--hero-card-unit));
+    height: calc(265.5 * var(--hero-card-unit));
+    border-width: calc(1.2 * var(--hero-card-unit));
     border-color: #ffffff;
     box-shadow:
       0 12.921px 25.843px 0 rgba(0, 0, 0, 0.1),
@@ -537,11 +547,13 @@
   }
 
   .cardMd {
-    width: 590px;
-    height: 331px;
-    border-width: 1.5px;
+    width: calc(590 * var(--hero-card-unit));
+    height: calc(331 * var(--hero-card-unit));
+    border-width: calc(1.5 * var(--hero-card-unit));
     border-color: #ffffff;
-    border-radius: var(--utopia-radius-card-active);
+    border-radius: calc(
+      var(--utopia-radius-card-active-n) * var(--hero-card-unit)
+    );
     box-shadow:
       0 16.152px 32.304px 0 rgba(0, 0, 0, 0.1),
       0 2.019px 2.019px 0 rgba(0, 0, 0, 0.05);
@@ -553,14 +565,18 @@
     /* Side cards are narrower than the featured slot; sliding them half the
        width difference toward the centre keeps the visual gap at the
        design's 32/40px: (590-472)/2 = 59px here, (620-496)/2 = 62px at 1920. */
-    --hero-side-shift: 59px;
-    width: calc(472px + 118px * var(--card-focus));
-    height: calc(265.5px + 65.5px * var(--card-focus));
+    --hero-side-shift: calc(59 * var(--hero-card-unit));
+    width: calc((472 + 118 * var(--card-focus)) * var(--hero-card-unit));
+    height: calc((265.5 + 65.5 * var(--card-focus)) * var(--hero-card-unit));
+    /* 12 -> 16 in the rounded language, 6 -> 7 in sharp (prototype
+       `r: 12|16 * cardScale` and `6|7 * cardScale`). */
     border-radius: calc(
-    var(--utopia-radius-card) +
-      (var(--utopia-radius-card-active) - var(--utopia-radius-card)) *
-      var(--card-focus)
-  );
+      (
+          var(--utopia-radius-card-n) +
+            (var(--utopia-radius-card-active-n) - var(--utopia-radius-card-n)) *
+            var(--card-focus)
+        ) * var(--hero-card-unit)
+    );
     transform: translateX(
       calc(var(--card-side) * (var(--card-focus) - 1) * var(--hero-side-shift))
     );
@@ -582,40 +598,50 @@
   }
 }
 
-/* Figma desktop-1920 (1:1686): featured 620x348, side cards 496x280, five
-   cards visible with ~74px peeks at the viewport edges. */
-@media (min-width: 1900px) {
-  .cardsTrack {
-    height: 348px;
-    padding-inline: calc(50% - 310px);
-  }
+/* ── Card track scale ──
+   The old block here pinned a second hard tier at 1900 (620x348 / 496x280)
+   taken from the 13.07 frames. Both current prototypes size the track from one
+   continuous scale instead (`computeSlots`), and Figma 24.07 draws exactly the
+   same thing across its five hero frames (768 / 1223 / 1440 / 1839 / 2879):
 
-  .cardsSlide {
-    flex-basis: 620px;
-  }
+     scale = 1                                      up to 1440
+     scale = 1 + (vw - 1440) * (1.1752 - 1) / 399   ramping to 1839
+     scale = 1.1752                                 held to 1897
 
-  .cardSm {
-    width: 496px;
-    height: 280px;
-    border-width: 1.262px;
-    box-shadow:
-      0 13.585px 27.17px 0 rgba(0, 0, 0, 0.1),
-      0 1.698px 1.698px 0 rgba(0, 0, 0, 0.05);
-  }
+   1.1752 is the designers' own constant — 554.7069702148438 / 472 — and it
+   reproduces Figma's 1839 frame exactly (472 -> 554.7, 590 -> 693.4).
 
-  .cardMd {
-    width: 620px;
-    height: 348px;
-    border-width: 1.577px;
-    box-shadow:
-      0 16.981px 33.963px 0 rgba(0, 0, 0, 0.1),
-      0 2.123px 2.123px 0 rgba(0, 0, 0, 0.05);
+   Every metric rides it, which is why the radii are multiplied too: the
+   prototype emits `r: 12 * cardScale` for a side card and `16 * cardScale` for
+   the centre one (6 and 7 in the sharp build), so the corners grow with the
+   card rather than staying pinned. */
+@media (min-width: 1441px) {
+  .cardsWrap {
+    --hero-card-unit: clamp(
+      1px,
+      calc(1px + (100vw - 1440px) * 0.000439165),
+      1.1752266px
+    );
   }
+}
 
-  .cardAnimated {
-    --hero-side-shift: 62px;
-    width: calc(496px + 124px * var(--card-focus));
-    height: calc(280px + 68px * var(--card-focus));
+/* Past 1897 the prototype switches to the five-card composition and sizes it
+   off the viewport instead (`fiveCardBleedScale = vw * 1.34 / 2638`, clamped
+   to 1.27–1.98) — this is what makes the widest screens show two extra cards
+   peeking in rather than three cards adrift in empty space.
+
+   The second `min()` term is the prototype's `heightCap` in CSS form: on a
+   short window the cards must not eat the title and the CTA, so the scale
+   yields to the viewport height before the width. */
+@media (min-width: 1897px) {
+  .cardsWrap {
+    --hero-card-unit: max(
+      1px,
+      min(
+        clamp(1.27px, calc(100vw * 0.000507961), 1.98px),
+        calc(100vh * 0.00136)
+      )
+    );
   }
 }
 
@@ -629,36 +655,33 @@
    17/11/15.55/14.8/6, centre 19/12/18.5/22.5/8 — times the tier's card scale
    (1 at >=768, 620/590 at >=1900). */
 .cardCaption {
-  --caption-scale: 1;
+  --caption-unit: var(--hero-card-unit, 1px);
   position: absolute;
-  bottom: calc((15.55px + 2.95px * var(--card-focus, 0)) * var(--caption-scale));
-  left: calc((14.8px + 7.7px * var(--card-focus, 0)) * var(--caption-scale));
+  bottom: calc((15.55 + 2.95 * var(--card-focus, 0)) * var(--caption-unit));
+  left: calc((14.8 + 7.7 * var(--card-focus, 0)) * var(--caption-unit));
   display: flex;
   align-items: center;
-  gap: calc((6px + 2px * var(--card-focus, 0)) * var(--caption-scale));
+  gap: calc((6 + 2 * var(--card-focus, 0)) * var(--caption-unit));
   color: var(--utopia-text-inverse);
 }
 
 .cardCaption img {
-  width: calc((11px + 1px * var(--card-focus, 0)) * var(--caption-scale));
-  height: calc((11px + 1px * var(--card-focus, 0)) * var(--caption-scale));
+  width: calc((11 + 1 * var(--card-focus, 0)) * var(--caption-unit));
+  height: calc((11 + 1 * var(--card-focus, 0)) * var(--caption-unit));
 }
 
 .captionSm,
 .captionMd {
   font-family: var(--utopia-font-body);
-  font-size: calc((17px + 2px * var(--card-focus, 0)) * var(--caption-scale));
+  font-size: calc((17 + 2 * var(--card-focus, 0)) * var(--caption-unit));
   /* -0.01em keeps the tracking proportional at every interpolated size. */
   letter-spacing: -0.01em;
   white-space: nowrap;
 }
 
-@media (min-width: 1900px) {
-  /* Cards grow 590 -> 620, so the label rides the same 1.0508 scale. */
-  .cardCaption {
-    --caption-scale: 1.0508;
-  }
-}
+/* The label no longer needs a tier of its own: `--caption-scale` reads
+   `--hero-card-scale` directly, so it tracks the card continuously — which is
+   what the prototype does (`labelMetrics(kind, cardScale)`). */
 
 /* ── Desktop ≥1024: full-bleed hero screen (prototype desktop_v8/v9) ──
    One viewport tall and in normal flow. The earlier port followed desktop_v5,

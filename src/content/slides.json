@@ -1,0 +1,222 @@
+{
+  "version": 1,
+  "_readme": [
+    "Every slide of every slider on the site, in one place, so the copy and the",
+    "media can be edited without touching component code and can later be served",
+    "by a CMS instead of this file. `src/lib/slides-content.ts` is the only module",
+    "that reads it; the carousel modules re-export from there, so the shape below",
+    "is the contract a CMS has to produce.",
+    "",
+    "`framing` describes how a photo sits inside its frame. Two rules come from",
+    "the designers' prototype and are the only per-image treatments in it:",
+    "  - destinations photos: centred in desktop_v8, bottom-anchored in v9 (the",
+    "    full-bleed crop is taller, so the subject has to hold the lower edge).",
+    "    That one is variant-wide, so it lives in the slider's `framing`.",
+    "  - privateWorld card 0: scaled 1.1 from its bottom-left corner, identical",
+    "    in both builds. That one is per-slide.",
+    "The prototype ships no per-width image sources (no srcset, no <picture>, no",
+    "media-query background swaps) — what changes with width is the frame, not",
+    "the file. Those frame rules are CSS and live with the sections."
+  ],
+  "framingDefaults": {
+    "objectPosition": "50% 50%",
+    "scale": 1,
+    "transformOrigin": "50% 50%"
+  },
+  "sliders": {
+    "hero": {
+      "label": "Hero destinations",
+      "slides": [
+        {
+          "id": "roca",
+          "label": "Roca, Costa Rica",
+          "image": "/assets/opt/enhanced_hero-bg-roca.jpg",
+          "poster": "/assets/desktop/hero-bg-roca.jpg",
+          "video": "/assets/desktop/hero-bg-roca.mp4"
+        },
+        {
+          "id": "cabarete",
+          "label": "Cabarete, Dominican Republic",
+          "image": "/assets/opt/enhanced_hero-bg-cabarete.jpg",
+          "poster": "/assets/desktop/hero-bg-cabarete.jpg",
+          "video": "/assets/desktop/hero-bg-cabarete.mp4"
+        },
+        {
+          "id": "flora",
+          "label": "Flora, Costa Rica",
+          "image": "/assets/opt/enhanced_hero-bg-flora.jpg",
+          "poster": "/assets/desktop/hero-bg-flora.jpg",
+          "video": "/assets/desktop/hero-bg-flora.mp4"
+        },
+        {
+          "id": "barcelona",
+          "label": "Barcelona, Spain",
+          "image": "/assets/opt/enhanced_hero-bg-barcelona-urban.jpg",
+          "poster": "/assets/desktop/hero-bg-barcelona.jpg",
+          "video": "/assets/desktop/hero-bg-barcelona.mp4"
+        },
+        {
+          "id": "dubai",
+          "label": "Dubai, UAE",
+          "image": "/assets/opt/hero-bg-dubai.jpg",
+          "poster": "/assets/desktop/hero-bg-dubai.jpg",
+          "video": "/assets/desktop/hero-bg-dubai.mp4"
+        },
+        {
+          "id": "cape-town",
+          "label": "Cape Town, South Africa",
+          "image": "/assets/opt/hero-bg-cape-town.jpg",
+          "poster": "/assets/desktop/hero-bg-capetown.jpg",
+          "video": "/assets/desktop/hero-bg-capetown.mp4"
+        },
+        {
+          "id": "jericoacoara",
+          "label": "Jericoacoara, Brazil",
+          "image": "/assets/opt/enhanced_hero-bg-jericoacoara-suite.jpg",
+          "poster": "/assets/desktop/hero-bg-jericoacoara.jpg",
+          "video": "/assets/desktop/hero-bg-jericoacoara.mp4"
+        }
+      ]
+    },
+    "destinations": {
+      "label": "Destinations / ecosystem",
+      "framing": {
+        "objectPosition": "50% 50%",
+        "objectPositionByVariant": {
+          "sharp": "50% 100%"
+        }
+      },
+      "categories": [
+        {
+          "id": "tropical",
+          "label": "Tropical",
+          "slides": [
+            {
+              "id": "jericoacoara",
+              "label": "Jericoacoara, Brazil",
+              "image": "/assets/opt/enhanced_ecosystem-bg-jeri-lobby.jpg"
+            },
+            {
+              "id": "flora",
+              "label": "Flora, Costa Rica",
+              "image": "/assets/opt/enhanced_ecosystem-bg-flora-tropical.jpg"
+            },
+            {
+              "id": "prea",
+              "label": "Prea, Brazil",
+              "image": "/assets/opt/enhanced_ecosystem-bg-prea-tropical.jpg"
+            },
+            {
+              "id": "roca",
+              "label": "Roca, Costa Rica",
+              "image": "/assets/opt/enhanced_ecosystem-bg-roca-tropical.jpg"
+            },
+            {
+              "id": "cabarete",
+              "label": "Cabarete, Dominican Republic",
+              "image": "/assets/opt/ecosystem-bg-cabarete-v9.jpg"
+            }
+          ]
+        },
+        {
+          "id": "urban",
+          "label": "Urban",
+          "slides": [
+            {
+              "id": "dubai",
+              "label": "Dubai, UAE",
+              "image": "/assets/opt/ecosystem-bg-dubai-v9.jpg"
+            },
+            {
+              "id": "barcelona",
+              "label": "Barcelona, Spain",
+              "image": "/assets/opt/enhanced_ecosystem-bg-barcelona-urban.jpg"
+            },
+            {
+              "id": "cape-town",
+              "label": "Cape Town, South Africa",
+              "image": "/assets/opt/ecosystem-bg-capetown-v9.jpg"
+            }
+          ]
+        },
+        {
+          "id": "alpine",
+          "label": "Alpine",
+          "slides": [
+            {
+              "id": "alpine",
+              "label": "Alpine",
+              "image": "/assets/opt/ecosystem-bg-alpine-v9.jpg"
+            }
+          ]
+        }
+      ]
+    },
+    "opening": {
+      "label": "Opening in 2027",
+      "copy": {
+        "eyebrow": "Opening in 2027",
+        "title": "Utopia - Jericoacoara",
+        "description": "Brazil's ultimate kitesurfing mecca. Where dramatic white dunes meet an unmatched, laid-back vibe.",
+        "cta": "Be Among the First"
+      },
+      "slides": [
+        {
+          "id": "kitesurfing",
+          "label": "Kitesurfing",
+          "layout": "kitesurf",
+          "video": "/assets/opt/kitesurf.mp4",
+          "poster": "/assets/opt/opening-kitesurf.jpg"
+        },
+        {
+          "id": "dunes",
+          "label": "Dunes Exploration",
+          "layout": "dunes",
+          "video": "/assets/opt/dunes.mp4",
+          "poster": "/assets/opt/opening-dunes.jpg"
+        },
+        {
+          "id": "localvibes",
+          "label": "Local Vibes",
+          "layout": "localvibes",
+          "video": "/assets/opt/localvibes.mp4",
+          "poster": "/assets/opt/opening-localvibes.jpg"
+        }
+      ]
+    },
+    "privateWorld": {
+      "label": "A private world, made for your days",
+      "slides": [
+        {
+          "id": "exclusively-yours",
+          "title": "Exclusively Yours",
+          "description": "We do not book rooms — we hand over keys to entire estates.",
+          "image": "daysExclusivelyYours"
+        },
+        {
+          "id": "hyper-personal",
+          "title": "Hyper-Personal",
+          "description": "We curate a dedicated team for your stay — from master instructors and specialized sports gear to local guides.",
+          "image": "daysHyperPersonal"
+        },
+        {
+          "id": "beyond-service",
+          "title": "Beyond Seven-Star Service",
+          "description": "Private chefs, world-class gastronomy, and seamless entertainment, delivered flawlessly.",
+          "image": "daysBeyondService"
+        }
+      ],
+      "framing": {
+        "objectPosition": "center 35%"
+      },
+      "_framingNote": [
+        "desktop_v8/v9 crop card 0 with `scale(1.1)` from its bottom-left corner",
+        "(`.pw-card[data-index=\"0\"] img`). That correction belongs to THEIR asset:",
+        "their pw-1.jpg is 1782x2383, ours is a tighter 1696x2528 crop of the same",
+        "photograph, so our frame already shows what their 1.1 zoom produces.",
+        "Cards 1 and 2 use byte-identical files and need no correction.",
+        "Applying the rule here would double the zoom — left neutral on purpose."
+      ]
+    }
+  }
+}

@@ -9,16 +9,23 @@ import {
   useState,
 } from "react";
 import { Icon } from "@/design-system/components";
-import { careerWorkSlides, type WorkSlide } from "@/lib/career-data";
+import {
+  careerWorkHeading,
+  careerWorkSlides,
+  type WorkSlide,
+} from "@/lib/career-data";
 import { triggerHaptic } from "@/lib/haptics";
 import { images } from "@/lib/media";
 import styles from "./job-opening.module.css";
 
 /**
- * Job-opening variant of the "Work shaped by rare places" carousel
- * (Figma 1:524 / 1:1207 / 1:2880): cream background, dark heading,
- * center-snapped slides with the middle slide centered initially, and
- * nav arrows below the track on mobile/tablet.
+ * Job-opening variant of the "Work defined by extraordinary places" carousel —
+ * Figma 24.07 `154:2047` / `154:2800` / `154:3257`: cream background, dark
+ * heading, center-snapped slides with the middle slide centered initially, and
+ * nav arrows below the track on mobile/tablet, beside the heading on desktop.
+ *
+ * `154:2034` and `154:2104` draw the same block and are both hidden in the
+ * desktop frame — `154:2047` is the live one.
  */
 
 const useIsomorphicLayoutEffect =
@@ -177,7 +184,7 @@ export function JobWorkCarousel() {
     <section className={styles.jobWork} aria-labelledby="job-work-title">
       <div className={styles.jobWorkHeader}>
         <h2 id="job-work-title" className={styles.jobWorkTitle}>
-          Work shaped by rare places and high standards
+          {careerWorkHeading}
         </h2>
       </div>
 

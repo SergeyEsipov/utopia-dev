@@ -1,11 +1,9 @@
-import { jobOpeningContent } from "@/lib/career-data";
-import { ApplyButton } from "./ApplyButton";
+import { ApplyActions } from "./ApplyActions";
 import type {
   InlineNode,
   JobDescriptionBlock,
   JobDescriptionSection,
 } from "@/lib/job-description";
-import { TERMS_HREF } from "@/lib/routes";
 import styles from "./job-opening.module.css";
 
 type JobDescriptionProps = {
@@ -123,14 +121,16 @@ export function JobDescription({ sections, applyUrl }: JobDescriptionProps) {
           const definitions = groups.map((group) =>
             group.kind === "list" ? asDefinitionItems(group.items) : null,
           );
-          const hasDefinitions = definitions.some((entry) => entry !== null);
+          // Any section carrying a list gets the wider heading-to-body gap,
+          // definition list or plain bullets alike (`154:2769` vs `154:2763`).
+          const hasList = groups.some((group) => group.kind === "list");
           const headingId = `job-section-${section.id}`;
           return (
             <section
               key={section.id}
               className={[
                 styles.cardSection,
-                hasDefinitions ? styles.cardSectionList : "",
+                hasList ? styles.cardSectionList : "",
               ]
                 .filter(Boolean)
                 .join(" ")}
@@ -167,14 +167,7 @@ export function JobDescription({ sections, applyUrl }: JobDescriptionProps) {
             </section>
           );
         })}
-        <div className={styles.cardActions}>
-          <ApplyButton applyUrl={applyUrl} className={styles.cardApply}>
-            {jobOpeningContent.applyLabel}
-          </ApplyButton>
-          <a href={TERMS_HREF} className={styles.cardTerms}>
-            {jobOpeningContent.termsLabel}
-          </a>
-        </div>
+        <ApplyActions applyUrl={applyUrl} />
       </div>
     </section>
   );

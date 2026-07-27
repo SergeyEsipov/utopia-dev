@@ -3,20 +3,28 @@
 import Image from "next/image";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Icon } from "@/design-system/components";
-import { careerWorkSlides, type WorkSlide } from "@/lib/career-data";
+import {
+  careerWorkHeading,
+  careerWorkSlides,
+  type WorkSlide,
+} from "@/lib/career-data";
 import { triggerHaptic } from "@/lib/haptics";
 import { images } from "@/lib/media";
 import styles from "./careers.module.css";
 
-const SLIDE_GAP = 20;
-
 function getScrollMetrics(container: HTMLDivElement) {
+  const track = container.firstElementChild as HTMLElement | null;
   const slide = container.querySelector<HTMLElement>(`.${styles.workSlide}`);
   if (!slide) {
     return { stride: 346, maxIndex: 0, maxScrollLeft: 0 };
   }
 
-  const stride = slide.offsetWidth + SLIDE_GAP;
+  /* The gap is 16 below 640 and 20 above (`154:3771` / `154:8594`); read it
+     off the track rather than pinning a constant. */
+  const gap = track
+    ? Number.parseFloat(getComputedStyle(track).columnGap) || 0
+    : 20;
+  const stride = slide.offsetWidth + gap;
   const maxScrollLeft = Math.max(0, container.scrollWidth - container.clientWidth);
   const maxIndex =
     maxScrollLeft <= 0 ? 0 : Math.round(maxScrollLeft / stride);
@@ -168,59 +176,54 @@ export function CareerWorkCarousel() {
 
   return (
     <section className={styles.work} aria-labelledby="career-work-title">
-      <div className={styles.sectionWide}>
-        <div className={`${styles.sectionInner} ${styles.workInner}`}>
-          <div className={styles.workHeader}>
-            <h2 id="career-work-title" className={styles.workTitle}>
-              Work shaped by rare places and high standards
-            </h2>
-            <div className={styles.workNav} aria-label="Carousel navigation">
-              <button
-                type="button"
-                className={[
-                  styles.workNavBtn,
-                  canGoPrev ? styles.workNavBtnActive : styles.workNavBtnInactive,
-                ].join(" ")}
-                onClick={handlePrev}
-                disabled={!canGoPrev}
-                aria-label="Previous slide"
-              >
-                <Icon
-                  name="chevronDark"
-                  size={12}
-                  alt=""
-                  className={styles.workNavChevronLeft}
-                />
-              </button>
-              <button
-                type="button"
-                className={[
-                  styles.workNavBtn,
-                  canGoNext ? styles.workNavBtnActive : styles.workNavBtnInactive,
-                ].join(" ")}
-                onClick={handleNext}
-                disabled={!canGoNext}
-                aria-label="Next slide"
-              >
-                <Icon name="chevronDark" size={12} alt="" />
-              </button>
-            </div>
-          </div>
+      <h2 id="career-work-title" className={styles.workTitle}>
+        {careerWorkHeading}
+      </h2>
 
-          <div className={styles.workTrackWrap} ref={trackRef}>
-            <div className={styles.workTrack}>
-              {careerWorkSlides.map((slide, slideIndex) => (
-                <WorkSlideCard
-                  key={slide.id}
-                  slide={slide}
-                  slideRef={(node) => {
-                    slideRefs.current[slideIndex] = node;
-                  }}
-                />
-              ))}
-            </div>
-          </div>
+      <div className={styles.workTrackWrap} ref={trackRef}>
+        <div className={styles.workTrack}>
+          {careerWorkSlides.map((slide, slideIndex) => (
+            <WorkSlideCard
+              key={slide.id}
+              slide={slide}
+              slideRef={(node) => {
+                slideRefs.current[slideIndex] = node;
+              }}
+            />
+          ))}
         </div>
+      </div>
+
+      <div className={styles.workNav} aria-label="Carousel navigation">
+        <button
+          type="button"
+          className={[
+            styles.workNavBtn,
+            canGoPrev ? styles.workNavBtnActive : styles.workNavBtnInactive,
+          ].join(" ")}
+          onClick={handlePrev}
+          disabled={!canGoPrev}
+          aria-label="Previous slide"
+        >
+          <Icon
+            name="chevronDark"
+            size={12}
+            alt=""
+            className={styles.workNavChevronLeft}
+          />
+        </button>
+        <button
+          type="button"
+          className={[
+            styles.workNavBtn,
+            canGoNext ? styles.workNavBtnActive : styles.workNavBtnInactive,
+          ].join(" ")}
+          onClick={handleNext}
+          disabled={!canGoNext}
+          aria-label="Next slide"
+        >
+          <Icon name="chevronDark" size={12} alt="" />
+        </button>
       </div>
     </section>
   );

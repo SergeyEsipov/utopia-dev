@@ -3,14 +3,36 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { Text } from "@/design-system/components";
 import { useMenu } from "@/contexts/MenuContext";
 import { footerDestinations, menuFeaturedCard, menuLinks } from "@/lib/data";
 import { images } from "@/lib/media";
 import { triggerHaptic } from "@/lib/haptics";
-import { getCompanyHref, NOT_FOUND_HREF } from "@/lib/routes";
+import { getCompanyHref } from "@/lib/routes";
 import { DestinationsNav } from "./DestinationsNav";
 import styles from "./site-menu.module.css";
+
+/**
+ * Renders a real <Link> when the page exists and an inert <a> when it does not
+ * — same styling either way, no navigation into the 404 (see routes.ts).
+ */
+function MenuLink({
+  href,
+  className,
+  onClick,
+  children,
+}: {
+  href?: string;
+  className?: string;
+  onClick?: () => void;
+  children: React.ReactNode;
+}) {
+  if (!href) return <a className={className}>{children}</a>;
+  return (
+    <Link href={href} className={className} onClick={onClick}>
+      {children}
+    </Link>
+  );
+}
 
 const MENU_STAGGER_MS = 1200;
 const MENU_CLOSE_MS = 980;
@@ -145,9 +167,8 @@ export function SiteMenu() {
                   .filter(Boolean)
                   .join(" ")}
               >
-                <Text variant="base" className={styles.label}>
-                  Destinations
-                </Text>
+                {/* No "Destinations" heading: Figma 24.07 `154:7935` starts
+                    straight on the categories. */}
                 <DestinationsNav
                   idPrefix="menu"
                   defaultOpen="Tropical"
@@ -171,14 +192,14 @@ export function SiteMenu() {
                       {link.label}
                     </span>
                   ) : (
-                    <Link
+                    <MenuLink
                       key={link.label}
                       href={getCompanyHref(link.label)}
                       className={styles.link}
                       onClick={handleClose}
                     >
                       {link.label}
-                    </Link>
+                    </MenuLink>
                   ),
                 )}
               </div>
@@ -191,8 +212,13 @@ export function SiteMenu() {
             <div className={styles.panelGrid}>
               <div className={styles.panelLeft}>
                 <div className={styles.columns}>
-                  {destinationCategories.map((category) => (
-                    <div key={category} className={styles.column}>
+                  {destinationCategories.map((category, i) => (
+                    <div
+                      key={category}
+                      className={styles.column}
+                      data-menu-reveal
+                      style={{ "--reveal-i": i } as React.CSSProperties}
+                    >
                       <p className={styles.columnTitle}>{category}</p>
                       <div className={styles.columnLinks}>
                         {footerDestinations[category].map((item) => (
@@ -208,7 +234,11 @@ export function SiteMenu() {
                     </div>
                   ))}
 
-                  <div className={styles.column}>
+                  <div
+                    className={styles.column}
+                    data-menu-reveal
+                    style={{ "--reveal-i": 3 } as React.CSSProperties}
+                  >
                     <p className={styles.columnTitle}>Experiences</p>
                     <div className={styles.columnLinks}>
                       <span className={styles.columnLink} aria-disabled="true">
@@ -218,7 +248,11 @@ export function SiteMenu() {
                   </div>
                 </div>
 
-                <div className={styles.secondary}>
+                <div
+                  className={styles.secondary}
+                  data-menu-reveal
+                  style={{ "--reveal-i": 4 } as React.CSSProperties}
+                >
                   {menuLinks.map((link) =>
                     "disabled" in link && link.disabled ? (
                       <span
@@ -229,7 +263,7 @@ export function SiteMenu() {
                         {link.label}
                       </span>
                     ) : (
-                      <Link
+                      <MenuLink
                         key={link.label}
                         href={getCompanyHref(link.label)}
                         className={styles.secondaryLink}
@@ -244,16 +278,17 @@ export function SiteMenu() {
                             height={14}
                           />
                         </span>
-                      </Link>
+                      </MenuLink>
                     ),
                   )}
                 </div>
               </div>
 
+              {/* No destination yet — inert, see routes.ts. */}
               <a
-                href={NOT_FOUND_HREF}
                 className={styles.card}
-                onClick={handleClose}
+                data-menu-reveal
+                style={{ "--reveal-i": 5 } as React.CSSProperties}
               >
                 <Image
                   src={menuFeaturedCard.image}

@@ -1,5 +1,6 @@
 "use client";
 
+import { useLayoutEffect, useRef, useState } from "react";
 import styles from "./components.module.css";
 import { triggerHaptic } from "@/lib/haptics";
 
@@ -25,6 +26,34 @@ export function CategoryTabs({
 }: CategoryTabsProps) {
   const clamp = (value: number) => Math.min(1, Math.max(0, value));
 
+  /**
+   * One indicator that travels between tabs, rather than a fill per tab: the
+   * prototype slides a single bar (`left`/`width`, 0.35s) and grows it across
+   * the active tab as you advance through that tab's slides. Geometry is
+   * measured from the DOM so it follows our flexible tab widths instead of the
+   * prototype's fixed 96px columns.
+   */
+  const listRef = useRef<HTMLDivElement>(null);
+  const [bar, setBar] = useState<{ left: number; width: number } | null>(null);
+
+  useLayoutEffect(() => {
+    const list = listRef.current;
+    const tab = list?.children[activeIndex];
+    if (!list || !(tab instanceof HTMLElement)) return;
+
+    const measure = () =>
+      setBar({
+        left: tab.offsetLeft,
+        width: tab.offsetWidth * clamp(progress),
+      });
+
+    measure();
+    // Tab widths follow the container, so re-measure when it resizes.
+    const observer = new ResizeObserver(measure);
+    observer.observe(list);
+    return () => observer.disconnect();
+  }, [activeIndex, progress]);
+
   return (
     <div
       className={[
@@ -35,6 +64,7 @@ export function CategoryTabs({
         .filter(Boolean)
         .join(" ")}
       role="tablist"
+      ref={listRef}
       {...rest}
     >
       {items.map((item, i) => (
@@ -55,21 +85,17 @@ export function CategoryTabs({
           }}
         >
           {item}
-          {/* Every tab keeps a persistent fill so the outgoing tab eases to 0
-              and the incoming eases up — the CSS transition does the easing. */}
-          <span
-            className={styles.categoryTabTrack}
-            aria-hidden
-            style={
-              {
-                "--tab-progress": i === activeIndex ? clamp(progress) : 0,
-              } as React.CSSProperties
-            }
-          >
-            <span className={styles.categoryTabFill} />
-          </span>
+          <span className={styles.categoryTabTrack} aria-hidden />
         </button>
       ))}
+
+      {bar ? (
+        <span
+          className={styles.categoryTabIndicator}
+          aria-hidden
+          style={{ left: bar.left, width: bar.width }}
+        />
+      ) : null}
     </div>
   );
 }

@@ -52,8 +52,8 @@
     max-width: 387px;
     margin-left: 0;
     padding-right: 0;
-    font-size: 38px;
-    letter-spacing: -1.14px;
+    font-size: var(--utopia-section-title-size);
+    letter-spacing: var(--utopia-section-title-tracking);
     line-height: var(--utopia-leading-tight);
   }
 }
@@ -67,17 +67,17 @@
     max-width: 387px;
     margin-left: 0;
     padding-right: 0;
-    font-size: 38px;
-    letter-spacing: -1.14px;
+    font-size: var(--utopia-section-title-size);
+    letter-spacing: var(--utopia-section-title-tracking);
     line-height: var(--utopia-leading-tight);
   }
 }
 
+/* Size/tracking now ride the shared section-title scale; only the measure
+   changes here (prototype `--pw-title-w: 383px`). */
 @media (min-width: 1900px) {
   .title {
     max-width: 383px;
-    font-size: 40px;
-    letter-spacing: -1.2px;
   }
 }
 
@@ -145,7 +145,7 @@
   top: 0;
   left: 0;
   overflow: hidden;
-  border-radius: var(--utopia-radius-sm);
+  border-radius: var(--utopia-radius-card);
   transform-origin: top left;
   will-change: transform, width, height, opacity;
   pointer-events: none;
@@ -175,30 +175,18 @@
 }
 
 .cardDeparting .cardImage {
-  transform: scale(1);
+  transform: scale(var(--slide-scale, 1));
   transition: none;
 }
 
 .cardActive {
-  border-radius: var(--utopia-radius-md);
+  border-radius: var(--utopia-radius-card-lg);
   pointer-events: auto;
 }
 
-@media (min-width: 640px) and (max-width: 1023px) {
-  .cardActive {
-    border-radius: var(--utopia-radius-card-active);
-  }
-}
-
-@media (min-width: 1900px) {
-  .card {
-    border-radius: var(--utopia-radius-card-active);
-  }
-
-  .cardActive {
-    border-radius: var(--utopia-radius-md);
-  }
-}
+/* Radius does not change with width in either prototype — `.pw-card` is 12
+   (6 sharp) and `.pw-card.is-active` 16 (6 sharp) at every breakpoint. The old
+   per-tier overrides here came from the 13.07 frames. */
 
 .cardNext,
 .cardPrev {
@@ -227,17 +215,22 @@
   pointer-events: none;
 }
 
+/* `--slide-*` come from slides.json via `framingStyle()`; the fallbacks keep
+   this rule meaningful on its own. The idle 1.06 zoom that settles to 1 as a
+   card becomes active multiplies the slide's own scale rather than replacing
+   it, so a per-slide crop and the animation can coexist. */
 .cardImage {
   object-fit: cover;
-  object-position: center 35%;
+  object-position: var(--slide-object-position, center 35%);
   background: var(--utopia-bg-placeholder);
-  transform: scale(1.06);
+  transform: scale(calc(1.06 * var(--slide-scale, 1)));
+  transform-origin: var(--slide-transform-origin, 50% 50%);
   transition: transform calc(var(--days-transition-ms, 1000ms) * 1.15)
     var(--days-ease, cubic-bezier(0.22, 0.61, 0.36, 1));
 }
 
 .cardActive .cardImage {
-  transform: scale(1);
+  transform: scale(var(--slide-scale, 1));
 }
 
 .stageDragging .cardImage {
@@ -482,4 +475,16 @@
     width: min(505px, calc(100vw - 935px));
     min-height: var(--utopia-viewport-height);
   }
+}
+
+/* ── Short landscape desktops (prototype `pwLandscapeScaleCap`) ──
+   The belt is a fixed 516px tall, so on a wide-but-short window the
+   vertically-centred cards ran under the nav. The cap is (vh - 320) / 516,
+   floored at 0.56, applied with `zoom` so the whole belt shrinks as one.
+
+   The ratio has to come from JS (useDaysScaleCap): CSS cannot divide a length
+   by a length, so `calc((100vh - 320px) / 516)` yields a length and `zoom`
+   silently drops it — measured as zoom:1 before this was moved to JS. */
+.trackWrap {
+  zoom: var(--pw-scale, 1);
 }

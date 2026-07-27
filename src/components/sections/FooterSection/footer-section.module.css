@@ -11,7 +11,10 @@
 .mobile {
   position: relative;
   overflow: hidden;
-  padding: 60px 32px 36px;
+  /* The dock is fixed over everything, so the footer has to end above it or it
+     sits on Terms/Privacy. `--utopia-dock-offset` is exactly the 52px the dock
+     occupies plus the 20px clearance Figma `154:6340` leaves above it. */
+  padding: 60px 32px var(--utopia-dock-offset);
   box-sizing: border-box;
   background: linear-gradient(
       180deg,
@@ -103,10 +106,54 @@
   cursor: default;
 }
 
+/* Figma 24.07 `154:6383` — the social row and the legal block, 24px apart. */
+.mobileBottom {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.mobileSocials {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.mobileSocialIcon {
+  display: flex;
+  flex-shrink: 0;
+  opacity: 0.6;
+}
+
+.mobileSocialIcon img {
+  display: block;
+  width: 24px;
+  height: 24px;
+}
+
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
 .mobileLegal {
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: 12px;
+}
+
+/* Terms and Privacy share a line; the copyright sits under them. */
+.mobileLegalRow {
+  display: flex;
+  gap: 16px;
+  white-space: nowrap;
 }
 
 .mobileLegal a {
@@ -138,6 +185,17 @@
 @media (min-width: 640px) {
   .desktop {
     display: flex;
+  }
+}
+
+/* Figma 24.07 `154:5714` pins the tablet footer at 880 with 56/60/32 padding,
+   so `space-between` opens ~200px of air between the menu block and the
+   bottom bar instead of letting the two stack tight. */
+@media (min-width: 640px) and (max-width: 1023px) {
+  .desktop {
+    height: 880px;
+    min-height: 880px;
+    padding: 56px 60px 32px;
   }
 }
 

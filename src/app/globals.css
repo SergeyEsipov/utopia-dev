@@ -27,6 +27,20 @@ body {
   margin: 0;
 }
 
+/* The brand ships NB International in one weight and GT Ultra Median in Light
+   and Regular — there is no bold file. A heading that does not set its own
+   weight would inherit the UA's `bold` and the browser would synthesise a
+   fake one, which is what made the Careers role titles and team names read
+   heavier than Figma. Headings take their weight from their own rule instead. */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-weight: inherit;
+}
+
 button {
   font: inherit;
 }

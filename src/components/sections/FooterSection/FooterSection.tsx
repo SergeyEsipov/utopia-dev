@@ -4,13 +4,21 @@
 import { Text } from "@/design-system/components";
 import { DestinationsNav } from "@/components/layout/DestinationsNav";
 import { footerDestinations, menuLinks, footerSocials } from "@/lib/data";
-import { NOT_FOUND_HREF, TERMS_HREF, getCompanyHref } from "@/lib/routes";
+import { TERMS_HREF, getCompanyHref } from "@/lib/routes";
 import styles from "./footer-section.module.css";
 import { FooterLeaves } from "./FooterLeaves";
 import { RevealGroup } from "../RevealGroup";
 
 /** Hover-reveal arrow link (prototype desktop_v9 .footer__link-with-arrow). */
-function ArrowLink({ href, children }: { href: string; children: React.ReactNode }) {
+/** `href` is optional: a link whose page does not exist yet renders with the
+    same styling but no destination (see routes.ts). */
+function ArrowLink({
+  href,
+  children,
+}: {
+  href?: string;
+  children: React.ReactNode;
+}) {
   return (
     <a href={href} className={styles.linkArrow}>
       {children}
@@ -39,9 +47,8 @@ export function FooterSection() {
         <div className={styles.mobileInner}>
           <div className={styles.mobileGroup}>
             <div className={styles.mobileBlock}>
-              <Text variant="base" className={styles.mobileLabel}>
-                Destinations
-              </Text>
+              {/* Figma 24.07 `154:6360`: the categories start the footer, with
+                  no "Destinations" label above them. */}
               <DestinationsNav idPrefix="footer" defaultOpen={null} />
             </div>
 
@@ -71,16 +78,39 @@ export function FooterSection() {
             </nav>
           </div>
 
-          <div className={styles.mobileLegal}>
-            <Text variant="caption" muted>
-              Copyright © 2026 Utopia. All Rights Reserved
-            </Text>
-            <Text variant="caption" muted as="a" href={TERMS_HREF}>
-              Terms and Conditions
-            </Text>
-            <Text variant="caption" muted as="a" href={NOT_FOUND_HREF}>
-              Privacy Policy
-            </Text>
+          {/* Figma 24.07 `154:6383`: socials first, then Terms and Privacy
+              side by side, then the copyright — 24px between the social row
+              and the info block, 12px inside it, 16px between the two links. */}
+          <div className={styles.mobileBottom}>
+            <div className={styles.mobileSocials}>
+              {footerSocials.map((social) => (
+                <span key={social.label} className={styles.mobileSocialIcon}>
+                  <img src={social.icon} alt="" />
+                  <span className={styles.srOnly}>{social.label}</span>
+                </span>
+              ))}
+            </div>
+
+            <div className={styles.mobileLegal}>
+              <div className={styles.mobileLegalRow}>
+                <Text variant="caption" muted as="a" href={TERMS_HREF}>
+                  Terms and Conditions
+                </Text>
+                {/* No page yet — disabled rather than a link into the 404. */}
+                <Text
+                  variant="caption"
+                  muted
+                  as="span"
+                  className={styles.mobilePageLinkDisabled}
+                  aria-disabled="true"
+                >
+                  Privacy Policy
+                </Text>
+              </div>
+              <Text variant="caption" muted>
+                © 2026 Utopia. All Rights Reserved
+              </Text>
+            </div>
           </div>
         </div>
       </div>
@@ -164,7 +194,9 @@ export function FooterSection() {
             <div className={styles.legalCol} data-reveal>
               <div className={`${styles.colLinks} ${styles.colLinksDark}`}>
                 <ArrowLink href={TERMS_HREF}>Terms and conditions</ArrowLink>
-                <ArrowLink href={NOT_FOUND_HREF}>Privacy policy</ArrowLink>
+                <span className={styles.linkDisabled} aria-disabled="true">
+                  Privacy policy
+                </span>
               </div>
             </div>
           </div>
@@ -176,20 +208,23 @@ export function FooterSection() {
             <a href={TERMS_HREF} className={`${styles.bottomLink} ${styles.bottomCellTerms}`}>
               Terms and conditions
             </a>
-            <a href={NOT_FOUND_HREF} className={`${styles.bottomLink} ${styles.bottomCellPrivacy}`}>
+            <span
+              className={`${styles.bottomLink} ${styles.bottomCellPrivacy} ${styles.linkDisabled}`}
+              aria-disabled="true"
+            >
               Privacy policy
-            </a>
+            </span>
           </div>
           <div className={styles.social}>
             {footerSocials.map((s) => (
-              <a
+              <span
                 key={s.label}
-                href={NOT_FOUND_HREF}
-                className={styles.socialIcon}
+                className={`${styles.socialIcon} ${styles.linkDisabled}`}
                 aria-label={s.label}
+                role="img"
               >
                 <img src={s.icon} alt="" />
-              </a>
+              </span>
             ))}
           </div>
         </div>

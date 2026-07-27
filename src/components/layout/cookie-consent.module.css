@@ -115,12 +115,48 @@
   background: rgba(241, 232, 220, 0.4);
 }
 
-/* Mobile: a full-width sheet that clears the fixed dock. */
+/* Mobile is a different object, not the desktop card reflowed — Figma 24.07
+   `154:8332`: a full-bleed cream sheet with square corners and a hairline along
+   its bottom edge, sitting directly on top of the dock row so the two read as
+   one block. The desktop treatment (floating #ccc4b8 card, 12px radius, 32px
+   off the corner) does not apply here at all. */
 @media (max-width: 639px) {
   .card {
-    right: var(--utopia-content-inset);
-    left: var(--utopia-content-inset);
-    bottom: calc(var(--utopia-dock-offset) + 12px);
+    left: 0;
+    right: 0;
+    /* Flush on top of the dock band, so the two form one cream block. */
+    bottom: var(--utopia-dock-band);
     width: auto;
+    max-width: none;
+    gap: 8px;
+    border-radius: 0;
+    border-bottom: 0.8px solid #ebdfd2;
+    background: var(--utopia-bg-cream);
+  }
+
+  .body {
+    /* 331 of the 338 content width in the frame — it wraps to two lines. */
+    max-width: 331px;
+  }
+
+  /* On the darker desktop card a translucent fill reads fine; on cream it
+     disappears. Figma `154:8337/8338` gives mobile its own pair: a solid
+     #e9dfd1 Accept and an outlined Reject. */
+  .accept {
+    border: none;
+    background: #e9dfd1;
+  }
+
+  .accept:hover {
+    background: #e3d7c6;
+  }
+
+  .reject {
+    border: 0.8px solid #ebdfd2;
+    background: transparent;
+  }
+
+  .reject:hover {
+    background: rgba(235, 223, 210, 0.35);
   }
 }

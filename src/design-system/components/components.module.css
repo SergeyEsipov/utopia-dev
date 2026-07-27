@@ -94,14 +94,14 @@
   padding: var(--utopia-space-3) var(--utopia-space-4);
   font-size: var(--utopia-text-md);
   letter-spacing: var(--utopia-tracking-tight-md);
-  border-radius: var(--utopia-radius-sm);
+  border-radius: var(--utopia-radius-control);
 }
 
 .buttonSm {
   padding: var(--utopia-space-2) var(--utopia-space-3);
   font-size: var(--utopia-text-sm);
   letter-spacing: var(--utopia-tracking-tight-xs);
-  border-radius: var(--utopia-radius-sm);
+  border-radius: var(--utopia-radius-control);
 }
 
 .buttonPrimary {
@@ -309,6 +309,7 @@
 /* ── Category Tabs ── */
 
 .categoryTabs {
+  position: relative;
   display: flex;
   gap: var(--utopia-space-2);
   width: 100%;
@@ -355,22 +356,22 @@
   overflow: hidden;
 }
 
-.categoryTabFill {
+/* One bar that slides between tabs and grows across the active one — the
+   prototype's `.filter-indicator` (left/width, 0.35s). Positioned in JS from
+   the measured tab box, so it follows our flexible widths. */
+.categoryTabIndicator {
   position: absolute;
-  inset: 0;
-  border-radius: inherit;
+  bottom: 0;
+  height: 1px;
   background: var(--utopia-text-inverse);
-  transform: scaleX(var(--tab-progress, 0));
-  transform-origin: left center;
-  /* Ease the fill to its new position on slide/tab change instead of snapping
-     (prototype: .ecosystem__tab-fill { transition: width 0.45s var(--ease-cinematic) }). */
-  transition: transform 0.45s cubic-bezier(0.4, 0, 0.2, 1);
-  will-change: transform;
-  z-index: 0;
+  pointer-events: none;
+  transition:
+    left 0.35s cubic-bezier(0.25, 0.1, 0.25, 1),
+    width 0.35s cubic-bezier(0.25, 0.1, 0.25, 1);
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .categoryTabFill {
+  .categoryTabIndicator {
     transition: none;
   }
 }
@@ -387,6 +388,57 @@
   background: rgba(0, 0, 0, 0.2);
 }
 
-.categoryTabsLight .categoryTabFill {
+/* On cream the travelling bar is black (prototype `.filter-indicator`). */
+.categoryTabsLight .categoryTabIndicator {
   background: var(--utopia-text-black);
+}
+
+/* ── Desktop control sizing ──
+   Below 1024 these keep the mobile design's 15px labels and 40px buttons. From
+   1024 up they follow the prototype's desktop scale, which is what makes them
+   legible on a wide display: 18px filter labels (19 past 2000) and 44px pill
+   buttons that the ultra-wide tier multiplies to 55 via --utopia-control-scale.
+   Only the desktop instances are visible at this width — the mobile tab row is
+   `display: none` — so the media query is enough to keep the two apart. */
+@media (min-width: 1024px) {
+  /* 40px row with the label pinned to the top and the rule along the bottom —
+     prototype `.filter-tab`, Figma `154:4170`. */
+  .categoryTab {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    box-sizing: border-box;
+    height: 40px;
+    padding-bottom: 10px;
+    font-size: var(--utopia-filter-tab-size);
+    line-height: var(--utopia-filter-tab-leading);
+    letter-spacing: var(--utopia-filter-tab-tracking);
+  }
+
+  /* GlassSurface pins height/minHeight inline from its `height` prop, so the
+     responsive size has to outrank an inline style. */
+  .navPillBtn {
+    width: calc(44px * var(--utopia-control-scale));
+    height: calc(44px * var(--utopia-control-scale)) !important;
+    min-height: calc(44px * var(--utopia-control-scale)) !important;
+  }
+
+  .navPill {
+    gap: calc(var(--utopia-control-gap) * var(--utopia-control-scale));
+  }
+
+  /* Same inline-height override as the arrows, so all three stay one row. */
+  .navPillLabel {
+    height: calc(44px * var(--utopia-control-scale)) !important;
+    min-height: calc(44px * var(--utopia-control-scale)) !important;
+  }
+
+  .navPillLabelContent {
+    padding: calc(11px * var(--utopia-control-scale))
+      calc(24px * var(--utopia-control-scale));
+    font-size: var(--utopia-button-text-size);
+    line-height: var(--utopia-control-line-height);
+    letter-spacing: var(--utopia-button-text-tracking);
+  }
 }

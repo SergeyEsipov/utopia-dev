@@ -14,10 +14,16 @@
   gap: 14px;
 }
 
+/* 123px is the column the three destination rows share (Figma `154:8001`), and
+   it is what puts the expanded list at x=137. Experiences is a longer word and
+   gets its own 175px box in the design (`154:8019`), so this is a minimum, not
+   a fixed width — pinning it to 123 with `overflow: hidden` clipped the label
+   to "Experience" and swallowed its chevron. */
 .categoryReveal {
   position: relative;
-  overflow: hidden;
-  width: 123px;
+  min-width: 123px;
+  width: max-content;
+  max-width: 100%;
   flex-shrink: 0;
 }
 
@@ -25,6 +31,10 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
+  /* Only bites on the row that outgrows the 123px column (Experiences); the
+     shorter three still have slack, so `space-between` keeps their chevrons on
+     the designed 111px mark. */
+  gap: 12px;
   width: 100%;
   flex-shrink: 0;
   border: none;
@@ -44,6 +54,11 @@
   flex-shrink: 0;
 }
 
+/* Opening and closing both animate. The height runs on its own curve while the
+   text cross-fades slightly inside it, and `visibility` is transitioned with a
+   delay rather than toggled: a plain `visibility: hidden` on the closed state
+   snaps the list out of existence the instant the category is tapped, which is
+   what made the collapse read as a jump rather than a fold. */
 .propertiesWrap {
   position: relative;
   display: grid;
@@ -51,16 +66,28 @@
   flex: 1;
   min-width: 0;
   overflow: hidden;
-  transition: grid-template-rows 750ms cubic-bezier(0.22, 1, 0.36, 1);
-}
-
-.group:not(.groupOpen) .propertiesWrap {
+  opacity: 0;
   visibility: hidden;
+  transition-property: grid-template-rows, opacity, visibility;
+  transition-duration: 620ms, 340ms, 0s;
+  transition-timing-function: cubic-bezier(0.33, 1, 0.68, 1), ease, linear;
+  /* Closing: fade first, then drop out of the a11y tree once folded. */
+  transition-delay: 0ms, 0ms, 620ms;
 }
 
 .groupOpen .propertiesWrap {
-  visibility: visible;
   grid-template-rows: 1fr;
+  opacity: 1;
+  visibility: visible;
+  /* Opening: unhide immediately, let the text catch up to the fold. */
+  transition-delay: 0ms, 120ms, 0ms;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .propertiesWrap {
+    transition-duration: 0s, 0s, 0s;
+    transition-delay: 0s;
+  }
 }
 
 .properties {
@@ -105,9 +132,10 @@
   animation-delay: calc(160ms + var(--dest-index, 0) * 90ms);
 }
 
+/* Rows arrive one after another inside the fold instead of all at once. */
 .groupOpen .properties li {
-  animation: destPropertyIn 680ms cubic-bezier(0.22, 1, 0.36, 1) both;
-  animation-delay: 0ms;
+  animation: destPropertyIn 520ms cubic-bezier(0.33, 1, 0.68, 1) both;
+  animation-delay: calc(90ms + var(--dest-item-index, 0) * 45ms);
 }
 
 .listStaggerActive .groupOpen .properties li {

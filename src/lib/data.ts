@@ -15,6 +15,18 @@ export const footerDestinations = {
 };
 
 /**
+ * Categories for the mobile/tablet menu and footer — Figma 24.07 `154:7935`
+ * (open menu) and `154:6360` (footer). Two changes from the desktop list: the
+ * "Destinations" heading above them is gone, and Experiences joins as a fourth
+ * row. Kept separate from `footerDestinations` because the desktop menu and
+ * footer already render Experiences as its own column and would double it.
+ */
+export const mobileMenuCategories = {
+  ...footerDestinations,
+  Experiences: [{ label: "Coming soon" }],
+};
+
+/**
  * Mobile footer + slide-menu links. Prototype v3 (Figma 3882:3013,
  * commits ab3e267 / b6ab764): "Experiences" renamed to "Contact", order
  * Contact → Careers → About, and About is disabled (coming later).

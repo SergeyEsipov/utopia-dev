@@ -74,14 +74,27 @@
    Destinations/Experiences dropdown triggers here; those were replaced by the
    single burger-driven SiteMenu. */
 
+/* The bar follows the viewport up to a point, then stops.
+
+   Figma's hero study (`154:5992`) draws the nav at five widths: at 768, 1223,
+   1440 and 1839 it spans the frame, and at 2879 it is still 1838 wide but
+   *centred*, leaving 520px of bare canvas on each side. So there is a cap —
+   the 1440 layout column was simply the wrong one, which is what parked the
+   wordmark 360px from the edge at 1920 and 680px at 2560.
+
+   The cap is expressed as 1920 against our 120px gutters rather than Figma's
+   1838 against its 80px ones, because the two describe the same content span
+   (1920 - 240 = 1680 vs 1838 - 160 = 1678) and this form lands on the values
+   the prototype actually renders: 120px from the edge at every width through
+   1920, then 440px at 2560 — Figma's own ultra-wide figure is 441. */
 .bar {
   display: none;
   position: relative;
   align-items: center;
   justify-content: space-between;
   height: 64px;
-  padding: 0 120px;
-  max-width: var(--utopia-desktop-width);
+  padding: 0 var(--utopia-site-pad);
+  max-width: var(--utopia-nav-max);
   margin: 0 auto;
 }
 

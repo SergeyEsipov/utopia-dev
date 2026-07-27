@@ -5,6 +5,7 @@ type CareerHeroProps = {
   openPositions?: number | null;
 };
 
+/** Figma 24.07 `154:3553` (mobile) / `154:5474` (tablet) / `154:8342` (desktop). */
 export function CareerHero({ openPositions }: CareerHeroProps) {
   const eyebrow =
     typeof openPositions === "number"
@@ -12,21 +13,22 @@ export function CareerHero({ openPositions }: CareerHeroProps) {
       : careerHero.eyebrow;
 
   return (
-    <section className={styles.sectionWide} aria-labelledby="career-hero-title">
+    <section
+      className={`${styles.sectionWide} ${styles.heroSection}`}
+      aria-labelledby="career-hero-title"
+    >
       <div className={`${styles.sectionNarrow} ${styles.hero}`}>
         <div className={styles.heroContent}>
-          <div className={styles.heroIntro}>
-            <p className={styles.eyebrowLg}>{eyebrow}</p>
-            <h1 id="career-hero-title" className={styles.displayTitle}>
-              {careerHero.title}
-            </h1>
-          </div>
-          <div className={styles.heroCopy}>
-            <p className={styles.bodyMd}>{careerHero.description}</p>
-            <button type="button" className={styles.linkUnderline}>
-              {careerHero.learnMoreLabel}
-            </button>
-          </div>
+          <p className={`${styles.eyebrowLg} ${styles.heroEyebrow}`}>{eyebrow}</p>
+          <h1 id="career-hero-title" className={styles.heroTitle}>
+            {careerHero.title}
+          </h1>
+          <p className={`${styles.bodyMd} ${styles.heroLead}`}>
+            {careerHero.description}
+          </p>
+          <button type="button" className={styles.linkUnderline}>
+            {careerHero.learnMoreLabel}
+          </button>
         </div>
       </div>
     </section>

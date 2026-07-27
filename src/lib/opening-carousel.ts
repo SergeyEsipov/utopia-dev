@@ -1,3 +1,8 @@
+import {
+  openingCopyContent,
+  openingSlidesContent,
+} from "./slides-content.ts";
+
 export type OpeningSlide = {
   id: string;
   label: string;
@@ -7,39 +12,20 @@ export type OpeningSlide = {
   layout: "kitesurf" | "dunes" | "localvibes";
 };
 
-export const openingCopy = {
-  eyebrow: "Opening in 2027",
-  title: "Utopia - Jericoacoara",
-  description:
-    "Brazil's ultimate kitesurfing mecca. Where dramatic white dunes meet an unmatched, laid-back vibe.",
-  cta: "Be Among the First",
-};
+/* Copy and media come from `src/content/slides.json`. */
+export const openingCopy = openingCopyContent;
 
-export const openingSlides: OpeningSlide[] = [
-  {
-    id: "kitesurfing",
-    label: "Kitesurfing",
+export const openingSlides: OpeningSlide[] = openingSlidesContent.map(
+  (slide) => ({
+    id: slide.id,
+    label: slide.label,
     // No videoWebm: the design retired /assets/opt/kitesurf.webm — keeping it
     // would make webm-capable browsers play the old clip over the new mp4 cut.
-    video: "/assets/opt/kitesurf.mp4",
-    poster: "/assets/opt/opening-kitesurf.jpg",
-    layout: "kitesurf",
-  },
-  {
-    id: "dunes",
-    label: "Dunes Exploration",
-    video: "/assets/opt/dunes.mp4",
-    poster: "/assets/opt/opening-dunes.jpg",
-    layout: "dunes",
-  },
-  {
-    id: "localvibes",
-    label: "Local Vibes",
-    video: "/assets/opt/localvibes.mp4",
-    poster: "/assets/opt/opening-localvibes.jpg",
-    layout: "localvibes",
-  },
-];
+    video: slide.video,
+    poster: slide.poster,
+    layout: slide.layout as OpeningSlide["layout"],
+  }),
+);
 
 export const OPENING_SLIDE_COUNT = openingSlides.length;
 export const OPENING_LOOP_COPIES = 3;

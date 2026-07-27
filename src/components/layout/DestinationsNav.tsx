@@ -2,12 +2,11 @@
 
 import { useState } from "react";
 import { Heading, Icon } from "@/design-system/components";
-import { footerDestinations } from "@/lib/data";
+import { mobileMenuCategories } from "@/lib/data";
 import { triggerHaptic } from "@/lib/haptics";
-import { NOT_FOUND_HREF } from "@/lib/routes";
 import styles from "./destinations-nav.module.css";
 
-type Category = keyof typeof footerDestinations;
+type Category = keyof typeof mobileMenuCategories;
 
 type DestinationsNavProps = {
   idPrefix?: string;
@@ -33,7 +32,7 @@ function DestinationGroup({
   isOpen,
   onToggle,
 }: DestinationGroupProps) {
-  const items = footerDestinations[category];
+  const items = mobileMenuCategories[category];
 
   return (
     <div
@@ -74,15 +73,17 @@ function DestinationGroup({
                 key={item.label}
                 style={{ "--dest-item-index": itemIndex } as React.CSSProperties}
               >
+                {/* The featured destination keeps its highlighted styling but
+                    has no page yet, so it is inert rather than a 404 link —
+                    prototype `nav-menu__link--muted` with href="#". */}
                 {"active" in item && item.active ? (
-                  <a
-                    href={NOT_FOUND_HREF}
+                  <span
                     className={[styles.property, styles.propertyActive]
                       .filter(Boolean)
                       .join(" ")}
                   >
                     {item.label}
-                  </a>
+                  </span>
                 ) : (
                   <span className={styles.property}>{item.label}</span>
                 )}
@@ -103,7 +104,7 @@ export function DestinationsNav({
 }: DestinationsNavProps) {
   const [openCategory, setOpenCategory] = useState<Category | null>(defaultOpen);
 
-  const categories = Object.keys(footerDestinations) as Category[];
+  const categories = Object.keys(mobileMenuCategories) as Category[];
 
   const toggleCategory = (category: Category) => {
     triggerHaptic("selection");

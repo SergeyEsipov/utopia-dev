@@ -1,26 +1,31 @@
 import { careerCta, jobOpeningContent } from "@/lib/career-data";
-import { NOT_FOUND_HREF } from "@/lib/routes";
+import { ApplyButton } from "./ApplyButton";
 import styles from "./job-opening.module.css";
 
 /**
- * Job-opening variant of the closing CTA (Figma 1:609 / 1:1263 / 1:2945):
- * same copy as the careers CTA, but the button reads "Apply for this role"
- * and the section fades from beige into the page cream.
+ * Closing CTA — Figma 24.07 `154:2132` / `154:2860` / `154:3322`. Same copy as
+ * the careers CTA over a Beige Dark ground with a cream wash falling out of the
+ * top, and a button that runs the same apply flow as the hero.
  */
-export function JobCta() {
+export function JobCta({ applyUrl }: { applyUrl: string }) {
   return (
     <section className={styles.cta} aria-labelledby="job-cta-title">
       <div className={styles.ctaContent}>
-        <h2 id="job-cta-title" className={styles.ctaTitle}>
-          {careerCta.title}
-        </h2>
         <div className={styles.ctaCopy}>
-          <p className={styles.ctaDescription}>{careerCta.description}</p>
-          <p className={styles.ctaSubdescription}>{careerCta.subdescription}</p>
+          <h2 id="job-cta-title" className={styles.ctaTitle}>
+            {careerCta.title}
+          </h2>
+          <p className={styles.ctaSubdescription}>
+            {careerCta.descriptionLead}
+            <span className={styles.ctaDescription}>
+              {careerCta.descriptionHighlight}
+            </span>
+            {careerCta.descriptionTail}
+          </p>
         </div>
-        <a href={NOT_FOUND_HREF} className={styles.ctaButton}>
+        <ApplyButton applyUrl={applyUrl} className={styles.ctaButton}>
           {jobOpeningContent.applyLabel}
-        </a>
+        </ApplyButton>
       </div>
     </section>
   );

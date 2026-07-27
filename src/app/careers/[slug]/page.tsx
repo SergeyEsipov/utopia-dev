@@ -74,7 +74,7 @@ export default async function JobOpeningPage({ params }: JobOpeningPageProps) {
         />
         <JobWorkCarousel />
         <JobTeamUp />
-        <JobCta />
+        <JobCta applyUrl={posting.applyUrl} />
         <FooterSection />
       </main>
       <SiteMenu />

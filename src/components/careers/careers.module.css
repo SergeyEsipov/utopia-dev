@@ -1,53 +1,124 @@
-/* ── Shared layout ── */
+/* ── Shared layout ──
+ *
+ * Figma 24.07 Careers: `154:3552` (378), `154:5472` (768), `154:8340` (1440).
+ * The page runs on its own gutter rather than `--utopia-content-inset`: the
+ * shared tablet token caps the column at 480, where Figma's 768 frame draws a
+ * 648 column inside 60px gutters. Desktop keeps the 24px inset so the 996
+ * content column lands on the 222px gutters the frame specifies. */
 
-.page {
-  background: var(--utopia-bg-cream);
-  width: 100%;
+/* Declared on the section roots rather than on the page wrapper: the wrapper's
+   class comes from `careers-page.module.css`, so a `.page` rule here would
+   never match. */
+.sectionWide,
+.work,
+.cta {
+  --careers-inset: 16px;
+  --careers-hero-inset: 32px;
+}
+
+@media (min-width: 640px) {
+  .sectionWide,
+  .work,
+  .cta {
+    --careers-inset: 60px;
+    --careers-hero-inset: 60px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .sectionWide,
+  .work,
+  .cta {
+    --careers-inset: 24px;
+    --careers-hero-inset: 24px;
+  }
 }
 
 .sectionWide {
   width: 100%;
-  max-width: var(--utopia-layout-max);
+  max-width: 1440px;
   margin: 0 auto;
-  padding-left: var(--utopia-content-inset);
-  padding-right: var(--utopia-content-inset);
+  padding-left: var(--careers-inset);
+  padding-right: var(--careers-inset);
 }
 
 .sectionInner {
   width: 100%;
-  max-width: var(--utopia-content-wide);
+  max-width: 996px;
   margin: 0 auto;
 }
 
 .sectionNarrow {
   width: 100%;
-  max-width: var(--utopia-content-narrow);
+  max-width: 589px;
   margin: 0 auto;
 }
 
+/* Section headings: 30/36/36 with the matching -3% tracking (`154:3557`,
+   `154:5586`, `154:8452`). */
 .displayTitle {
   font-family: var(--utopia-font-display);
   font-weight: 400;
-  font-size: clamp(28px, 5vw, 38px);
+  font-size: 26px;
   line-height: 1.2;
-  letter-spacing: -1.14px;
+  letter-spacing: -0.78px;
   color: var(--utopia-text-primary);
+}
+
+@media (min-width: 640px) {
+  .displayTitle {
+    font-size: 36px;
+    letter-spacing: -1.08px;
+  }
+}
+
+/* The hero runs two points larger than the section headings (`154:3557` 30,
+   `154:8346` 40). */
+.heroTitle {
+  font-family: var(--utopia-font-display);
+  font-weight: 400;
+  font-size: 30px;
+  line-height: 1.2;
+  letter-spacing: -0.9px;
+  color: var(--utopia-text-primary);
+}
+
+@media (min-width: 640px) {
+  .heroTitle {
+    font-size: 40px;
+    letter-spacing: -0.8px;
+  }
 }
 
 .eyebrowLg {
   font-family: var(--utopia-font-body);
-  font-size: clamp(16px, 3vw, 20px);
-  line-height: 1.3;
-  letter-spacing: -0.2px;
+  font-size: 15px;
+  line-height: 1.5;
+  letter-spacing: -0.15px;
   color: var(--utopia-text-muted);
+}
+
+@media (min-width: 640px) {
+  .eyebrowLg {
+    font-size: 18px;
+    letter-spacing: -0.09px;
+    line-height: 1.4;
+  }
 }
 
 .bodyMd {
   font-family: var(--utopia-font-body);
-  font-size: var(--utopia-text-md);
-  line-height: 1.3;
-  letter-spacing: var(--utopia-tracking-tight-md);
+  font-size: 16px;
+  line-height: 1.5;
+  letter-spacing: 0;
   color: var(--utopia-text-primary);
+}
+
+@media (min-width: 640px) {
+  .bodyMd {
+    font-size: 18px;
+    letter-spacing: -0.18px;
+  }
 }
 
 .bodySm {
@@ -60,9 +131,9 @@
 
 .linkUnderline {
   font-family: var(--utopia-font-body);
-  font-size: var(--utopia-text-sm);
-  line-height: 1.3;
-  letter-spacing: var(--utopia-tracking-tight-xs);
+  font-size: 16px;
+  line-height: 1.4;
+  letter-spacing: -0.08px;
   color: var(--utopia-text-muted);
   text-decoration: underline;
   text-underline-position: from-font;
@@ -78,69 +149,115 @@
 
 /* ── Hero ── */
 
-.hero {
-  padding-top: clamp(64px, 12vw, 120px);
-  padding-bottom: clamp(48px, 8vw, 80px);
+/* `154:3553` pt-140/pb-100 inside 32px gutters; `154:8342` / `154:5474`
+   pt-120 and no bottom padding — the jobs section carries the gap there. */
+.heroSection {
+  padding-left: var(--careers-hero-inset);
+  padding-right: var(--careers-hero-inset);
 }
 
-@media (min-width: 1024px) {
-  /* Figma 1:167 — hero ends flush with content; jobs section provides the 120px gap */
+.hero {
+  padding-top: 140px;
+  padding-bottom: 100px;
+  max-width: 314px;
+}
+
+@media (min-width: 640px) {
   .hero {
+    padding-top: 120px;
     padding-bottom: 0;
+    max-width: 589px;
   }
 }
 
+/* Figma groups the four lines differently per width — mobile pairs title+copy,
+   desktop pairs eyebrow+title — but every group is a plain vertical stack, so
+   one flat column with per-line spacing reproduces both exactly
+   (24/16/24 on mobile, 16/20/16 from 640 up). */
 .heroContent {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 20px;
   text-align: center;
-}
-
-.heroIntro {
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
   width: 100%;
 }
 
-.heroCopy {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  width: 100%;
-  text-align: center;
+.heroEyebrow {
+  margin-bottom: 24px;
 }
 
-/* ── Jobs ── */
+.heroContent .heroTitle {
+  margin-bottom: 16px;
+}
+
+.heroLead {
+  max-width: 272px;
+  margin-bottom: 24px;
+}
+
+@media (min-width: 640px) {
+  .heroEyebrow {
+    margin-bottom: 16px;
+  }
+
+  .heroContent .heroTitle {
+    margin-bottom: 20px;
+  }
+
+  .heroLead {
+    max-width: none;
+    margin-bottom: 16px;
+  }
+}
+
+/* ── Jobs ──
+ * `154:3560` (pb-40, gap-24), `154:5482` (pt-100 pb-20, gap-32),
+ * `154:8350` (py-120, gap-32). */
 
 .jobs {
-  padding-top: clamp(48px, 10vw, 120px);
-  padding-bottom: clamp(48px, 10vw, 120px);
+  padding-top: 0;
+  padding-bottom: 40px;
+}
+
+@media (min-width: 640px) {
+  .jobs {
+    padding-top: 100px;
+    padding-bottom: 20px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .jobs {
+    padding-top: 120px;
+    padding-bottom: 120px;
+  }
 }
 
 .jobsInner {
   display: flex;
   flex-direction: column;
-  gap: 32px;
+  gap: 24px;
 }
 
+@media (min-width: 640px) {
+  .jobsInner {
+    gap: 32px;
+  }
+}
+
+/* Below 1024 the filters are a search bar over a Department/Location pair
+   (`154:3561`, `154:5484`); at 1024 the department becomes the sidebar list
+   and the row is Location + Search (`154:8351`). */
 .filters {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  column-gap: 20px;
+  row-gap: 12px;
 }
 
 @media (min-width: 640px) {
   .filters {
-    gap: 20px;
-  }
-}
-
-@media (min-width: 1024px) {
-  .filters {
-    flex-direction: row;
+    row-gap: 16px;
   }
 }
 
@@ -150,16 +267,25 @@
   justify-content: space-between;
   gap: 12px;
   width: 100%;
-  min-height: 40px;
-  padding: 11px 24px;
+  /* Figma draws the 1px stroke inside a 45/49-tall pill with a 24px text
+     inset, so the CSS padding gives the border back its pixel. */
+  padding: 10px 23px;
   border: 1px solid rgba(28, 28, 28, 0.55);
-  border-radius: var(--utopia-radius-sm);
+  border-radius: var(--utopia-radius-control);
   background: transparent;
   font-family: var(--utopia-font-body);
-  font-size: var(--utopia-text-md);
-  letter-spacing: var(--utopia-tracking-tight-md);
+  font-size: 15px;
+  line-height: 1.5;
+  letter-spacing: -0.15px;
   color: var(--utopia-text-black);
   cursor: pointer;
+}
+
+@media (min-width: 640px) {
+  .filterControl {
+    font-size: 18px;
+    letter-spacing: -0.18px;
+  }
 }
 
 .filterControl span {
@@ -170,20 +296,24 @@
   text-align: left;
 }
 
-@media (min-width: 1024px) {
-  .filterLocation {
-    width: 285px;
-    flex-shrink: 0;
-  }
-
-  .filterSearch {
-    flex: 1;
-    min-width: 0;
-  }
-}
-
 .filterPlaceholder {
   color: var(--utopia-text-muted);
+}
+
+/* Mobile abbreviates the two dropdown placeholders (`154:3569` "Department"),
+   tablet and desktop spell them out (`154:5492` "Select department"). */
+.filterLabelLong {
+  display: none;
+}
+
+@media (min-width: 640px) {
+  .filterLabelShort {
+    display: none;
+  }
+
+  .filterLabelLong {
+    display: inline;
+  }
 }
 
 .filterIcon {
@@ -204,15 +334,17 @@
   }
 }
 
+/* The department list only exists at 1024+; below that the dropdown in the
+   filter row does the same job. */
 .departments {
-  display: flex;
-  flex-direction: column;
-  gap: 24px;
-  width: 100%;
+  display: none;
 }
 
 @media (min-width: 1024px) {
   .departments {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
     width: 285px;
     flex-shrink: 0;
   }
@@ -220,9 +352,9 @@
 
 .departmentsTitle {
   font-family: var(--utopia-font-body);
-  font-size: var(--utopia-text-lg);
-  line-height: 1.3;
-  letter-spacing: var(--utopia-tracking-tight-lg);
+  font-size: 18px;
+  line-height: 1.4;
+  letter-spacing: -0.09px;
   color: var(--utopia-text-black);
 }
 
@@ -235,10 +367,10 @@
 
 .departmentItem {
   font-family: var(--utopia-font-body);
-  font-size: var(--utopia-text-sm);
+  font-size: 14px;
   line-height: 1.3;
-  letter-spacing: var(--utopia-tracking-tight-xs);
-  color: var(--utopia-text-black);
+  letter-spacing: -0.16px;
+  color: var(--utopia-text-primary);
 }
 
 .departmentCount {
@@ -248,56 +380,115 @@
 .roles {
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  gap: 20px;
   flex: 1;
   min-width: 0;
 }
 
+@media (min-width: 640px) {
+  .roles {
+    gap: 24px;
+  }
+}
+
 .rolesTitle {
   font-family: var(--utopia-font-body);
-  font-size: var(--utopia-text-lg);
-  line-height: 1.3;
-  letter-spacing: var(--utopia-tracking-tight-lg);
+  font-size: 18px;
+  line-height: 1.4;
+  letter-spacing: -0.09px;
   color: var(--utopia-text-black);
+}
+
+/* Figma 24.07 runs the role list straight on from the filters with no visible
+   heading below 1024 (`154:3575`, `154:5498`). Hidden rather than removed:
+   this element is the section's accessible name
+   (`aria-labelledby="career-jobs-title"`) and the `aria-live` region that
+   announces how many roles a filter left, so dropping it would silence both. */
+@media (max-width: 1023px) {
+  .rolesTitle {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+    border: 0;
+  }
 }
 
 .rolesList {
   list-style: none;
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 12px;
   width: 100%;
 }
 
+@media (min-width: 640px) {
+  .rolesList {
+    gap: 20px;
+  }
+}
+
+/* Figma 24.07 `154:3578`: 20px padding, 16px radius, Ivory #f1e8dc. The gap
+   between the header and the location rows is 16 on mobile and 10 from 640 up
+   (`154:8367`), because the header stops being a two-line stack. */
 .roleCard {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 16px;
   padding: 20px;
-  border-radius: var(--utopia-radius-sm);
-  background: #ebdfd2;
+  border-radius: var(--utopia-radius-card-lg);
+  background: #f1e8dc;
   color: inherit;
   text-decoration: none;
   transition: opacity var(--utopia-transition-fast);
+}
+
+@media (min-width: 640px) {
+  .roleCard {
+    gap: 10px;
+  }
 }
 
 a.roleCard:hover {
   opacity: 0.85;
 }
 
+/* Mobile stacks chip over title; from 640 up they share a row with the title
+   first and the chip pushed right (`154:8368`). */
 .roleHeader {
   display: flex;
+  flex-direction: column;
   align-items: flex-start;
-  justify-content: space-between;
-  gap: 12px;
+  gap: 20px;
+}
+
+@media (min-width: 640px) {
+  .roleHeader {
+    flex-direction: row-reverse;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+  }
 }
 
 .roleTitle {
   font-family: var(--utopia-font-body);
-  font-size: 22px;
-  line-height: 1.3;
-  letter-spacing: -0.22px;
+  font-size: 18px;
+  line-height: normal;
+  letter-spacing: -0.18px;
   color: var(--utopia-text-black);
+}
+
+@media (min-width: 640px) {
+  .roleTitle {
+    font-size: 20px;
+    line-height: 1.2;
+    letter-spacing: -0.2px;
+  }
 }
 
 .rolePill {
@@ -307,20 +498,27 @@ a.roleCard:hover {
   justify-content: center;
   height: 32px;
   padding: 4px 18px;
-  border-radius: min(12px, var(--utopia-radius-cap-control));
-  background: rgba(249, 245, 234, 0.8);
+  border-radius: var(--utopia-radius-control);
+  background: #e2d6cc;
   font-family: var(--utopia-font-body);
-  font-size: 13px;
+  font-size: 12px;
   line-height: 1.3;
-  letter-spacing: -0.13px;
+  letter-spacing: -0.12px;
   color: var(--utopia-text-black);
   text-transform: capitalize;
+}
+
+@media (min-width: 640px) {
+  .rolePill {
+    font-size: 13px;
+    letter-spacing: -0.13px;
+  }
 }
 
 .roleMeta {
   display: flex;
   gap: 10px;
-  align-items: flex-start;
+  align-items: stretch;
 }
 
 .roleIcons {
@@ -328,7 +526,6 @@ a.roleCard:hover {
   flex-direction: column;
   justify-content: space-between;
   flex-shrink: 0;
-  min-height: 46px;
 }
 
 .roleDetails {
@@ -336,9 +533,9 @@ a.roleCard:hover {
   flex-direction: column;
   gap: 12px;
   font-family: var(--utopia-font-body);
-  font-size: var(--utopia-text-sm);
+  font-size: 14px;
   line-height: 1.3;
-  letter-spacing: var(--utopia-tracking-tight-xs);
+  letter-spacing: -0.16px;
   color: var(--utopia-text-black);
 }
 
@@ -346,68 +543,156 @@ a.roleCard:hover {
   color: var(--utopia-text-muted);
 }
 
+/* `154:3653` on mobile, `154:8442` from 640 up: the tier bumps the fill to
+   solid ivory, the type to 17 and the side padding to 32. */
 .showMore {
   align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 40px;
   padding: 11px 24px;
-  border: none;
-  border-radius: var(--utopia-radius-sm);
-  background: var(--utopia-dock-bg);
+  border: 0.5px solid rgba(255, 255, 255, 0.4);
+  border-radius: var(--utopia-radius-control);
+  background: rgba(229, 218, 203, 0.6);
   font-family: var(--utopia-font-body);
-  font-size: var(--utopia-text-md);
+  font-size: 16px;
   line-height: 18px;
-  letter-spacing: var(--utopia-tracking-tight-md);
-  color: var(--utopia-text-black);
+  letter-spacing: 0;
+  color: var(--utopia-text-primary);
   cursor: pointer;
+}
+
+@media (min-width: 640px) {
+  .showMore {
+    height: 44px;
+    padding: 11px 32px;
+    background: #ebdfd2;
+    font-size: 17px;
+    letter-spacing: -0.17px;
+  }
 }
 
 .showMore:hover {
   opacity: 0.85;
 }
 
-/* ── Teams ── */
+/* ── Our team ──
+ * `154:3654` (pt-60 pb-20, gap-40), `154:5577` (pt-80 pb-20, gap-56),
+ * `154:8443` (no vertical padding, gap-64 — the neighbouring sections carry
+ * the 120px rhythm). */
 
 .teams {
-  padding-bottom: clamp(64px, 10vw, 120px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 40px;
+  padding-top: 60px;
+  padding-bottom: 20px;
 }
 
+@media (min-width: 640px) {
+  .teams {
+    gap: 56px;
+    padding-top: 80px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .teams {
+    gap: 64px;
+    padding-top: 0;
+    padding-bottom: 0;
+  }
+}
+
+/* Held as a share of the content column rather than a pinned px width, so the
+   copy breathes with the viewport instead of sitting at one size across a
+   whole tier. The percentages reproduce Figma at its three anchors: 91% of a
+   346 column is the 314 of `154:3661`, the tablet block runs the full 648, and
+   65.5% of the 996 desktop column is the 652 of `154:8453`. */
 .teamsIntro {
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 20px;
   width: 100%;
-  max-width: var(--utopia-content-narrow);
-  margin: 0 auto 64px;
+  max-width: 91%;
   text-align: center;
 }
 
+@media (min-width: 640px) {
+  .teamsIntro {
+    max-width: 100%;
+  }
+}
+
+@media (min-width: 1024px) {
+  .teamsIntro {
+    max-width: 65.5%;
+  }
+}
+
+/* One paragraph: the opening sentence is ink, the rest muted (`154:8453`). */
 .teamsCopy {
+  font-family: var(--utopia-font-body);
+  font-size: 15px;
+  line-height: 1.5;
+  letter-spacing: -0.15px;
+  color: var(--utopia-text-primary);
+  width: 100%;
+}
+
+@media (min-width: 640px) {
+  .teamsCopy {
+    font-size: 18px;
+    letter-spacing: -0.18px;
+  }
+}
+
+.teamsCopyRest {
+  color: var(--utopia-text-muted);
+}
+
+.teamsGrid {
   display: flex;
   flex-direction: column;
   gap: 12px;
   width: 100%;
 }
 
-.teamsCopy .bodySm {
-  text-wrap: balance;
-}
-
-.teamsGrid {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 20px;
-  width: 100%;
-}
-
 @media (min-width: 640px) {
   .teamsGrid {
-    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
   }
 }
 
 @media (min-width: 1024px) {
   .teamsGrid {
-    grid-template-columns: repeat(3, 1fr);
+    flex-direction: row;
+    align-items: flex-start;
+  }
+}
+
+/* Mobile keeps all five cards in one column; tablet pairs the four behind the
+   featured one; desktop stands the featured card beside that 2×2 block. */
+.teamsGridRest {
+  display: contents;
+}
+
+@media (min-width: 640px) {
+  .teamsGridRest {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+    width: 100%;
+  }
+}
+
+@media (min-width: 1024px) {
+  .teamsGridRest {
+    flex: 1;
+    min-width: 0;
   }
 }
 
@@ -417,13 +702,35 @@ a.roleCard:hover {
   min-width: 0;
 }
 
+@media (min-width: 1024px) {
+  .teamCardFeatured {
+    width: 318px;
+    flex: none;
+  }
+}
+
 .teamImageWrap {
   position: relative;
   width: 100%;
   height: 160px;
-  border-radius: var(--utopia-radius-sm);
+  border-radius: var(--utopia-radius-card-lg);
   overflow: hidden;
   flex-shrink: 0;
+}
+
+/* The featured tile grows into a 200-tall band on tablet and a 425-tall
+   portrait on desktop, and takes the softer 20px corner (`154:8456`). */
+@media (min-width: 640px) {
+  .teamCardFeatured .teamImageWrap {
+    height: 200px;
+    border-radius: min(20px, var(--utopia-radius-cap-card));
+  }
+}
+
+@media (min-width: 1024px) {
+  .teamCardFeatured .teamImageWrap {
+    height: 425px;
+  }
 }
 
 .teamImageWrap::after {
@@ -447,47 +754,90 @@ a.roleCard:hover {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  gap: 8px;
+  gap: 4px;
   padding: 16px;
   width: 100%;
 }
 
+@media (min-width: 640px) {
+  .teamInfo {
+    gap: 8px;
+  }
+}
+
 .teamName {
   font-family: var(--utopia-font-body);
-  font-size: var(--utopia-text-lg);
+  font-size: 16px;
   line-height: 1.3;
-  letter-spacing: var(--utopia-tracking-tight-lg);
-  color: var(--utopia-text-black);
-  white-space: nowrap;
+  letter-spacing: 0;
+  color: var(--utopia-text-primary);
+}
+
+@media (min-width: 640px) {
+  .teamName {
+    font-size: 18px;
+    line-height: 1.4;
+    letter-spacing: -0.09px;
+  }
 }
 
 .teamPositions {
   font-family: var(--utopia-font-body);
-  font-size: 13px;
-  line-height: 1.3;
-  letter-spacing: -0.13px;
-  color: rgba(0, 0, 0, 0.4);
-  white-space: nowrap;
+  font-size: 15px;
+  line-height: 1.5;
+  letter-spacing: -0.15px;
+  color: rgba(22, 21, 20, 0.4);
 }
 
-/* ── Values ── */
+@media (min-width: 640px) {
+  .teamPositions {
+    font-size: 16px;
+    line-height: 1.4;
+    letter-spacing: -0.08px;
+  }
+}
+
+/* ── 5 values ──
+ * `154:3713` (pt-40 pb-60, gap-12 — an accordion), `154:5639` (py-80, gap-20 —
+ * a 2-column masonry whose second card spans both rows), `154:8552`
+ * (py-120, gap-20 — rows of 2 then 3). */
 
 .values {
-  padding-top: clamp(48px, 10vw, 120px);
-  padding-bottom: clamp(48px, 10vw, 120px);
+  padding-top: 40px;
+  padding-bottom: 60px;
+}
+
+@media (min-width: 640px) {
+  .values {
+    padding-top: 80px;
+    padding-bottom: 80px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .values {
+    padding-top: 120px;
+    padding-bottom: 120px;
+  }
 }
 
 .valuesInner {
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 12px;
+}
+
+@media (min-width: 640px) {
+  .valuesInner {
+    gap: 20px;
+  }
 }
 
 .valuesHero {
   position: relative;
   width: 100%;
-  height: clamp(280px, 50vw, 478px);
-  border-radius: var(--utopia-radius-sm);
+  height: 420px;
+  border-radius: min(20px, var(--utopia-radius-cap-card));
   overflow: hidden;
   background-color: #c5c2b8;
   background-size: cover;
@@ -495,11 +845,35 @@ a.roleCard:hover {
   background-repeat: no-repeat;
 }
 
+@media (min-width: 640px) {
+  .valuesHero {
+    height: 480px;
+    /* Card family, not `--utopia-radius-frame` — that token is the Opening
+       frame and drops to 0 in `sharp`, which would leave this plate square at
+       640+ while the mobile one stayed rounded. */
+    border-radius: min(24px, var(--utopia-radius-cap-card));
+  }
+}
+
+@media (min-width: 1024px) {
+  .valuesHero {
+    height: 478px;
+  }
+}
+
+/* The plate is not a flat 20% scrim — Figma runs a four-stop diagonal
+   (`154:8554`) that darkens the middle band the copy sits on. */
 .valuesHero::before {
   content: "";
   position: absolute;
   inset: 0;
-  background: rgba(0, 0, 0, 0.2);
+  background: linear-gradient(
+    228.674deg,
+    rgba(0, 0, 0, 0.12) 34.318%,
+    rgba(0, 0, 0, 0.48) 44.73%,
+    rgba(0, 0, 0, 0.36) 58.823%,
+    rgba(0, 0, 0, 0.12) 66.277%
+  );
   pointer-events: none;
   z-index: 1;
 }
@@ -512,130 +886,368 @@ a.roleCard:hover {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 20px;
+  gap: 16px;
   padding: 24px;
   text-align: center;
   color: var(--utopia-text-inverse);
 }
 
+@media (min-width: 640px) {
+  .valuesHeroContent {
+    gap: 20px;
+  }
+}
+
 .valuesHeroTitle {
   font-family: var(--utopia-font-display);
-  font-weight: 300;
-  font-size: clamp(28px, 5vw, 38px);
+  font-weight: 400;
+  font-size: 26px;
   line-height: 1.2;
-  letter-spacing: -1.14px;
+  letter-spacing: -0.78px;
+}
+
+@media (min-width: 640px) {
+  .valuesHeroTitle {
+    font-weight: 300;
+    font-size: 38px;
+    letter-spacing: 0;
+  }
 }
 
 .valuesHeroDescription {
   font-family: var(--utopia-font-body);
-  font-size: var(--utopia-text-md);
-  line-height: 1.3;
-  letter-spacing: var(--utopia-tracking-tight-md);
-  max-width: 385px;
+  font-size: 15px;
+  line-height: 1.5;
+  letter-spacing: -0.15px;
+  max-width: 264px;
 }
 
-.valuesRow {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 20px;
+@media (min-width: 640px) {
+  .valuesHeroDescription {
+    font-size: 18px;
+    letter-spacing: -0.18px;
+    max-width: 386px;
+  }
+}
+
+/* Tablet is a two-column masonry: card 2 is tall and spans both rows of the
+   first block (`154:5653` h-580 beside two 280s). Desktop breaks the same five
+   into a 2-up row over a 3-up row. */
+.valuesGrid {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+@media (min-width: 640px) {
+  .valuesGrid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    grid-auto-rows: 280px;
+    gap: 20px;
+  }
+
+  .valuesGrid > :nth-child(2) {
+    grid-row: span 2;
+  }
 }
 
 @media (min-width: 1024px) {
-  .valuesRowTwo {
-    grid-template-columns: repeat(2, 1fr);
+  .valuesGrid {
+    grid-template-columns: repeat(6, 1fr);
+    grid-auto-rows: auto;
   }
 
-  .valuesRowThree {
-    grid-template-columns: repeat(3, 1fr);
+  .valuesGrid > :nth-child(1),
+  .valuesGrid > :nth-child(2) {
+    grid-column: span 3;
+    grid-row: auto;
+    height: 240px;
+  }
+
+  .valuesGrid > :nth-child(n + 3) {
+    grid-column: span 2;
+    height: 280px;
   }
 }
 
 .valueCard {
+  position: relative;
   display: flex;
   flex-direction: column;
-  gap: 20px;
-  padding: 20px 20px 28px;
-  border-radius: var(--utopia-radius-sm);
-  background: #ebdfd2;
+  padding: 12px 16px;
+  border-radius: var(--utopia-radius-card-lg);
+  background: #f1e8dc;
+  backdrop-filter: blur(25px);
+}
+
+@media (min-width: 640px) {
+  .valueCard {
+    padding: 16px 28px 28px;
+    border-radius: min(20px, var(--utopia-radius-cap-card));
+  }
+}
+
+/* Mobile lays icon / copy / chevron across a row; from 640 up the icon sits
+   above the copy and there is no chevron.
+   The row stays a real <button> for keyboard and screen-reader users, but
+   every browser affordance that flashed on tap — the dark WebKit highlight,
+   the focus ring on pointer press, the double-tap text selection — is turned
+   off, which is what made a press look like a black overlay. */
+.valueRow {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  width: 100%;
+  padding: 0;
+  border: none;
+  background: none;
+  text-align: left;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
+  user-select: none;
+  appearance: none;
+  touch-action: manipulation;
+}
+
+.valueRow:focus {
+  outline: none;
+}
+
+.valueRow:focus-visible {
+  outline: 1px solid rgba(28, 28, 28, 0.55);
+  outline-offset: 6px;
+}
+
+@media (min-width: 640px) {
+  .valueRow {
+    flex-direction: column;
+    gap: 20px;
+    cursor: default;
+    user-select: auto;
+  }
 }
 
 .valueIcon {
-  width: 54px;
-  height: 56px;
+  width: 46px;
+  height: 48px;
   object-fit: contain;
+  flex-shrink: 0;
+}
+
+@media (min-width: 640px) {
+  .valueIcon {
+    width: 54px;
+    height: 56px;
+  }
+}
+
+/* Collapsed, the copy is one 19px line inside 14.5px of padding — 48 in total,
+   the icon's height, so the title sits level with it. Open, the padding goes
+   to the 16 of `154:3723` and the copy grows to 172.
+ *
+ * Only `padding` differs between the two states. An earlier version also
+ * flipped `justify-content` from `center` to `flex-start`, and because that is
+ * a discrete property it switched at the first frame while the padding was
+ * still at its old value — which threw the title to the top of the box and
+ * walked it back down over the transition. That was the dance. Padding alone
+ * moves the title 1.5px, smoothly, which is the same 26.5 → 28 shift Figma
+ * draws between its two cards. */
+.valueCopy {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+  justify-content: flex-start;
+  padding: 14.5px 0;
+  transition: padding var(--value-reveal, 260ms) ease;
+}
+
+.valueRowOpen .valueCopy {
+  padding: 16px 0;
+}
+
+@media (min-width: 640px) {
+  .valueCopy {
+    gap: 8px;
+    padding: 0;
+    width: 100%;
+    flex: none;
+    transition: none;
+  }
+}
+
+/* 0fr → 1fr animates the body's real height without measuring it in JS. */
+.valueBody {
+  display: grid;
+  grid-template-rows: 0fr;
+  margin-top: 0;
+  transition:
+    grid-template-rows var(--value-reveal, 260ms) ease,
+    margin-top var(--value-reveal, 260ms) ease,
+    opacity var(--value-reveal, 260ms) ease;
+  opacity: 0;
+}
+
+.valueRowOpen .valueBody {
+  grid-template-rows: 1fr;
+  margin-top: 16px;
+  opacity: 1;
+}
+
+@media (min-width: 640px) {
+  .valueBody {
+    grid-template-rows: 1fr;
+    margin-top: 0;
+    opacity: 1;
+    transition: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .valueCopy,
+  .valueBody {
+    transition: none;
+  }
 }
 
 .valueTitle {
   font-family: var(--utopia-font-body);
-  font-size: var(--utopia-text-lg);
-  line-height: 1.3;
-  letter-spacing: var(--utopia-tracking-tight-lg);
+  font-size: 18px;
+  /* Pinned rather than `normal` so the collapsed card's 14.5px padding lands
+     it on exactly 48 — the icon's height — at every font-loading state. */
+  line-height: 19px;
+  letter-spacing: -0.18px;
   color: var(--utopia-text-black);
+  /* Keeps the title clear of the absolutely placed chevron. */
+  padding-right: 48px;
+}
+
+@media (min-width: 640px) {
+  .valueTitle {
+    line-height: 1.4;
+    letter-spacing: -0.09px;
+    padding-right: 0;
+  }
 }
 
 .valueDescription {
   font-family: var(--utopia-font-body);
-  font-size: 13px;
-  line-height: 1.3;
-  letter-spacing: -0.13px;
+  font-size: 14.5px;
+  line-height: 1.45;
+  letter-spacing: -0.145px;
   color: rgba(0, 0, 0, 0.4);
-}
-
-/* ── Work carousel ── */
-
-.work {
-  position: relative;
-  background: #5c291d;
-  padding: clamp(64px, 10vw, 120px) 0;
+  /* The grid row is what clips it while closed. */
   overflow: hidden;
+  min-height: 0;
 }
 
-.workInner {
-  position: relative;
+/* Parked over the top-right corner rather than held in the row. Figma places
+   the 44px arrow at x=314 of a 314-wide content box — i.e. outside it — and
+   sizes the copy column at 199.8 while the body text inside it is 243 wide.
+   The two cannot both be true; taking the arrow out of flow is what yields
+   the stated 346×196 open card, and the body clears it because it starts
+   51px down. */
+.valueChevron {
+  position: absolute;
+  top: 14px;
+  right: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  /* Figma turns the shared right-chevron a quarter turn to point down
+     (`154:3736` rotate-90); open flips it the other way. */
+  transform: rotate(90deg);
+  transition:
+    transform var(--value-reveal, 260ms) ease,
+    top var(--value-reveal, 260ms) ease;
 }
 
-@media (min-width: 1024px) {
-  .workInner {
-    max-width: none;
+.valueChevronOpen {
+  top: 12px;
+  transform: rotate(-90deg);
+}
+
+@media (min-width: 640px) {
+  .valueChevron {
+    display: none;
   }
 }
 
-.workHeader {
+/* ── Work carousel ──
+ * `154:3769` (px-16 py-120, gap-40), `154:5679` (px-60 pt-160 pb-120, gap-64),
+ * `154:8592` (full-bleed, py-120, gap-64). The Figma frames draw the track
+ * mid-scroll — a storyboard state — so the rest position here starts the row
+ * at the section gutter. */
+
+.work {
   position: relative;
-  margin-bottom: 36px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 40px;
+  background: #5c2923;
+  padding: 120px 0;
+  overflow: hidden;
+}
+
+@media (min-width: 640px) {
+  .work {
+    gap: 64px;
+    padding-top: 160px;
+  }
 }
 
 @media (min-width: 1024px) {
-  /* Figma 1:351 — 64px between heading block and the card track */
-  .workHeader {
-    margin-bottom: 64px;
+  .work {
+    padding-top: 120px;
   }
 }
 
 .workTitle {
   font-family: var(--utopia-font-display);
-  font-weight: 400;
-  font-size: clamp(28px, 5vw, 38px);
+  font-weight: 300;
+  font-size: 26px;
   line-height: 1.2;
-  letter-spacing: -1.14px;
+  letter-spacing: -0.78px;
   color: var(--utopia-bg-cream);
   text-align: center;
-  max-width: 494px;
+  max-width: 294px;
   margin: 0 auto;
 }
 
+@media (min-width: 640px) {
+  .workTitle {
+    font-size: 36px;
+    letter-spacing: -1.08px;
+    max-width: 576px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .workTitle {
+    max-width: 590px;
+  }
+}
+
+/* Centred under the track below 1024; parked against the right gutter beside
+   the heading at 1024 and up (`154:8611` right-120 top-172). */
 .workNav {
-  display: none;
-  gap: 8px;
-  position: absolute;
-  bottom: 0;
-  /* Figma 1:351 — arrows sit 120px from the canvas edge (96px inside the 24px inset) */
-  right: 96px;
+  display: flex;
+  gap: 6px;
+  order: 3;
 }
 
 @media (min-width: 1024px) {
   .workNav {
-    display: flex;
+    position: absolute;
+    top: 172px;
+    right: var(--utopia-site-pad);
   }
 }
 
@@ -646,19 +1258,27 @@ a.roleCard:hover {
   width: 40px;
   height: 40px;
   border: none;
-  border-radius: var(--utopia-radius-sm);
+  border-radius: var(--utopia-radius-control);
+  background: rgba(241, 232, 220, 0.6);
   cursor: pointer;
   transition: opacity var(--utopia-transition-fast);
 }
 
-.workNavBtnActive {
-  background: rgba(249, 245, 234, 0.6);
-  opacity: 1;
+@media (min-width: 640px) {
+  .workNavBtn {
+    background: rgba(249, 245, 234, 0.6);
+  }
+}
+
+/* Only the wide frame separates the two states: the live arrow goes solid
+   cream, the spent one keeps the 60% wash (`154:8615` vs `154:8612`). */
+@media (min-width: 1024px) {
+  .workNavBtnActive {
+    background: var(--utopia-bg-cream);
+  }
 }
 
 .workNavBtnInactive {
-  background: var(--utopia-dock-bg);
-  opacity: 0.4;
   cursor: default;
 }
 
@@ -671,12 +1291,30 @@ a.roleCard:hover {
 }
 
 .workTrackWrap {
+  width: 100%;
   overflow-x: auto;
   scroll-snap-type: x mandatory;
   scroll-behavior: auto;
   -webkit-overflow-scrolling: touch;
   scrollbar-width: none;
-  container-type: inline-size;
+  padding-inline: 16px;
+  /* Without this the first snap position sits at the scrollport edge, so the
+     browser immediately scrolls the gutter away. */
+  scroll-padding-inline: 16px;
+}
+
+@media (min-width: 640px) {
+  .workTrackWrap {
+    padding-inline: 60px;
+    scroll-padding-inline: 60px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .workTrackWrap {
+    padding-inline: var(--utopia-site-pad);
+    scroll-padding-inline: var(--utopia-site-pad);
+  }
 }
 
 .workTrackWrap::-webkit-scrollbar {
@@ -685,17 +1323,22 @@ a.roleCard:hover {
 
 .workTrack {
   display: flex;
-  gap: 20px;
+  gap: 16px;
   width: max-content;
-  padding-bottom: 4px;
+}
+
+@media (min-width: 640px) {
+  .workTrack {
+    gap: 20px;
+  }
 }
 
 .workSlide {
   position: relative;
   flex-shrink: 0;
-  width: min(326px, calc(100vw - 32px));
-  height: 320px;
-  border-radius: var(--utopia-radius-sm);
+  width: 222px;
+  height: 218px;
+  border-radius: var(--utopia-radius-card-lg);
   overflow: hidden;
   scroll-snap-align: start;
   scroll-snap-stop: always;
@@ -703,9 +1346,10 @@ a.roleCard:hover {
   background: #4a2018;
 }
 
-@media (min-width: 1024px) {
+@media (min-width: 640px) {
   .workSlide {
-    width: min(326px, calc((100cqw - 40px) / 3));
+    width: 326px;
+    height: 320px;
   }
 }
 
@@ -719,24 +1363,46 @@ a.roleCard:hover {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  padding: 20px;
-  background: #ebdfd2;
+  padding: 16px;
+  background: #e2d6cc;
+}
+
+@media (min-width: 640px) {
+  .workSlideText {
+    padding: 24px;
+  }
 }
 
 .workSlideBody {
   font-family: var(--utopia-font-body);
-  font-size: var(--utopia-text-md);
+  font-size: 13px;
   line-height: 1.3;
-  letter-spacing: var(--utopia-tracking-tight-md);
-  color: var(--utopia-text-black);
+  letter-spacing: -0.065px;
+  color: var(--utopia-text-primary);
+}
+
+@media (min-width: 640px) {
+  .workSlideBody {
+    font-size: 16px;
+    line-height: 1.5;
+    letter-spacing: -0.08px;
+  }
 }
 
 .workSlideTextTitle {
   font-family: var(--utopia-font-body);
-  font-size: var(--utopia-text-lg);
+  font-size: 16px;
   line-height: 1.3;
-  letter-spacing: var(--utopia-tracking-tight-lg);
-  color: var(--utopia-text-black);
+  letter-spacing: 0;
+  color: var(--utopia-text-primary);
+}
+
+@media (min-width: 640px) {
+  .workSlideTextTitle {
+    font-size: 18px;
+    line-height: 1.4;
+    letter-spacing: -0.09px;
+  }
 }
 
 .workSlideImage {
@@ -778,30 +1444,46 @@ a.roleCard:hover {
 .workSlideBadge {
   position: absolute;
   top: 20px;
-  left: 20px;
+  left: 16px;
   z-index: 3;
   padding: 4px 18px;
   border-radius: min(80px, var(--utopia-radius-cap-control));
   background: rgba(0, 0, 0, 0.2);
   backdrop-filter: blur(8px);
   font-family: var(--utopia-font-body);
-  font-size: var(--utopia-text-xs);
+  font-size: 12px;
   line-height: 1.3;
-  letter-spacing: var(--utopia-tracking-tight-xs);
+  letter-spacing: -0.12px;
   color: var(--utopia-text-inverse);
   text-transform: uppercase;
 }
 
+@media (min-width: 640px) {
+  .workSlideBadge {
+    left: 24px;
+  }
+}
+
 .workSlideTitle {
   position: absolute;
-  left: 20px;
-  bottom: 12px;
+  left: 16px;
+  bottom: 16px;
   z-index: 3;
   font-family: var(--utopia-font-body);
-  font-size: var(--utopia-text-lg);
+  font-size: 16px;
   line-height: 1.3;
-  letter-spacing: var(--utopia-tracking-tight-lg);
+  letter-spacing: 0;
   color: var(--utopia-text-inverse);
+}
+
+@media (min-width: 640px) {
+  .workSlideTitle {
+    left: 24px;
+    bottom: 20px;
+    font-size: 18px;
+    line-height: 1.4;
+    letter-spacing: -0.09px;
+  }
 }
 
 .srOnly {
@@ -816,39 +1498,142 @@ a.roleCard:hover {
   border: 0;
 }
 
-/* ── CTA ── */
+/* ── CTA ──
+ * `154:3797` (pt-140 pb-120), `154:5707` (pt-200 pb-180), `154:8618`
+ * (pt-120 pb-104). A cream gradient plate bleeds up out of the top edge. */
 
 .cta {
-  background: #ebdfd2;
-  padding: clamp(56px, 10vw, 80px) var(--utopia-content-inset);
-}
-
-.ctaContent {
+  position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 30px;
-  text-align: center;
+  background: #ebdfd2;
+  padding: 140px 16px 120px;
+  overflow: hidden;
 }
 
+@media (min-width: 640px) {
+  .cta {
+    padding: 200px 60px 180px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .cta {
+    padding: 120px 24px 104px;
+  }
+}
+
+.cta::before {
+  content: "";
+  position: absolute;
+  top: -97px;
+  left: 0;
+  width: 100%;
+  height: 435px;
+  background: linear-gradient(
+    180deg,
+    rgba(249, 245, 234, 0.58) 21.094%,
+    rgba(249, 245, 234, 0) 100%
+  );
+  pointer-events: none;
+}
+
+.ctaContent {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 32px;
+  text-align: center;
+  width: 100%;
+  max-width: 589px;
+}
+
+.ctaTitle {
+  font-family: var(--utopia-font-display);
+  font-weight: 400;
+  font-size: 26px;
+  line-height: 1.2;
+  letter-spacing: -0.78px;
+  color: var(--utopia-text-primary);
+}
+
+@media (min-width: 640px) {
+  .ctaTitle {
+    font-size: 38px;
+    letter-spacing: -1.14px;
+  }
+}
+
+/* 28 inside the heading group, 32 out to the button (`154:8620`). */
 .ctaCopy {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  align-items: center;
+  gap: 28px;
+  width: 100%;
+}
+
+/* One paragraph, muted, with the middle clause in ink (`154:8623`). Width is a
+   share of the 589 copy column, not a pinned px value: 78% is the 270 of
+   `154:3802` at 346 and the 460 of `154:5712` at 589, and 91.7% is the 540 of
+   `154:8623`. */
+.ctaBody {
+  font-family: var(--utopia-font-body);
+  font-size: 15px;
+  line-height: 1.5;
+  letter-spacing: -0.15px;
+  color: var(--utopia-text-muted);
+  max-width: 78%;
+  margin: 0 auto;
+}
+
+@media (min-width: 640px) {
+  .ctaBody {
+    font-size: 16px;
+    letter-spacing: -0.16px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .ctaBody {
+    font-size: 18px;
+    letter-spacing: -0.18px;
+    max-width: 91.7%;
+  }
+}
+
+.ctaBodyStrong {
+  color: var(--utopia-text-primary);
 }
 
 .ctaButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 40px;
   padding: 11px 24px;
-  border: none;
-  border-radius: var(--utopia-radius-sm);
-  background: rgba(249, 245, 234, 0.8);
+  border: 0.5px solid rgba(255, 255, 255, 0.4);
+  border-radius: var(--utopia-radius-control);
+  background: rgba(249, 245, 234, 0.6);
   font-family: var(--utopia-font-body);
-  font-size: var(--utopia-text-md);
+  font-size: 16px;
   line-height: 18px;
-  letter-spacing: var(--utopia-tracking-tight-md);
+  letter-spacing: 0;
   color: var(--utopia-text-black);
   cursor: pointer;
   text-decoration: none;
+}
+
+@media (min-width: 640px) {
+  .ctaButton {
+    height: 44px;
+    background: rgba(249, 245, 234, 0.8);
+    font-size: 17px;
+    letter-spacing: -0.17px;
+    color: var(--utopia-text-primary);
+  }
 }
 
 .ctaButton:hover {
@@ -860,21 +1645,49 @@ a.roleCard:hover {
 .filterField {
   position: relative;
   width: 100%;
+  min-width: 0;
 }
 
 .filterField .filterControl {
   width: 100%;
 }
 
+/* Below 1024 the search spans both columns and the two dropdowns share the
+   row beneath it. */
+.filterFieldSearch {
+  grid-column: 1 / -1;
+  order: 1;
+}
+
+.filterFieldDepartment {
+  order: 2;
+}
+
+.filterFieldLocation {
+  order: 3;
+}
+
 @media (min-width: 1024px) {
+  .filters {
+    display: flex;
+    gap: 20px;
+  }
+
+  .filterFieldDepartment {
+    display: none;
+  }
+
   .filterFieldLocation {
+    order: 1;
     width: 285px;
-    flex-shrink: 0;
+    flex: none;
   }
 
   .filterFieldSearch {
+    order: 2;
     flex: 1;
     min-width: 0;
+    grid-column: auto;
   }
 }
 
@@ -996,7 +1809,7 @@ a.roleCard:hover {
   gap: 12px;
 }
 
-.filterLocation:focus-visible,
+.filterControl:focus-visible,
 .filterInput:focus-visible,
 .filterOption:focus-visible,
 .departmentButton:focus-visible,

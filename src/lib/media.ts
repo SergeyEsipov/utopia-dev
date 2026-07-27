@@ -79,12 +79,15 @@ export const images = {
   footerPoster: "/assets/opt/cta-footer-poster.jpg",
   footerWordmark: "/assets/footer-wordmark.svg",
 
-  careerTeamDesign: "/assets/careers/team-design.jpg",
-  careerTeamOperations: "/assets/careers/team-operations.jpg",
-  careerTeamResorts: "/assets/careers/team-resorts.jpg",
-  careerTeamLegal: "/assets/careers/team-legal.jpg",
-  careerTeamTechnical: "/assets/careers/team-technical.jpg",
-  careerTeamFinance: "/assets/careers/team-finance.jpg",
+  /* Figma 24.07 `154:8454` ships a new photo set for the team cards, and the
+     featured "Hospitality" card deliberately carries a different picture on
+     desktop (tall 318×425 crop) than on tablet/mobile (wide 160-tall band). */
+  careerTeamHospitality: "/assets/careers/team-hospitality.jpg",
+  careerTeamHospitalityWide: "/assets/careers/team-hospitality-tall.jpg",
+  careerTeamDesignDev: "/assets/careers/team-design-dev.jpg",
+  careerTeamLegalDesk: "/assets/careers/team-legal-desk.jpg",
+  careerTeamFinanceDesk: "/assets/careers/team-finance-desk.jpg",
+  careerTeamOperationsSuite: "/assets/careers/team-operations-suite.jpg",
   careerValuesHero: "/assets/careers/values-hero-bg.jpg",
   careerValueNeverSettle: "/assets/careers/value-never-settle.png",
   careerValueDreamTeam: "/assets/careers/value-dream-team.png",

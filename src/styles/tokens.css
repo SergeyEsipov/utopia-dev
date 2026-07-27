@@ -51,6 +51,38 @@
   --utopia-tracking-display-md: -0.78px;
   --utopia-tracking-display-lg: -0.52px;
 
+  /* ── Typography: desktop display scale ──
+     The prototype (desktop_v8/v9) does NOT scale type fluidly across the whole
+     range. It holds the designed values flat, interpolates them over a single
+     1800→1920 window, holds flat again to 2000, then hands the ultra-wide tier
+     a separate control scale (see the two media queries below). Because every
+     clamp's lower bound is exactly the flat value, nothing moves at or below
+     1800 and there is no jump at the breakpoint — the design stays pixel-exact
+     at 1440 while wide screens stop looking under-set.
+
+     Aspect-ratio guards come from the prototype too: a tall/portrait display is
+     not a "wide screen" even when it is 2000px across. */
+  --utopia-section-title-size: 36px;
+  --utopia-section-title-tracking: -1.08px;
+  --utopia-hero-title-size: 40px;
+  --utopia-hero-title-tracking: -1.2px;
+  --utopia-body-copy-size: 17px;
+  --utopia-body-copy-tracking: -0.17px;
+  --utopia-button-text-size: 17px;
+  --utopia-button-text-tracking: -0.17px;
+  --utopia-control-line-height: 20px;
+  --utopia-filter-tab-size: 18px;
+  --utopia-filter-tab-tracking: -0.18px;
+  --utopia-filter-tab-leading: 21px;
+  /* Width of the destination label pill inside the image nav. */
+  --utopia-dest-label-w: 320px;
+  /* Multipliers the ultra-wide tier turns on; 1 everywhere else so every
+     `calc(<px> * var(--utopia-control-scale))` is a no-op below 2000. */
+  --utopia-control-scale: 1;
+  --utopia-menu-scale: 1;
+  /* Gap between the arrows and the label inside a nav pill. */
+  --utopia-control-gap: 8px;
+
   /* ── Typography: Line Heights ── */
   --utopia-leading-tight: 1.2;
   --utopia-leading-snug: 1.25;
@@ -71,6 +103,9 @@
   --utopia-mobile-width: 378px;
   --utopia-tablet-visual-max: 840px;
   --utopia-desktop-width: 1440px;
+  /* Where the nav bar stops growing and starts centring — Figma `154:5992`
+     caps it at 1838 with 80px gutters; same content span as 1920 with ours. */
+  --utopia-nav-max: 1920px;
   --utopia-content-padding-x: 16px;
   --utopia-content-padding-x-lg: 32px;
   --utopia-section-padding-y: 60px;
@@ -88,20 +123,53 @@
   --utopia-radius-sm: 16px;
   --utopia-radius-md: 24px;
   --utopia-radius-lg: 26px;
-  --utopia-radius-pill: 160px;
   --utopia-radius-progress: 30px;
-  /* Media surfaces: destination cards, the ecosystem image, the fullwidth
-     frame. Separate from the control radii above because the two families
-     collapse to different values in the sharp language. */
-  --utopia-radius-card: 16px;
-  --utopia-radius-card-active: 20px;
-  --utopia-radius-frame: 32px;
+
+  /* ── Controls ──
+     Both prototypes give EVERY control one radius — `.nav__cta`,
+     `.nav__burger`, `.hero__cta`, `.img-nav__btn`, `.img-nav__label`,
+     `.fullwidth__cta` and `.nav-menu__card-arrow` all share it. In v8 that is
+     100px (fully pill at any control height); in v9 it is 2px. Use this for
+     anything the user clicks — never `--utopia-radius-sm`, which is a card
+     radius and leaves controls stranded at 16px in the rounded language. */
+  --utopia-radius-control: 100px;
+  /* Kept as the name older rules use; same value, same meaning. */
+  --utopia-radius-pill: var(--utopia-radius-control);
+
+  /* ── Media surfaces ──
+     The second family: cards and framed imagery. Measured off both builds —
+     v8 `.hero__card` 12 / centre card 16 / `.pw-card` 12 / `.pw-card.is-active`
+     16 / `.nav-menu__card` 16 / `.fullwidth__*` 24, against v9's flat 6 with a
+     7 on the hero's centre card alone. */
+  --utopia-radius-card: 12px;
+  --utopia-radius-card-active: 16px;
+  --utopia-radius-card-lg: 16px;
+  /* Unitless twins of the two card radii. The hero multiplies its corners by a
+     scale that is itself a length (see --hero-card-unit), and `length * length`
+     is not a thing in calc() — so the hero reads these numbers instead. */
+  --utopia-radius-card-n: 12;
+  --utopia-radius-card-active-n: 16;
+  --utopia-radius-frame: 24px;
   /* Caps for one-off radii that are not worth their own token (careers chips,
      badges, job cards). Used as `min(<designed px>, var(--cap))`: in the
      rounded language the cap is larger than anything, so the designed value
      wins untouched; in sharp it clamps the whole family down. */
   --utopia-radius-cap-card: 999px;
   --utopia-radius-cap-control: 999px;
+
+  /* ── Destinations image: the one place the two languages differ structurally ──
+     desktop_v8 keeps it an inset card that fills the gutter column (1200 at
+     1440, 1680 at 1920) with a 28px radius and 48px of clearance below;
+     desktop_v9 pushes it full-bleed to both screen edges with square corners
+     and runs it to the very bottom of the screen. Measured off both builds.
+     Everything else on the screen — the 836 title, 534/640 body, 352 filter
+     row, 424 nav pill, 120 gutters — is identical between them. */
+  --utopia-dest-image-width: 100%;
+  --utopia-dest-image-bleed: 0px;
+  --utopia-dest-image-radius: 28px;
+  --utopia-dest-pad-bottom: 48px;
+  /* v9 alone shaves 2px off the section title on this screen. */
+  --utopia-dest-title-delta: 0px;
 
   /* ── Effects ── */
   --utopia-blur-logo: 16px;
@@ -118,6 +186,44 @@
   --utopia-z-overlay: 150;
 }
 
+/* Wide-screen interpolation window (prototype desktop_v9 @1800). Each clamp's
+   low bound reproduces the flat value at exactly 1800px and its high bound is
+   reached at exactly 1920px, so the ramp is confined to those 120px and every
+   designed breakpoint below keeps its literal value. */
+@media (min-width: 1800px) and (min-aspect-ratio: 1101/1000) {
+  :root {
+    --utopia-section-title-size: clamp(36px, calc(3.333vw - 24px), 40px);
+    --utopia-section-title-tracking: clamp(-1.2px, calc(-0.1vw + 0.72px), -1.08px);
+    --utopia-hero-title-size: clamp(40px, calc(6.667vw - 80px), 48px);
+    --utopia-hero-title-tracking: clamp(-1.44px, calc(-0.2vw + 2.4px), -1.2px);
+    --utopia-body-copy-size: clamp(17px, calc(1.574vw - 11.333px), 18.89px);
+    --utopia-body-copy-tracking: clamp(-0.189px, calc(-0.0157vw + 0.1126px), -0.17px);
+    --utopia-button-text-size: var(--utopia-body-copy-size);
+    --utopia-button-text-tracking: var(--utopia-body-copy-tracking);
+    --utopia-control-line-height: clamp(20px, calc(1.852vw - 13.333px), 22.22px);
+  }
+}
+
+/* Ultra-wide tier. Above 2000 the prototype stops growing the type and instead
+   scales the controls as a unit (44px pills become 55px, etc.), which is why
+   the hero title drops back to 44px here — it is multiplied, not set. */
+@media (min-width: 2000px) and (min-aspect-ratio: 1101/1000) {
+  :root {
+    --utopia-menu-scale: 1.3;
+    --utopia-control-scale: 1.25;
+    --utopia-control-gap: 12px;
+    --utopia-dest-label-w: 400px;
+    --utopia-filter-tab-size: 19px;
+    --utopia-filter-tab-tracking: -0.19px;
+    --utopia-filter-tab-leading: 22px;
+    --utopia-hero-title-size: 44px;
+    --utopia-hero-title-tracking: -1.32px;
+    --utopia-button-text-size: 19.55px;
+    --utopia-button-text-tracking: -0.1955px;
+    --utopia-control-line-height: 23px;
+  }
+}
+
 /* "Sharp" corner language (prototype desktop_v9): cards ~6px, controls/pills
    near-square. The client is choosing between this and the default "rounded"
    look (desktop_v8); switch with data-variant on <html> — set from
@@ -126,12 +232,22 @@
   --utopia-radius-sm: 6px;
   --utopia-radius-md: 6px;
   --utopia-radius-lg: 7px;
-  --utopia-radius-pill: 2px;
   --utopia-radius-progress: 2px;
-  /* desktop_v9: --radius-card 6, --radius-card-active 7, fullwidth frame 0. */
+  /* desktop_v9: --radius-control 2, --radius-card 6, --radius-card-active 7
+     (used by the hero's centre card only), fullwidth frame 0. */
+  --utopia-radius-control: 2px;
   --utopia-radius-card: 6px;
   --utopia-radius-card-active: 7px;
+  --utopia-radius-card-lg: 6px;
+  --utopia-radius-card-n: 6;
+  --utopia-radius-card-active-n: 7;
   --utopia-radius-frame: 0px;
   --utopia-radius-cap-card: 6px;
   --utopia-radius-cap-control: 2px;
+
+  --utopia-dest-image-width: 100vw;
+  --utopia-dest-image-bleed: calc(-1 * var(--utopia-site-pad));
+  --utopia-dest-image-radius: 0px;
+  --utopia-dest-pad-bottom: 0px;
+  --utopia-dest-title-delta: -2px;
 }

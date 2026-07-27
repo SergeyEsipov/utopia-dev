@@ -1,13 +1,26 @@
+/* Figma 24.07 `154:8318`: the dock's own container is the backdrop — a
+   full-width cream bar with 10px of padding all round (so 60px tall), square
+   corners, flush to the bottom edge. It reads as one block with the cookie
+   sheet stacked directly on top of it. */
 .dockWrap {
   display: flex;
   justify-content: center;
-  padding: 0 10px 12px;
+  padding: var(--utopia-dock-pad);
   position: fixed;
   bottom: 0;
   left: 0;
   right: 0;
   z-index: var(--utopia-z-dock);
+  background: var(--utopia-bg-cream);
   pointer-events: none;
+}
+
+/* Tablet keeps its previous treatment until that tier is revisited. */
+@media (min-width: 640px) {
+  .dockWrap {
+    padding: 0 10px 12px;
+    background: none;
+  }
 }
 
 @media (min-width: 1024px) {

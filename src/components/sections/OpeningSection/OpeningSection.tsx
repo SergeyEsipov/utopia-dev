@@ -1,11 +1,9 @@
 "use client";
 
 import { useRef } from "react";
-import { useRouter } from "next/navigation";
 import { Heading, Text, Button, NavPill } from "@/design-system/components";
 import { openingCopy, normalizeOpeningSlideIndex } from "@/lib/opening-carousel";
 import { triggerHaptic } from "@/lib/haptics";
-import { NOT_FOUND_HREF } from "@/lib/routes";
 import { useReveal } from "@/hooks/useReveal";
 import { useFullwidthScale } from "./useFullwidthScale";
 import {
@@ -16,7 +14,6 @@ import styles from "./opening-section.module.css";
 
 export function OpeningSection() {
   const slidesRef = useRef<HTMLDivElement>(null);
-  const router = useRouter();
   const {
     index,
     loopIndex,
@@ -105,14 +102,34 @@ export function OpeningSection() {
         </div>
 
         <div className={styles.content} data-fullwidth-content>
-          <div className={styles.textBlock} data-reveal>
-            <Text variant="md" muted className={styles.eyebrow}>
+          {/* Four separate rungs on a 140ms ladder, as the prototype animates
+              them — not one block. Indices are static: the order never
+              changes. */}
+          <div className={styles.textBlock}>
+            <Text
+              variant="md"
+              muted
+              className={styles.eyebrow}
+              data-fullwidth-reveal
+              style={{ "--reveal-i": 0 } as React.CSSProperties}
+            >
               {openingCopy.eyebrow}
             </Text>
-            <Heading variant="section" as="h2" className={styles.title}>
+            <Heading
+              variant="section"
+              as="h2"
+              className={styles.title}
+              data-fullwidth-reveal
+              style={{ "--reveal-i": 1 } as React.CSSProperties}
+            >
               {openingCopy.title}
             </Heading>
-            <Text variant="base" className={styles.description}>
+            <Text
+              variant="base"
+              className={styles.description}
+              data-fullwidth-reveal
+              style={{ "--reveal-i": 2 } as React.CSSProperties}
+            >
               {openingCopy.description}
             </Text>
           </div>
@@ -121,10 +138,10 @@ export function OpeningSection() {
             variant="outline"
             className={styles.cta}
             contentClassName={styles.ctaContent}
-            onClick={() => {
-              triggerHaptic("light");
-              router.push(NOT_FOUND_HREF);
-            }}
+            data-fullwidth-reveal
+            style={{ "--reveal-i": 3 } as React.CSSProperties}
+            // No destination yet — see routes.ts.
+            onClick={() => triggerHaptic("light")}
           >
             {openingCopy.cta}
           </Button>

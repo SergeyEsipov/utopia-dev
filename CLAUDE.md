@@ -29,25 +29,99 @@ rather than silently picking one.**
 1. **Figma** — a *local* desktop file (no shareable key), read through the
    `figma-desktop` Dev Mode MCP. The file holds several dated revisions side by
    side on page `0:1`, each labelled by a small text frame:
-   - `44:1100` = **"17.07" → the current revision; all its frames are `44:*`**
-   - `1:136` = "13.07" → the older revision (`1:*`) most of the app was built from
-   - Key 17.07 nodes: home mobile `44:3275`, mobile footer `44:3411`, home desktop
-     `44:4509`, tablet `44:1782`, Careers `44:1101`, Job Opening `44:1401`,
-     Terms `44:1615`, menu `44:4820`.
-   - `get_metadata` on `0:1` exceeds the token limit and is dumped to a file —
-     parse that file instead of retrying (top-level frames are at 2-space indent).
-   - MCP connects at session start only; if it drops, the session must be
-     restarted (reopening Figma does not reconnect it).
+   - `154:1961` = **"24.07" → the current revision; all its frames are `154:*`**
+   - `44:1100` = "17.07" (`44:*`), `1:136` = "13.07" (`1:*`) — earlier revisions
+   - Key 24.07 nodes: home desktop `154:4120`, tablet `154:5177`, mobile
+     `154:6204`, footer `154:2140`, nav-bar states `154:7489`/`154:7512`, open
+     menu `154:7535`, Careers `154:8340`, Job Opening `154:1974`, cookie card
+     `154:8226`, apply-terms dialog `154:2258`.
+   - The ultra-wide `154:*` frames ("Section 2/3/4", 14000px) are animation
+     storyboards, not layouts to build.
+   - Careers `154:8340` (desktop) / `154:5472` (tablet) / `154:3552` (mobile);
+     mobile open menu `154:7935` (collapsed) and `154:7993` (expanded); the dock
+     band `154:8318`; the mobile cookie sheet `154:8332`; the mobile footer
+     `154:6340`; the hero responsive study `154:5992` (see below).
+   - **The MCP dies after roughly 6–8 calls** and only a session restart revives
+     it — reopening Figma does not. So **spend the first call on `get_metadata`
+     for page `0:1`**: it exceeds the token limit and is written to a file under
+     `tool-results/`, and that one file carries x/y/w/h for *every node*, which
+     covers layout, spacing and block structure with no further calls. Parse it
+     with a script (top-level frames are at 2-space indent) and save the live
+     calls for `get_design_context`, i.e. colours, type, radii and borders.
+     If a node that answered earlier starts failing, the connection is gone —
+     do not keep retrying other nodes.
 
 2. **The designers' static prototype repo at `../Utopia`** (EmbacyDev/Utopia) —
    plain HTML/CSS/JS, and the source of truth for *behaviour* (scroll choreography,
    transitions) that Figma cannot express, plus for **media files** (originals beat
    Figma exports).
-   - **Desktop anchor: `desktop_v5`** (what GH Pages serves at the root).
-     v3's and v4's hero→destinations "card morph" was abandoned — do not port it.
+   - **Desktop anchors: `desktop_v8` and `desktop_v9`** — the two builds the
+     client is choosing between (see "Two design variants" below). GH Pages
+     still serves the older `desktop_v5` at the root; ignore that. The v3/v4/v5
+     hero→destinations treatments are all superseded — do not port them.
    - **Mobile anchor: `v3`**.
    - Commit timestamps matter: a prototype commit made *after* a Figma frame
      usually reflects a newer decision.
+
+## Two design variants (the client is still choosing)
+
+The designers shipped two desktop builds that differ in their corner language
+and in some scroll choreography. Both are live at once:
+
+| variant | prototype | how to see it |
+|---|---|---|
+| `rounded` (default) | `desktop_v8` | `/?variant=rounded` |
+| `sharp` | `desktop_v9` | `/?variant=sharp` |
+
+The choice persists for the browser session, so in-app navigation keeps it.
+`NEXT_PUBLIC_SITE_VARIANT` sets what an untouched first load shows.
+
+- **CSS side**: `--utopia-radius-*` in `tokens.css`, overridden under
+  `:root[data-variant="sharp"]`. Anything that reads those tokens switches for
+  free — so use them rather than literal px. One-off radii that must keep their
+  rounded value use `min(<px>, var(--utopia-radius-cap-card|control))`.
+- **There are exactly two radius families, and picking the wrong one is
+  invisible in `sharp`.** Both prototypes collapse everything to 2/6/7 in the
+  sharp language, so a control that wrongly reads a card token looks fine there
+  and is stranded at 16px in the rounded one, where controls are *fully pill*.
+  That is what made the buttons disagree across the site.
+
+  | | rounded (v8) | sharp (v9) | for |
+  |---|---|---|---|
+  | `--utopia-radius-control` | 100px | 2px | every button, pill, arrow, glass surface |
+  | `--utopia-radius-card` | 12px | 6px | hero side card, inactive PW card |
+  | `--utopia-radius-card-active` | 16px | 7px | hero centre card |
+  | `--utopia-radius-card-lg` | 16px | 6px | active PW card, menu card |
+  | `--utopia-radius-frame` | 24px | 0 | the Opening frame |
+
+  `--utopia-radius-sm/md/lg` are *card* values — never reach for them on
+  something clickable. `--utopia-radius-card-n` / `-card-active-n` are unitless
+  twins that exist only because the hero multiplies its corners by a scale that
+  is itself a length (below), and `length * length` is not valid `calc()`.
+- **JS side**: `src/lib/site-variant.ts` carries the per-variant animation
+  constants (the fullwidth section's scale ramp differs between the builds).
+- **Watch out**: a component that pins a radius inline opts itself out of the
+  switch — that is exactly what `GlassSurface`'s old `radius = 16` default did,
+  and it silently froze every glass control in the rounded language.
+
+**They diverge structurally on the destinations screen** — this is not just
+radii, and it is measured off both builds:
+
+| | `rounded` (v8) | `sharp` (v9) |
+|---|---|---|
+| image | inset card filling the gutter column: 1200 @1440, 1680 @1920, 2320 @2560 | full-bleed `100vw`, runs to both screen edges |
+| radius | 28px | 0 |
+| bottom | 48px clearance | flush to the bottom of the screen |
+| crop | `object-position: 50% 50%` | `50% 100%` (taller crop, subject holds the lower edge) |
+| section title | `--utopia-section-title-size` (36→40) | that minus 2px (34→38) |
+
+Everything else on that screen is identical between them: 120px gutters, an
+836 title, a 534 body (640 past 1800), the 352 filter row and the 424 nav pill.
+The fork is expressed as tokens (`--utopia-dest-image-*`, `--utopia-dest-title-delta`)
+plus one JSON field, so neither component branches on the variant itself.
+
+**Figma 24.07 draws the v8 version** (`154:4164` is a 1200-wide "Section card"
+at x=120). It is not a conflict — Figma simply documents the rounded build.
 
 ## Layout conventions
 
@@ -79,8 +153,88 @@ Home section order (`src/app/page.tsx`): Hero → **Ecosystem** (this is the
 "destinations" section: heading + Tropical/Urban/Alpine tabs + big image) →
 Opening → Days → Footer.
 
+## Typography on wide screens
+
+The prototype does **not** scale type fluidly across the whole range, and
+copying a naive `clamp(…, vw, …)` over it will miss every designed value. It
+holds the numbers flat, ramps them over a single **1800→1920** window, holds
+flat again to 2000, then switches the ultra-wide tier to a *control scale*
+rather than more type growth. Ported verbatim into `tokens.css`:
+
+| token | ≤1800 | 1920+ | ≥2000 |
+|---|---|---|---|
+| `--utopia-hero-title-size` | 40 | 48 | 44 (× 1.25 controls) |
+| `--utopia-section-title-size` | 36 | 40 | 40 |
+| `--utopia-body-copy-size` | 17 | 18.89 | 18.89 |
+| `--utopia-filter-tab-size` | 18 | 18 | 19 |
+| `--utopia-control-scale` | 1 | 1 | 1.25 |
+
+Each clamp's lower bound equals the flat value at exactly 1800, so nothing
+moves at or below it and there is no jump at the breakpoint. Both media queries
+are gated on `min-aspect-ratio: 1101/1000` — a tall display is not a wide one
+even at 2000px across. **Use these tokens for display type instead of literal
+px**, or the text freezes on wide screens the way the old hardcoded 38/40 did.
+
+## The hero card track scales; it does not step
+
+Figma's hero study `154:5992` holds the same screen at **five** widths — 768,
+1223, 1440, 1839 and 2879 — and both prototypes drive all of them from one
+number (`computeSlots`):
+
+```
+scale = 1                                       up to 1440
+scale = 1 + (vw - 1440) * (1.1752266 - 1) / 399 ramping to 1839
+scale = 1.1752266                               held to 1897
+scale = clamp(1.27, vw * 1.34 / 2638, 1.98)     from 1897 — the five-card layout
+```
+
+1.1752266 is the designers' own constant (`554.7069702148438 / 472`). Width,
+height, gap, border, radius and every caption metric are that scale times the
+1440 value, so **never add a second hard tier** — an old `@media (min-width:
+1900px)` block pinning 620×348 / 496×280 came from the 13.07 frames and froze
+the track. Past 1897 the composition itself changes: five cards, not three.
+
+It is carried as `--hero-card-unit`, a **length** equal to `1px * scale`, and
+every metric is written `calc(<number> * var(--hero-card-unit))`. A unitless
+custom property cannot be built from `100vw` (`1 + <length>` is invalid calc
+and silently voids the property, collapsing every card to `width: auto`).
+
+Two places where the sources disagree, both resolved toward the prototype
+because it was committed after the Figma revision:
+- at 1440 the prototype multiplies by a further **0.95** (`compactHeroCards`,
+  which also fires below 1600 on short viewports) to fit its own hero height;
+  Figma's 1440 frame draws the full 472×266 and that is what we render;
+- at 2879 Figma still draws the 1.1752 ramp value while the prototype's
+  five-card branch gives ~1.4624 (measured: 690×389 side, 863×484 centre).
+
+## Slider content lives in JSON
+
+`src/content/slides.json` holds every slide of every slider (hero,
+destinations, opening, private-world) with its copy, media and framing.
+`src/lib/slides-content.ts` is the only reader; the four carousel modules
+re-export from it with their public API unchanged, so components are already
+decoupled for the CMS swap. Framing composes in three layers — file defaults,
+slider-wide, then per-slide — and reaches CSS as `--slide-*` custom properties
+so a per-slide crop composes with an animation instead of overwriting it.
+
+The prototype ships **no per-width image sources** (no `srcset`, no `<picture>`,
+no media-query background swaps): what changes with width is the frame, not the
+file. Its only per-image treatments are the two recorded in the JSON.
+
 ## Gotchas (each of these cost real debugging time)
 
+- **The nav has a cap, but it is not the 1440 layout column.** `max-width:
+  1440px` parked the wordmark 360px from the edge at 1920 and 680px at 2560.
+  The real cap is `--utopia-nav-max` (1920) with `--utopia-site-pad` gutters:
+  120px from the edge at every width through 1920, then the bar centres — 440px
+  at 2560. Figma `154:5992` states it as 1838 wide with 80px gutters, the same
+  content span, and its ultra-wide frame puts the wordmark at 601 where we put
+  it at 600. The prototypes never cap the bar at all, so this one follows Figma
+  deliberately. Gutters are always `--utopia-site-pad`, never a hardcoded 120.
+- **`margin-left: calc(50% - 50vw)` only breaks an element out if its container
+  is viewport-wide.** Inside a padded column it resolves against the column and
+  lands somewhere arbitrary. Inside one, use `align-self: stretch` with a
+  negative inline margin equal to the padding instead.
 - **`overflow-x: hidden` silently breaks `position: sticky`** on descendants — it
   makes the element a scroll container. `html, body` use `overflow-x: clip`
   instead; keep it that way or the desktop hero pin dies with no error.
@@ -96,9 +250,35 @@ Opening → Days → Footer.
 - **React's `onPointerMove`/`onTouchMove` are passive**, so `preventDefault()` in
   them is ignored. Horizontal carousels that must block page scroll attach a
   non-passive `touchmove` listener via `addEventListener(..., { passive: false })`.
-- **CSS Modules obey source order** for same-specificity rules. The desktop-v5
+- **CSS Modules obey source order** for same-specificity rules. The ≥1024
   blocks are deliberately last in `hero-section.module.css` /
   `ecosystem-section.module.css` so they beat the ≥768 and ≥1900 rules above.
+- **There is no bold font file, so any unstyled heading gets a fake one.** The
+  brand ships NB International at 400 and GT Ultra Median at 300/400 only. An
+  `<h2>`/`<h3>` whose class does not set `font-weight` inherits the UA's `bold`
+  and the browser synthesises it — that is what made the Careers role titles
+  and team names read heavier than Figma. `globals.css` now resets headings to
+  `font-weight: inherit`; keep it, and set the weight in the component rule.
+  A whole-project audit (every route × 1440/378, comparing each element's
+  computed family/weight/style against the three real `@font-face` rules) is
+  otherwise clean. What it still flags, both deliberate:
+  `<strong>` from the ATS rich text in `JobDescription.tsx` (synthesised bold —
+  the vendor means emphasis and there is no bold file; the same component can
+  emit `<em>`, which would be synthesised italic), and `<code>` on the internal
+  `/design-system` page. **Figma specifies NB International *Pro***
+  (`NBInternationalPro-Reg`) and we only have the non-Pro webfont — the one
+  font mismatch we cannot fix without the file from the designers. The three
+  files are also `.otf` with no `woff2` twin and no `<link rel="preload">`.
+- **`scroll-snap-align: start` ignores the scroll container's padding.** A
+  carousel with `padding-inline` for its gutter snaps straight past it on load,
+  so the gutter silently disappears. Pair every such padding with a matching
+  `scroll-padding-inline` (the Careers work track does).
+- **Careers runs its own gutters, not `--utopia-content-inset`.** The shared
+  tablet tokens cap the column at 480, where Figma's 768 Careers frame draws
+  648 inside 60px gutters. `careers.module.css` declares `--careers-inset` on
+  the section roots — *not* on `.page`, because that class comes from
+  `src/app/careers/careers-page.module.css`, so a `.page` rule in the component
+  stylesheet matches nothing and the variables never land.
 - Mobile viewport height must stay **stable** (`100svh`). JS-driven or `dvh`
   heights make the page jitter as browser chrome hides/shows, and
   `env(safe-area-inset-bottom)` changes for the same reason — keep it out of
@@ -127,14 +307,98 @@ the `/_next/static/chunks/*.css` chunks to confirm which rule actually wins.
 Nothing is committed yet — **all work sits uncommitted in the working tree on
 `main`**. Offer to branch and commit when the user is ready.
 
-Recent: the mobile v3 footer was ported and verified against Figma `44:3411`
-(bg gradient, 60/32/36 padding, leaf background video, links
-`Contact → Careers → About(disabled)`). The desktop was re-anchored to
-`desktop_v5`: the hero is now full-bleed and pins inside a 160vh `.heroPin`
-while `useHeroSettle` drives `--hero-*` custom properties from scroll progress,
-and the ecosystem section slides over it (`margin-top: -60vh`, 40px top radius
-that squares off via `useHandoffFlush`).
+**Home is aligned** to v8/v9 and Figma 24.07 across 1440/1920/2560 in both
+variants, verified by measurement: nav gutters and the 1920 cap, the whole
+destinations screen, the wide-screen type scale, the hero card-scale ramp with
+its five-card tier past 1897, and the two radius families. Slider content now
+lives in `src/content/slides.json`. Mobile is done too — menu (Experiences in,
+"Destinations" heading out), the cream dock band, the full-bleed cookie sheet,
+footer socials/order/clearance, and the Opening copy unclamped.
 
-Not done: nav-bar behaviour during the desktop handoff (v5 hides and restores it
-via `hero-settle:start/end` events), and the tablet 768–1023 hero still uses the
-old inset card although Figma 17.07 shows it full-bleed.
+**Careers is now aligned** to Figma 24.07 at all three widths in both variants,
+verified by measurement. Every section lands within a few px of its frame:
+
+| block | mobile | tablet | desktop |
+|---|---|---|---|
+| hero | 481 / 481 | 321 / 322 | 321 / 322 |
+| jobs | 1149 / 1139 | 1064 / 1022 | 1159 / 1110 |
+| Our team | 1534 / 1528 | 1121 / 1123 | 722 / 723 |
+| 5 values | 1064 / 1063 | 1540 / 1540 | 1278 / 1278 |
+| Work | 671 / 672 | 854 / 854 | 710 / 710 |
+| CTA | 552 / 549 | 626 / 626 | 482 / 482 |
+| footer | 640 / 644 | 880 / 880 | 640 / 640 |
+
+(Figma / ours.) **The jobs section is deliberately short of its frame** — Figma
+mocks five identical 130-tall cards with both an Office and a Remote row, while
+the live ATS returns roles that often have only one. Nothing to fix there.
+
+What changed: the filters became a search bar over a Department/Location
+dropdown pair below 1024 (the department only stays a sidebar list at 1024+);
+the role card puts its chip beside the title from 640 up and above it on
+mobile; "Our team" is a featured tile beside a 2×2 grid on desktop and stacked
+below 1024; "5 values" is a mobile accordion, a 2-column masonry on tablet
+(card 2 spans both rows) and 2-over-3 on desktop; Work and CTA took their
+24.07 copy, colours (`#5c2923`, `#e2d6cc`) and arrow states. The tablet footer
+is pinned to 880 — that fix is in the shared `FooterSection`, so it moves the
+home page's tablet footer too (desktop 640 and mobile 644 are unchanged).
+
+Three things worth a second look:
+
+- **The team photographs are all new** and were pulled from the Figma asset
+  server, not the prototype. The featured Hospitality tile carries a different
+  picture on desktop (tall tea-pouring crop) than on tablet/mobile (spa towels)
+  — that is deliberate in Figma, and `CareerTeams` composes the two into a
+  `<picture>` by hand because `next/image` has no art-direction API. The
+  desktop plate had a Weibo watermark baked into the bottom edge; it is cropped
+  out. The four small cards' Figma frames are stacks of un-deleted alternates,
+  so each takes the topmost layer.
+- **Figma contradicts itself on the mobile values card.** `154:3719` sizes the
+  copy column at 199.8 but the body text node inside it at 243, and parks the
+  44px chevron at x=314 of a 314-wide box. Taking the chevron out of flow is
+  what reproduces the stated 346×196; keeping it in flow wraps the body to
+  seven lines and the card grows to 237.
+- **The two Figma frames disagree on the Work card titles.** Desktop says
+  "Exceptional guests / Extraordinary locations / Exceptional colleagues /
+  Competitive package"; mobile still carries the older wording and the
+  "Expectional guests" typo. The desktop naming leads. Desktop also drops the
+  "everywhere" badge that mobile keeps — the badge is rendered at every width.
+
+**Job Opening is now aligned** to Figma 24.07 (`154:1974` / `154:2740` /
+`154:3200`) at 378/768/1440 in both variants, verified by measurement. Every
+fixed-height section lands on its frame — Work 710.38/710, Team up 888.39/888,
+CTA 481.59/482 at 1440; 854.38/854, 1075.58/1075, 637.59/638 at 768;
+671.56/671, 798.88/801, 548.69/552 at 378. The hero and the description card
+run long against their frames only because the copy is live ATS text, not the
+mock: the hero's structure (589 column, 48px title, 505/419 measure) matches
+exactly and every extra pixel is one more wrapped line.
+
+Notes for whoever picks this up next:
+
+- **`154:2034` and `154:2104` are `hidden` in the desktop frame.** The live
+  Work block is `154:2047`; the other two are alternates. Check `hidden` in the
+  geometry dump before building an overlapping frame.
+- **The terms pop-up has three sizes, and mobile is not just a smaller
+  desktop**: 792/64+72/r28 → 536/56/r28 → 350/**32**/**r16**, with the title
+  dropping 26→22, the body 16→15, the buttons 44h/32px/17px → 40h/24px/16px and
+  the close corner insets 32 → 24 → 12. `154:3398` and `154:3467` draw the same
+  card — the second is only a shorter viewport where it overflows, which is why
+  the card caps at `85svh` and scrolls its copy internally.
+- **"Terms of applying" opens the dialog**, not `/terms`. Both it and Apply are
+  still real anchors, so the no-JS path keeps working; they share one dialog via
+  `ApplyActions`.
+- **The Team up track needed trailing runway.** The row overflows by less than
+  one card, so before the `::after` spacer no card but the first could reach the
+  lead position and the three-stop indicator had nothing to point at. The
+  caption box is pinned to the *active* card's width, so it narrows to 308 (or
+  184 on mobile) once a small card leads.
+- The hero must not use `--utopia-layout-max` — the shared tablet cap is 480
+  where Figma draws a 589 column, the same trap the Careers sections hit.
+- Figma's desktop Work text card ends "…and the UAE.**м**"; our copy drops the
+  stray character. `images.jobTeamUpDot` is now unused — the indicator draws its
+  dots in CSS.
+
+Still open with the user: whether to adopt the designers' `pw-1.jpg` (a wider
+crop of the same photo, carrying a `scale(1.1)` correction we deliberately did
+not apply to our tighter crop), whether to delete four unused ecosystem images
+(~3.4MB), and whether the now-unused `team-resorts.jpg` / `team-technical.jpg`
+should go (Figma 24.07 has five teams, not six).

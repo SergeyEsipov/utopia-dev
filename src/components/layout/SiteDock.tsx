@@ -1,18 +1,15 @@
 "use client";
 
-import { useRouter } from "next/navigation";
 import { Icon } from "@/design-system/components";
 import { GlassSurface } from "@/design-system/liquid-glass";
 import { useMenu } from "@/contexts/MenuContext";
 import { triggerHaptic } from "@/lib/haptics";
-import { NOT_FOUND_HREF } from "@/lib/routes";
 import styles from "./site-dock.module.css";
 
 const BTN = 40;
 
 export function SiteDock() {
   const { isOpen, toggle } = useMenu();
-  const router = useRouter();
 
   return (
     <div className={styles.dockWrap}>
@@ -39,10 +36,8 @@ export function SiteDock() {
           interactive={false}
           className={styles.cta}
           contentClassName={styles.ctaContent}
-          onClick={() => {
-            triggerHaptic("light");
-            router.push(NOT_FOUND_HREF);
-          }}
+          // No destination yet — see routes.ts.
+          onClick={() => triggerHaptic("light")}
         >
           Request a stay
         </GlassSurface>

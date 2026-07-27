@@ -10,6 +10,20 @@ type ApplyButtonProps = {
 };
 
 /**
+ * True for a click we are free to intercept. Modified clicks (new tab/window,
+ * middle-click) must keep their native behaviour.
+ */
+export function isPlainClick(event: React.MouseEvent): boolean {
+  return !(
+    event.metaKey ||
+    event.ctrlKey ||
+    event.shiftKey ||
+    event.altKey ||
+    event.button !== 0
+  );
+}
+
+/**
  * Apply trigger that shows the terms interstitial (Figma 24.07 `154:2258`)
  * before handing off to the ATS.
  *
@@ -32,16 +46,7 @@ export function ApplyButton({
         target="_blank"
         rel="noreferrer noopener"
         onClick={(event) => {
-          // Let modified clicks (new tab/window, middle-click) behave natively.
-          if (
-            event.metaKey ||
-            event.ctrlKey ||
-            event.shiftKey ||
-            event.altKey ||
-            event.button !== 0
-          ) {
-            return;
-          }
+          if (!isPlainClick(event)) return;
           event.preventDefault();
           setOpen(true);
         }}

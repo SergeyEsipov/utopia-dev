@@ -6,6 +6,7 @@ import { GlassSurface } from "@/design-system/liquid-glass";
 import { useMenu } from "@/contexts/MenuContext";
 import { triggerHaptic } from "@/lib/haptics";
 import { HOME_HREF } from "@/lib/routes";
+import { MenuToggleIcon } from "./MenuToggleIcon";
 import styles from "./site-dock.module.css";
 
 const BTN = 40;
@@ -67,12 +68,13 @@ export function SiteDock() {
             toggle();
           }}
         >
-          <Icon
-            name={isOpen ? "close" : "menu"}
-            size={16}
-            alt=""
-            className={isOpen ? styles.menuIconClose : undefined}
-          />
+          {/* Same cross-fade as the bar's burger — the dock and the bar are one
+              affordance in two shapes (see site-dock.module.css), and this is
+              the button bug #2 was filed against, so it is the one that most
+              needs to read as a close. The prototypes have no dock to port
+              from; it is our own Figma pattern, given the prototype's
+              behaviour. */}
+          <MenuToggleIcon />
         </GlassSurface>
       </div>
     </div>

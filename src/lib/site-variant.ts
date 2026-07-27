@@ -28,8 +28,18 @@ export type SiteVariantConfig = {
     contentRevealAt: number;
   };
   /**
-   * Hero → destinations handoff. v8 commits straight into the card morph;
-   * v9 additionally snaps the section into place before/around it.
+   * Screen-by-screen scroll snapping (hooks/useScrollSnap, armed by
+   * components/sections/ScrollSnap).
+   *
+   * `snap` is the master switch and it is **false for rounded**: neither
+   * desktop_v8, desktop_v9 nor desktop_v10 contains any step-scrolling —
+   * `grep -i "scroll-snap|data-snap"` over their index.html and css/style.css
+   * returns nothing — so the engine is ours, not the designers', and rounded
+   * (the default) is left on plain browser scrolling. sharp keeps it pending
+   * the client's decision; setting `snap: false` below turns it off there too
+   * and unmounts the hook, no other change needed.
+   *
+   * The timings only apply while `snap` is true.
    */
   transition: {
     snap: boolean;
@@ -78,7 +88,14 @@ export const SITE_VARIANTS: Record<SiteVariantName, SiteVariantConfig> = {
       contentRevealAt: 0.98,
     },
     transition: {
-      snap: true,
+      // Off here too, by the user's decision. Beyond having no basis in any
+      // prototype, the engine made the page unreadable in sharp: 40 wheel
+      // notches of 120px only reached y=2700 — the last snap point — against
+      // a document that ends at 3340–3531, because the momentum drain
+      // swallows notches, so the footer could not be scrolled to at all and
+      // its reveal group never fired. The timings below are kept as the
+      // record of what the stage ran at, in case it is ever brought back.
+      snap: false,
       snapDurationMs: 660,
       heroToDestDurationMs: 820,
       momentumLullMs: 260,

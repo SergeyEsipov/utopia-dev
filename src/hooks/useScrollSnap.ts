@@ -1,27 +1,38 @@
 "use client";
 
 import { useEffect } from "react";
+import type { SiteVariantConfig } from "@/lib/site-variant";
+
+type SnapTransition = SiteVariantConfig["transition"];
 
 /**
- * Screen-by-screen scroll snapping — port of the prototype desktop_v8/v9
- * engine. One wheel notch / swipe / page key commits a run to the next screen
- * instead of free-scrolling; input is blocked for the duration and the
- * trackpad's leftover momentum is drained afterwards so it cannot immediately
- * trigger the next hop.
+ * Screen-by-screen scroll snapping. One wheel notch / swipe / page key commits
+ * a run to the next screen instead of free-scrolling; input is blocked for the
+ * duration and the trackpad's leftover momentum is drained afterwards so it
+ * cannot immediately trigger the next hop.
  *
- * Desktop-only (≥1024, matching the prototype's own `body { min-width: 1024px }`)
- * and inert under prefers-reduced-motion, where every hop lands instantly.
+ * **This is not in any designers' prototype.** `grep -i "scroll-snap|data-snap"`
+ * over desktop_v8, desktop_v9 and desktop_v10 (index.html and css/style.css)
+ * returns zero hits in all three — the stepping is our own addition. It is
+ * therefore gated on the variant: `transition.snap` in lib/site-variant, which
+ * is false for `rounded`, so only `sharp` arms it. ScrollSnap does the gating
+ * and does not mount this hook at all when the variant is off.
+ *
+ * Desktop-only (≥1024) and inert under prefers-reduced-motion, where every hop
+ * lands instantly. All timings come from the variant config.
  */
-export function useScrollSnap(selector: string) {
+export function useScrollSnap(selector: string, transition: SnapTransition) {
   useEffect(() => {
+    if (!transition.snap) return;
+
     const desktop = window.matchMedia("(min-width: 1024px)");
     const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
 
-    /** Timings from the prototype (identical in v8 and v9). */
-    const DURATION = 660;
-    const HERO_TO_DEST_DURATION = 820;
-    const MOMENTUM_LULL = 260;
-    const MOMENTUM_MAX = 560;
+    /** Timings for this variant (lib/site-variant). */
+    const DURATION = transition.snapDurationMs ?? 660;
+    const HERO_TO_DEST_DURATION = transition.heroToDestDurationMs ?? DURATION;
+    const MOMENTUM_LULL = transition.momentumLullMs;
+    const MOMENTUM_MAX = transition.momentumMaxMs;
     /** Ignore sub-pixel drift around a landing point. */
     const DEADZONE = 2;
 
@@ -313,5 +324,5 @@ export function useScrollSnap(selector: string) {
       desktop.removeEventListener("change", sync);
       detach();
     };
-  }, [selector]);
+  }, [selector, transition]);
 }

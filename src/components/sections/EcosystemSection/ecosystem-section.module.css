@@ -435,10 +435,10 @@
   }
 }
 
-/* ══ desktop_v10 — the rounded build's revision of this screen ══════════
-   `../Utopia/desktop_v10` is a fork of desktop_v8 (same corner language, so
-   it is the *rounded* variant only) committed after the tester filed the
-   destinations bugs. Three things change and they are one change really:
+/* ══ desktop_v10 — the revision of this screen ══════════════════════════
+   `../Utopia/desktop_v10` is a fork of desktop_v8 committed after the tester
+   filed the destinations bugs. Three things change and they are one change
+   really:
 
    1. The screen is derived from the viewport instead of from an aspect
       ratio. v8 drew a 1200/660 card and then clamped it; v10 spends the
@@ -449,14 +449,21 @@
       (68 at 1024), i.e. 8px under a 72px fixed bar — the tester's "the title
       does not fit under the navigation".
    3. The filter row leaves the cream and moves *inside* the card, sitting
-      one control-height above the image nav, and the bottom shade that v8
-      had switched off comes back to carry it.
+      one control-height above the image nav; the bottom shade that v8 had
+      switched off comes back to carry it; and the tab underlines and the
+      travelling progress bar go, because at v10's 4px tab gap the three
+      96px tracks close up into one unbroken rule.
 
-   sharp (desktop_v9) has not been revised, so every rule here is gated on
-   `[data-variant="rounded"]` and v9's geometry above is left untouched.
+   v10 is a fork of v8, so it speaks for `rounded` — but (3) is the shape of
+   the control, not a corner language, and the client asked for "the slider
+   from v10" without qualifying the variant. So **(3) is applied to both
+   variants** and (1)+(2) stay gated on `[data-variant="rounded"]`, which is
+   what keeps v9's own identity intact: full-bleed 100vw image, square
+   corners, card flush to the bottom of the screen. In sharp the card simply
+   absorbs the 72px (40 row + 32 gap) the filter row used to occupy above it.
 
-   Last in the file, and higher-specificity than the blocks above, so it wins
-   over both the ≥1441 and the ≥1800 rules regardless of source order. */
+   Last in the file, so the ungated rules beat the ≥1441/≥1800/≥2000 blocks
+   above on source order and the gated ones on specificity. */
 @media (min-width: 1024px) {
   :global(:root[data-variant="rounded"]) .section {
     /* Content-driven, exactly like v10's `.destinations`: the sum of the
@@ -475,14 +482,19 @@
     margin-bottom: var(--utopia-dest-inner-gap);
   }
 
-  :global(:root[data-variant="rounded"]) .content {
+  .content {
     /* The containing block for the filter row. `.visual` is the only
-       in-flow child, so `.content`'s bottom edge *is* the card's bottom
-       edge and v10's offsets can be written against it verbatim — no need
-       to move the tabs inside the card and re-solve the tablet layout. */
+       in-flow child once the row goes out of flow, so `.content`'s bottom
+       edge *is* the card's bottom edge and v10's offsets can be written
+       against it verbatim — no need to move the tabs inside the card in the
+       DOM and re-solve the 640–1023 layout, where they stay in flow. */
     position: relative;
-    flex: 0 0 auto;
     gap: var(--utopia-dest-content-gap);
+  }
+
+  /* rounded only: the card takes an explicit height, so nothing may grow. */
+  :global(:root[data-variant="rounded"]) .content {
+    flex: 0 0 auto;
   }
 
   :global(:root[data-variant="rounded"]) .visual {
@@ -498,13 +510,15 @@
     max-height: none;
   }
 
-  /* The bottom shade: `display: none` in v8, back in v10 as a 260-tall wash
-     that hangs 60px past the bottom edge, so only 200 of it is inside the
-     card and the gradient never terminates on screen. `backdrop-filter`
-     ignores the background gradient and blurs the whole box, which draws a
-     hard horizontal seam on its own — the mask is what fades the blur out
-     with the wash (same fix as the Careers "Team up" right-edge fade). */
-  :global(:root[data-variant="rounded"]) .gradient {
+  /* The bottom shade: `display: none` in v8 *and* v9, back in v10 as a
+     260-tall wash that hangs 60px past the bottom edge, so only 200 of it is
+     inside the card and the gradient never terminates on screen. It is not
+     decoration — it is what the white filter labels are legible against, so
+     it follows the labels into both variants. `backdrop-filter` ignores the
+     background gradient and blurs the whole box, which draws a hard
+     horizontal seam on its own; the mask is what fades the blur out with the
+     wash (same fix as the Careers "Team up" right-edge fade). */
+  .gradient {
     inset: auto 0 var(--utopia-dest-shade-offset) 0;
     height: var(--utopia-dest-shade-h);
     z-index: 2;
@@ -540,7 +554,7 @@
      skyline is bright enough to swallow white labels) with `strongShade`;
      the flag rides on the slide in slides.json, so nothing here knows which
      slide it is. */
-  :global(:root[data-variant="rounded"]) .visual[data-strong-shade] .gradient {
+  .visual[data-strong-shade] .gradient {
     background: linear-gradient(
       0deg,
       rgba(22, 21, 20, 0.83) 0%,
@@ -551,14 +565,22 @@
 
   /* The filter row, one control-height + gap above the image nav. 296 wide:
      three 96px tabs with 4px gaps, where v8 had 352 (32px gaps). */
-  :global(:root[data-variant="rounded"]) .tabsDesktop.tabsDesktop {
+  .tabsDesktop.tabsDesktop {
     position: absolute;
     left: 50%;
     bottom: calc(
       var(--utopia-dest-imgnav-bottom) + var(--utopia-dest-control-h) +
         var(--utopia-dest-tabs-nav-gap)
     );
-    transform: translate(-50%, var(--utopia-dest-tabs-y));
+    /* `translate`, not `transform`. The row is `[data-reveal]`, and
+       reveal.css's `[data-reveal-group].is-revealed [data-reveal]` is (0,3,0)
+       — it beats this rule and would replace the centring with an identity
+       matrix, parking the row 148px right of centre and losing the 4px nudge
+       (measured: `matrix(1,0,0,1,0,0)`, tab row bottom −96 instead of −92).
+       The individual transform properties compose *before* `transform`
+       instead of competing with it, so the reveal still slides the row up
+       22px and the centring survives at any specificity. */
+    translate: -50% var(--utopia-dest-tabs-y);
     width: calc(
       3 * var(--utopia-dest-tab-w) + 2 * var(--utopia-dest-tab-gap)
     );
@@ -567,39 +589,34 @@
     z-index: 3;
   }
 
-  /* On the photograph the row reads white, not black-on-cream. The
-     `onLight` palette the component ships still applies in sharp, where the
-     row stays out on the cream. */
-  :global(:root[data-variant="rounded"]) .tabsDesktop [role="tab"] {
+  /* On the photograph the row reads white, not black-on-cream. Below 1024
+     the row is still in flow on the cream and keeps the `onLight` palette
+     the component ships. */
+  /* Doubled class deliberately: `.categoryTabsLight .categoryTab` in the
+     design-system module is also (0,2,0), and which of two equal rules wins
+     depends on the order the bundler emits the two CSS modules in. (0,3,0)
+     settles it. */
+  .tabsDesktop.tabsDesktop [role="tab"] {
     font-size: var(--utopia-dest-tab-size);
     color: rgba(255, 255, 255, 0.65);
   }
 
-  :global(:root[data-variant="rounded"])
-    .tabsDesktop
-    [role="tab"]:not([aria-selected="true"]):hover,
-  :global(:root[data-variant="rounded"])
-    .tabsDesktop
-    [role="tab"][aria-selected="true"] {
+  .tabsDesktop.tabsDesktop [role="tab"]:not([aria-selected="true"]):hover,
+  .tabsDesktop.tabsDesktop [role="tab"][aria-selected="true"] {
     color: var(--utopia-text-inverse);
   }
 
-  /* The underline pair follows the labels onto the dark surface: the track
-     is the span inside each tab, the travelling fill the one span the list
-     owns directly. (v10 hides both — see the report; that is a designer
-     decision the client has not signed off, so they stay.) */
-  :global(:root[data-variant="rounded"])
-    .tabsDesktop
-    [role="tab"]
-    > span[aria-hidden] {
-    background: var(--utopia-tab-border);
+  /* v10 removes both underlines: `.filter-tab { border-bottom: 0 }` and
+     `.filter-indicator { display: none }`. The track is the span inside each
+     tab, the travelling progress fill the one span the list owns directly.
+     Desktop only — below 1024 the bar is the only thing that says which
+     slide of the category is showing, and v10 does not speak for phones. */
+  .tabsDesktop [role="tab"] > span[aria-hidden],
+  .tabsDesktop > span[aria-hidden] {
+    display: none;
   }
 
-  :global(:root[data-variant="rounded"]) .tabsDesktop > span[aria-hidden] {
-    background: var(--utopia-text-inverse);
-  }
-
-  :global(:root[data-variant="rounded"]) .navWrap {
+  .navWrap {
     bottom: var(--utopia-dest-imgnav-bottom);
     /* Above the shade (2) and the filter row (3), as in v10. */
     z-index: 4;

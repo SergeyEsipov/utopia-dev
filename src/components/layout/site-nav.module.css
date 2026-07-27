@@ -185,6 +185,21 @@
   border-color: rgba(255, 255, 255, 0.4);
 }
 
+/* While the menu is open the button drops its pill and becomes a bare glyph —
+   `.nav--menu-open .nav__burger` in both prototypes (desktop_v9 154-157,
+   desktop_v10 193-196, identical). Part of the open/close treatment the icon
+   cross-fade belongs to, so it is ported with it; it sits after `:hover` on
+   purpose, which is the prototypes' own cascade (equal specificity, later
+   wins), so the fill does not flash back under the cursor mid-transition.
+   NOT ported: the prototypes give `.nav--solid .nav__burger` the same
+   transparent treatment (v9 238-241, v10 286-289), which would flatten the
+   button on every solid bar on every page — a resting-state change well
+   outside this port. Flagged to the user instead. */
+.navOpen .burger {
+  background: transparent;
+  border-color: transparent;
+}
+
 /* ── Tablet bar, 640–1023 band ──
    Figma 24.07 draws this at 72 as well (`154:7791` in the menu states,
    `154:5384` on the 404), not the 64 the older `1:982` frame had. */

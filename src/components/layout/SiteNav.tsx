@@ -7,6 +7,7 @@ import { Icon } from "@/design-system/components";
 import { GlassSurface } from "@/design-system/liquid-glass";
 import { useMenu } from "@/contexts/MenuContext";
 import { triggerHaptic } from "@/lib/haptics";
+import { MenuToggleIcon } from "./MenuToggleIcon";
 import { useNavSolid } from "./useNavSolid";
 import styles from "./site-nav.module.css";
 
@@ -99,7 +100,7 @@ export function SiteNav({
               toggle();
             }}
           >
-            <Icon name={isOpen ? "close" : "menu"} size={16} alt="" />
+            <MenuToggleIcon />
           </button>
         </div>
       </div>
@@ -144,7 +145,7 @@ export function SiteNav({
             toggle();
           }}
         >
-          <Icon name={isOpen ? "close" : "menu"} size={16} alt="" />
+          <MenuToggleIcon />
         </GlassSurface>
       </div>
     </header>

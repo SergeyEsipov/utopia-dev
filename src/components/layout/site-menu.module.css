@@ -325,12 +325,6 @@
   .panel {
     display: block;
   }
-
-  /* Only the desktop picture frame is over-scaled horizontally — see
-     `.cardImage`. */
-  .card {
-    --card-img-zoom: 1.0776;
-  }
 }
 
 /* ── The featured card on tablet (640–1023) ──
@@ -519,8 +513,10 @@
    picture frame Figma centres inside it, reused as a hover constant). The
    designer asked for that growth to be **1.5x smaller**, so it is the delta
    that is divided, not the scale: 1 + 0.0776 / 1.5 = 1.05173.
-   `--card-img-zoom` keeps the full 1.0776 — it is the picture's over-scale
-   inside the frame, a different number that happens to share the value. */
+   Note that desktop_v10 states this hover as **1.0413** (403/387, its own wider
+   card) — smaller again than the designer's instruction. Left on 1.05173, which
+   is what they explicitly asked for; the divergence is reported, not resolved
+   here. */
 .card {
   position: relative;
   display: block;
@@ -550,27 +546,30 @@
   }
 }
 
-/* `154:7597` — the picture is *not* stretched to the card: Figma over-scales it
-   and nudges it down, so the crop is tighter and sits lower than an `inset: 0`
-   cover would give. Expressed in percentages of the card rather than the old
-   fixed 403×434px, so it survives the card becoming fluid.
+/* A plain full-bleed cover, per the user's instruction to take the card's
+   picture placement from the prototype.
+   `.nav-menu__card-img` is `position: absolute; inset: 0; width/height: 100%;
+   object-fit: cover; object-position: 50% 50%` in **both** desktop_v9 (494-503)
+   and desktop_v10 (578-589), whose comment states the reason: "These photos are
+   pre-cropped to the card's own 387:280 ratio, so a plain center crop needs no
+   per-image adjustment." Measured in the v10 prototype at 1024/1270/1440/1920/
+   2560, the picture's rect is the card's rect exactly — x=0, y=0, w and h equal
+   to the card's.
 
-   Both of Figma's sizes agree on the vertical treatment once written this way:
-   155% of 280 = 434, and `top: 53.571%` puts the layer's top at
-   0.53571·280 − 217 = −67 — which is literally the tablet instance's
-   `154:7852` y=−67, and equals the desktop component's "centred, nudged 10px
-   down" (−77 + 10). Only the horizontal zoom differs: the desktop picture frame
-   is 403 against a 374 card (1.0776, set in the ≥1024 block), the tablet one is
-   the card's own width (1). */
+   CONFLICT WITH FIGMA, reported rather than buried: `154:7597` over-scales the
+   picture and nudges it down, which the previous rule reproduced as `height:
+   155%` + `top: 53.571%` (measured: layer top at −67.02, height 434, i.e. the
+   tablet instance `154:7852`'s y=−67) plus a 1.0776 horizontal zoom on desktop.
+   That is a genuinely different crop — a tighter, lower window on the same
+   photograph — and the prototype now wins by the user's decision. */
 .cardImage {
   position: absolute;
-  left: 50%;
-  top: 53.571%;
-  width: calc(100% * var(--card-img-zoom, 1));
-  height: 155%;
-  transform: translate(-50%, -50%);
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: inherit;
   object-fit: cover;
-  max-width: none;
+  object-position: 50% 50%;
 }
 
 /* `154:7600` — rgba(51,47,46,0) at 60.5% → #332f2e at 91%. */
@@ -586,20 +585,27 @@
 
 /* `154:7601`: a 343-wide row, i.e. the 374 card less its 22px side padding
    (`154:7596` is px-22/py-20, and the row is bottom-aligned). */
+/* `align-items: flex-end` + an 8px gap, from `.nav-menu__card-info` in both
+   prototypes (v9 505-514, v10 590-599). Measured in v10: the arrow's bottom
+   sits on the info row's bottom, i.e. exactly 20px off the card. `center` was
+   floating it 24.8px up instead, because it centred the 40px button against a
+   49.58 text block. */
 .cardFooter {
   position: absolute;
   left: var(--card-pad, 22px);
   right: var(--card-pad, 22px);
   bottom: 20px;
   display: flex;
-  align-items: center;
+  align-items: flex-end;
   justify-content: space-between;
+  gap: 8px;
 }
 
+/* `.nav-menu__card-text` is a 4px stack in both prototypes (v9 520, v10 605). */
 .cardText {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 4px;
 }
 
 /* `154:7603` — 18px, not 19, and on the body face. */
@@ -630,8 +636,10 @@
   flex-shrink: 0;
   border: 0.5px solid rgba(255, 255, 255, 0.4);
   border-radius: var(--utopia-radius-pill);
-  /* 30% → 50% on hover, per prototype `.nav-menu__card-arrow`. */
+  /* 30% → 50% on hover, per prototype `.nav-menu__card-arrow`, which also
+     tweens it (v9 583, v10 634) — the fill used to snap. */
   background: rgba(255, 255, 255, 0.3);
+  transition: background 300ms ease;
 }
 
 .card:hover .cardAction {

@@ -1,0 +1,59 @@
+/* ── Burger ⇄ close cross-fade ──
+   Ported from the prototypes, where desktop_v9 (`.nav__burger-icon`, style.css
+   243-264) and desktop_v10 (294-315) carry byte-identical rules: the two icons
+   are stacked absolutely and cross-faded with a quarter-turn, driven **only**
+   by `aria-expanded` on the button that contains them. No JS beyond the
+   attribute the toggle already sets.
+
+   The attribute selector is deliberately left global (`[aria-expanded="true"]`)
+   and scoped by the local class instead, so one rule serves all three of our
+   toggles — the desktop `.burger`, the tablet `GlassSurface` and the phone
+   dock — even though each of those buttons takes its own class from a
+   different CSS module. CSS Modules accepts it because the selector still
+   contains a local class. */
+
+.stack {
+  --toggle-icon-size: 16px;
+
+  position: relative;
+  display: block;
+  flex-shrink: 0;
+  width: var(--toggle-icon-size);
+  height: var(--toggle-icon-size);
+}
+
+.icon {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  transition:
+    opacity 250ms ease,
+    transform 250ms ease;
+}
+
+/* Rest state: the burger is showing, the close sits a quarter-turn back. */
+.close {
+  opacity: 0;
+  transform: rotate(-90deg);
+}
+
+[aria-expanded="true"] .menu {
+  opacity: 0;
+  transform: rotate(90deg);
+}
+
+[aria-expanded="true"] .close {
+  opacity: 1;
+  transform: rotate(0deg);
+}
+
+/* The swap must still read, so the icons keep their end states and only the
+   tween is dropped. */
+@media (prefers-reduced-motion: reduce) {
+  .icon {
+    transition: none;
+  }
+}

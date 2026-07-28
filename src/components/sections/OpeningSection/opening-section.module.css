@@ -196,15 +196,19 @@
   pointer-events: none;
 }
 
-/* padding-top is the nav height, not a literal 64. Figma puts this block at
-   exactly y=72 inside the section at both tiers — desktop `154:4206` and tablet
-   `154:5263` are both "Full-width section subcontent" at y=72 — and 72 is the
-   bar's height, which is the point: the section is pinned full-viewport, so the
-   copy has to start where the bar ends. The old 64 was 8px short and the
-   "Opening in 2027" eyebrow (25 tall, so 64→89) ran up under the bar. Nothing
-   showed for it while `.nav` carried a bare `z-index: 2` and this section's
-   `.content` won on source order; the moment the header took its own layer
-   (`--utopia-z-nav`) the bar sliced the eyebrow in half. */
+/* 640–1023: the nav height, not a literal 64. Figma puts this block at exactly
+   y=72 inside the section at both tiers — desktop `154:4206` and tablet
+   `154:5263` are both "Full-width section subcontent" at y=72. The old 64 was
+   8px short and the "Opening in 2027" eyebrow (25 tall, so 64→89) ran up under
+   the bar. Nothing showed for it while `.nav` carried a bare `z-index: 2` and
+   this section's `.content` won on source order; the moment the header took its
+   own layer (`--utopia-z-nav`) the bar sliced the eyebrow in half.
+
+   It stays at exactly the bar height in this band because the bar is *not*
+   over the section here: `.nav` is `position: relative` below 1024, so it
+   takes its own 72px of document and scrolls away — measured, no bar is on
+   screen when this section reaches the top at 768. Figma's y=72 is therefore
+   spacing, not clearance, and 72 is what it draws. */
 @media (min-width: 640px) {
   .content {
     align-items: center;
@@ -214,6 +218,20 @@
     text-align: center;
     gap: 32px;
   }
+}
+
+/* ≥1024 the bar becomes fixed/sticky over this full-viewport section, so the
+   bar height alone leaves the eyebrow **flush against it** — measured
+   clearance 0.0px at 1440 in both variants, which is the report that
+   "Opening in 2027" runs onto the header. The token is bar + clearance, and
+   the clearance is the variant's own: +16 in rounded (v8/v10 `top: 80px` over their 64px
+   bar) and +56/+64 in sharp (v9 writes `calc(var(--nav-h) + 64px)`). See
+   `--utopia-fullwidth-content-top` in tokens.css. */
+@media (min-width: 1024px) {
+  .content {
+    padding-top: var(--utopia-fullwidth-content-top);
+  }
+
 }
 
 .textBlock {
@@ -402,5 +420,43 @@
     transform: scale(
       calc((100vw - 2 * var(--utopia-fullwidth-start-inset)) / 100vw)
     );
+  }
+}
+
+/* ── The two copy lines, against desktop_v10 ──
+   v10 sizes both at `calc(var(--body-copy-size) + 1px)` — 18 at 1440 — and
+   splits only tracking and leading: `.fullwidth__sub` takes
+   `--sub-copy-tracking` / 1.4, `.fullwidth__body` takes `--body-copy-tracking`
+   / 1.5. Ours were 20/-0.2 and 16/-0.16, i.e. the eyebrow two points large and
+   the description two small. Measured in the prototype: 18/-0.085/25.2 and
+   18/-0.17/27.
+
+   Last in the file deliberately: `.eyebrow` and `.description` are declared
+   further up at the same (0,1,0), so this has to come after them or it loses
+   on source order — which is exactly what happened when it sat next to the
+   `.content` padding rule (line-height took, font-size and tracking did not).
+   Desktop only; the ≥640 values are Figma's tablet frame. */
+@media (min-width: 1024px) {
+  .eyebrow {
+    font-size: calc(var(--utopia-body-copy-size) + 1px);
+    letter-spacing: var(--utopia-sub-copy-tracking);
+    line-height: 1.4;
+  }
+
+  .description {
+    font-size: calc(var(--utopia-body-copy-size) + 1px);
+    letter-spacing: var(--utopia-body-copy-tracking);
+    line-height: 1.5;
+  }
+
+  /* The CTA carries its own `font-size` from the ≥640 block, which pinned it
+     to the 16px mobile step and so beat `.buttonMd`'s desktop tokens — the
+     button reads them now but this class overrode it. v10's `.fullwidth__cta`
+     is `--button-text-size` / `--button-text-tracking` / `--control-line-
+     height`, measured 17 / -0.17 / 20 at 1440. */
+  .ctaContent {
+    font-size: var(--utopia-button-text-size);
+    letter-spacing: var(--utopia-button-text-tracking);
+    line-height: var(--utopia-control-line-height);
   }
 }

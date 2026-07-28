@@ -31,13 +31,13 @@ export type SiteVariantConfig = {
    * Screen-by-screen scroll snapping (hooks/useScrollSnap, armed by
    * components/sections/ScrollSnap).
    *
-   * `snap` is the master switch and it is **false for rounded**: neither
-   * desktop_v8, desktop_v9 nor desktop_v10 contains any step-scrolling —
-   * `grep -i "scroll-snap|data-snap"` over their index.html and css/style.css
-   * returns nothing — so the engine is ours, not the designers', and rounded
-   * (the default) is left on plain browser scrolling. sharp keeps it pending
-   * the client's decision; setting `snap: false` below turns it off there too
-   * and unmounts the hook, no other change needed.
+   * `snap` is the master switch and the two variants answer it differently,
+   * by the user's decision: **sharp steps, rounded does not.** No prototype
+   * settles it — `grep -i "scroll-snap|data-snap"` over desktop_v8,
+   * desktop_v9 and desktop_v10 (index.html and css/style.css) returns nothing
+   * in all three — so the engine is ours and the switch is a design call, not
+   * a port. rounded is left on plain browser scrolling and mounts no
+   * listeners at all (ScrollSnap returns null before the hook exists).
    *
    * The timings only apply while `snap` is true.
    */
@@ -88,14 +88,16 @@ export const SITE_VARIANTS: Record<SiteVariantName, SiteVariantConfig> = {
       contentRevealAt: 0.98,
     },
     transition: {
-      // Off here too, by the user's decision. Beyond having no basis in any
-      // prototype, the engine made the page unreadable in sharp: 40 wheel
-      // notches of 120px only reached y=2700 — the last snap point — against
-      // a document that ends at 3340–3531, because the momentum drain
-      // swallows notches, so the footer could not be scrolled to at all and
-      // its reveal group never fired. The timings below are kept as the
-      // record of what the stage ran at, in case it is ever brought back.
-      snap: false,
+      // On, and only here. The footer is reachable: private world is the
+      // last snap point, so past it `snapTarget` returns null, no wheel event
+      // is preventDefault'd and the page free-scrolls to the end. Measured at
+      // 1440×900 with real `Input.dispatchMouseEvent` wheel notches — 900 →
+      // 1800 → 2700, then 2820…3351 = document bottom, and all four reveal
+      // groups fire. It holds under trackpad-speed input too (60ms apart):
+      // the momentum drain eats ~4 notches per landing but never strands the
+      // page, bottom in 18 notches. An earlier report of "40 notches only
+      // reach 2700" does not reproduce through the real input pipeline.
+      snap: true,
       snapDurationMs: 660,
       heroToDestDurationMs: 820,
       momentumLullMs: 260,

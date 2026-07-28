@@ -68,10 +68,18 @@
   --utopia-hero-title-tracking: -1.2px;
   --utopia-body-copy-size: 17px;
   --utopia-body-copy-tracking: -0.17px;
+  /* v10 `--sub-copy-tracking`: the eyebrow//sub line runs half the body's
+     tracking. Was missing here, so the Opening eyebrow carried -0.2. */
+  --utopia-sub-copy-tracking: -0.085px;
   --utopia-button-text-size: 17px;
   --utopia-button-text-tracking: -0.17px;
   --utopia-control-line-height: 20px;
-  --utopia-filter-tab-size: 18px;
+  /* 17, not 18 — v10's `--filter-tab-text-size` at every tier below 2000. The
+     18 came from the earlier builds; when v10 dropped it a point the change
+     was recorded as a *separate* `--utopia-dest-tab-size` used only by the
+     destinations row, so every other filter row on the site stayed 1px large.
+     The shared token carries it now and the two agree. */
+  --utopia-filter-tab-size: 17px;
   --utopia-filter-tab-tracking: -0.18px;
   --utopia-filter-tab-leading: 21px;
   /* Width of the destination label pill inside the image nav. */
@@ -115,6 +123,20 @@
      in both states for now. Anything positioned under the bar reads this
      token — see `.menu`'s top offset. */
   --utopia-nav-height: 72px;
+
+  /* ── Opening ("fullwidth") copy: where the block starts under the bar ──
+     From ≥1024 the header is fixed over this section, so its top offset has
+     to be the bar height *plus* real clearance — writing the bar height alone
+     (which is what Figma's flat y=72 amounts to at our 72px bar) parks the
+     "Opening in 2027" eyebrow against its bottom edge with a 0px gap.
+
+     Both prototypes state it as bar + clearance and disagree on how much:
+     v8/v10 put `.fullwidth__content` at `top: 80px` over a 64px bar (+16),
+     v9 writes the sum out literally — `--fullwidth-content-top:
+     calc(var(--nav-h) + 64px)` — and only dips to 120 (+56) in its
+     1025–1440 wide band. So the clearance is the fork, the bar height is
+     shared, and both are expressed against our own 72px bar below. */
+  --utopia-fullwidth-content-top: calc(var(--utopia-nav-height) + 16px);
 
   /* Where the nav bar stops growing and starts centring — Figma `154:5992`
      caps it at 1838 with 80px gutters; same content span as 1920 with ours. */
@@ -265,6 +287,7 @@
     --utopia-hero-title-tracking: clamp(-1.44px, calc(-0.2vw + 2.4px), -1.2px);
     --utopia-body-copy-size: clamp(17px, calc(1.574vw - 11.333px), 18.89px);
     --utopia-body-copy-tracking: clamp(-0.189px, calc(-0.0157vw + 0.1126px), -0.17px);
+    --utopia-sub-copy-tracking: clamp(-0.094px, calc(-0.00787vw + 0.0563px), -0.085px);
     --utopia-button-text-size: var(--utopia-body-copy-size);
     --utopia-button-text-tracking: var(--utopia-body-copy-tracking);
     --utopia-control-line-height: clamp(20px, calc(1.852vw - 13.333px), 22.22px);
@@ -280,7 +303,8 @@
     --utopia-control-scale: 1.25;
     --utopia-control-gap: 12px;
     --utopia-dest-label-w: 400px;
-    --utopia-filter-tab-size: 19px;
+    /* 18, not 19 — the same one-point drop as the base tier (v10 line 3340). */
+    --utopia-filter-tab-size: 18px;
     --utopia-filter-tab-tracking: -0.19px;
     --utopia-filter-tab-leading: 22px;
     --utopia-hero-title-size: 44px;
@@ -345,4 +369,19 @@
   --utopia-dest-image-radius: 0px;
   --utopia-dest-pad-bottom: 0px;
   --utopia-dest-title-delta: -2px;
+
+  /* v9's own value, and it is the one place a prototype writes this offset as
+     an expression: `calc(var(--nav-h) + 64px)` at every tier except the
+     1025–1440 wide band, which pins 120 — the same +56 against its 64px bar
+     (see the media query below). */
+  --utopia-fullwidth-content-top: calc(var(--utopia-nav-height) + 64px);
+}
+
+/* v9's `(min-width: 1025px) and (max-width: 1440px) and (min-aspect-ratio:
+   11/10)` band. Outside it — narrower, taller, or wider — v9 is back on
+   bar + 64, which the declaration above already gives. */
+@media (min-width: 1024px) and (max-width: 1440px) and (min-aspect-ratio: 11/10) {
+  :root[data-variant="sharp"] {
+    --utopia-fullwidth-content-top: calc(var(--utopia-nav-height) + 56px);
+  }
 }

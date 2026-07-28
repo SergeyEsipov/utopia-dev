@@ -104,9 +104,9 @@ export default function RootLayout({
             much closer, so it is not worth another 62KB on the critical path. */}
         <link
           rel="preload"
-          href="/fonts/NB-International-Pro-Regular.woff"
+          href="/fonts/nb-international-regular.otf"
           as="font"
-          type="font/woff"
+          type="font/otf"
           crossOrigin="anonymous"
         />
       </head>

@@ -307,7 +307,18 @@
   letter-spacing: var(--utopia-tracking-tight-sm);
 }
 
-/* ── Layout switch: stacked accordion <1024, four-column panel ≥1024 ── */
+/* ── Layout switch: the accordion is phone-only; every tablet and desktop width
+      gets the panel ──
+   The switch is **768**, per the user's "от 768 — вид 2": from there up the
+   panel renders, in its narrow two-row form (see "View 2" below), instead of
+   the stacked accordion. That also retires the earlier 1000 workaround, which
+   existed only because a 1024 window with a scrollbar reports ~1007 CSS px and
+   a literal 1024 dropped a real 1024 display into the accordion — at a 768
+   threshold no desktop width can fall through at all, so the scrollbar case
+   cannot arise.
+   Below 768 the compact tree still owns the phone menu (and 640–767 keeps it
+   too, with `.compactCard`, which is inside `.compact` and so switches off with
+   it). */
 
 .compact {
   display: block;
@@ -317,7 +328,7 @@
   display: none;
 }
 
-@media (min-width: 1024px) {
+@media (min-width: 768px) {
   .compact {
     display: none;
   }
@@ -393,7 +404,11 @@
   align-items: flex-start;
   max-width: var(--utopia-nav-max);
   margin: 0 auto;
-  padding: 32px var(--utopia-site-pad) 60px;
+  /* The card's right edge lines up with the close *icon*, not its button box:
+     the button is 40 wide around a 16 glyph, so the glyph sits 12px inside it.
+     Both prototypes do the same — v9/v10 write `padding-right: pad + 12px` and
+     measure the card 11px short of the burger. */
+  padding: 32px calc(var(--utopia-site-pad) + 12px) 60px var(--utopia-site-pad);
   border-top: 1px solid #ebdfd2;
   box-sizing: border-box;
 }
@@ -479,6 +494,169 @@
   opacity: 0.6;
   pointer-events: none;
   cursor: default;
+}
+
+/* ══ Narrow panel tiers — ported from desktop_v10 ══════════════════════════
+   Above 1440 the panel is one row of four columns beside the card. Below it
+   the prototype re-lays the *grid* (this is what the user meant by
+   "Experiences moves to a new line" — the column moves, the word cannot wrap,
+   it has no break opportunity):
+
+     View 1 (1025–1439)  Tropical Urban Alpine  ·  card top-right
+                         Experiences  Contact/Careers/About
+
+     View 2 (≤1024)      the same two rows, card full-width underneath
+
+   The mechanism is v10's and it is the only one that reorders the grid without
+   touching DOM order: `.panelLeft` becomes a 3-column grid, `.columns`
+   collapses to `display: contents` so its four children become grid items of
+   the *panel* grid, and each is then placed explicitly by `nth-child`.
+
+   Two deliberate departures from v10's source, both to protect measured
+   invariants:
+   - **The gutters stay ours.** v10 restates `padding` on `.nav-menu__panel` in
+     every tier (`clamp(60px, 24.49vw - 191px, 120px)`, and a literal
+     `40px 72px 60px 60px` in view 2). We keep `.panelGrid`'s existing
+     `calc(var(--utopia-site-pad) + 12px)` box, because that is what holds the
+     card's right edge on the close *icon* at 0.00 — v10 reaches the same result
+     through its own token, and copying its literals would have broken ours.
+   - v10 wraps its secondary links in a `.nav-menu__secondary-col`, so it makes
+     `.nav-menu__secondary` `display: contents` and places the wrapper. We have
+     no wrapper — `.secondary` holds the links directly — so `.secondary` *is*
+     the grid item and takes the placement itself.
+
+   `min-aspect-ratio: 11/10` is v10's own gate and is ported verbatim: it sends
+   tall screens to the narrow layout regardless of width, and view 2's
+   `(max-aspect-ratio: 11/10)` is the matching half. Without both halves a tall
+   1300 would match neither tier and fall through to the 1440 four-across. */
+
+/* View 1 — the shared two-row grid, v10 style.css 2449-2521 and 2523-2571
+   (the two blocks carry identical `.nav-menu__left` rules). */
+@media (min-width: 1025px) and (max-width: 1439px) and (min-aspect-ratio: 11/10) {
+  .panelLeft {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    column-gap: 20px;
+    row-gap: 64px;
+  }
+
+  .columns {
+    display: contents;
+  }
+
+  .column:nth-child(1) {
+    grid-column: 1;
+    grid-row: 1;
+  }
+
+  .column:nth-child(2) {
+    grid-column: 2;
+    grid-row: 1;
+  }
+
+  .column:nth-child(3) {
+    grid-column: 3;
+    grid-row: 1;
+  }
+
+  /* Experiences — the one that moves. */
+  .column:nth-child(4) {
+    grid-column: 1;
+    grid-row: 2;
+  }
+
+  .secondary {
+    grid-column: 2;
+    grid-row: 2;
+    flex-direction: column;
+    flex-wrap: nowrap;
+    align-items: flex-start;
+    gap: 14px;
+    padding-top: 6px;
+  }
+}
+
+/* v10 2516-2520: the card shrinks to 330x240 on this tier only. Its height
+   override lives with the other `.card` rules further down — CSS Modules obey
+   source order, so a `.card` declaration up here would lose to the base rule. */
+@media (min-width: 1025px) and (max-width: 1270px) and (min-aspect-ratio: 11/10) {
+  .panelGrid {
+    grid-template-columns: minmax(0, 1fr) 330px;
+  }
+}
+
+/* 1271–1439 keeps the full-size card; v10's block overrides no card rule, so it
+   inherits the base 387 track. */
+@media (min-width: 1271px) and (max-width: 1439px) and (min-aspect-ratio: 11/10) {
+  .panelGrid {
+    grid-template-columns: minmax(0, 1fr) 387px;
+  }
+}
+
+/* View 2 — v10 style.css 2707-2850. Same two-row column grid, but the card
+   drops below the links and spans the whole content column. The 40px gap is
+   Figma's tablet spec (`154:7851`, the card 40px under the link block), which
+   is also what the compact tree used before the panel took this range. */
+/* The aspect clause is bounded by width, and the bound is strict.
+   Unbounded, `(max-aspect-ratio: 11/10)` is an OR against the width, so a
+   1440-wide window flipped the entire menu to the stacked layout the moment
+   its height crossed 1309 → 1310 — measured, a one-pixel height change, while
+   the nav, hero, ecosystem and footer on the same page all stayed desktop.
+   The tall-window case v10 means to catch only exists below 1440.
+   `aspect-ratio < 11/10` rather than `max-aspect-ratio: 11/10` because the
+   `min-`/`max-` forms are both inclusive: at exactly 1.1 both this block and
+   the view-1 block above it matched, and source order silently decided. */
+@media (max-width: 1024px), (max-width: 1439px) and (aspect-ratio < 11/10) {
+  .panelGrid {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 40px;
+  }
+
+  .panelLeft {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    column-gap: 20px;
+    row-gap: 64px;
+  }
+
+  .columns {
+    display: contents;
+  }
+
+  .column:nth-child(1) {
+    grid-column: 1;
+    grid-row: 1;
+  }
+
+  .column:nth-child(2) {
+    grid-column: 2;
+    grid-row: 1;
+  }
+
+  .column:nth-child(3) {
+    grid-column: 3;
+    grid-row: 1;
+  }
+
+  .column:nth-child(4) {
+    grid-column: 1;
+    grid-row: 2;
+  }
+
+  .secondary {
+    grid-column: 2;
+    grid-row: 2;
+    flex-direction: column;
+    flex-wrap: nowrap;
+    align-items: flex-start;
+    gap: 14px;
+    padding-top: 6px;
+  }
+
+  /* v10 2819. */
+  .column {
+    gap: 24px;
+  }
 }
 
 .secondaryArrow {
@@ -646,6 +824,35 @@
   background: rgba(255, 255, 255, 0.5);
 }
 
+/* ── Card size per narrow tier (see the "Narrow panel tiers" section above) ──
+   These live here rather than beside their grid rules because CSS Modules obey
+   source order at equal specificity and the base `.card` is declared above. */
+
+/* v10 2516-2520 — 330x240 on the 1025–1270 tier; the width comes from the
+   330px track. */
+@media (min-width: 1025px) and (max-width: 1270px) and (min-aspect-ratio: 11/10) {
+  .card {
+    height: 240px;
+  }
+}
+
+/* v10 2846-2850 — view 2 spans the whole content column at the 280 height. */
+/* The aspect clause is bounded by width, and the bound is strict.
+   Unbounded, `(max-aspect-ratio: 11/10)` is an OR against the width, so a
+   1440-wide window flipped the entire menu to the stacked layout the moment
+   its height crossed 1309 → 1310 — measured, a one-pixel height change, while
+   the nav, hero, ecosystem and footer on the same page all stayed desktop.
+   The tall-window case v10 means to catch only exists below 1440.
+   `aspect-ratio < 11/10` rather than `max-aspect-ratio: 11/10` because the
+   `min-`/`max-` forms are both inclusive: at exactly 1.1 both this block and
+   the view-1 block above it matched, and source order silently decided. */
+@media (max-width: 1024px), (max-width: 1439px) and (aspect-ratio < 11/10) {
+  .card {
+    width: 100%;
+    height: 280px;
+  }
+}
+
 /* ── Desktop panel stagger (prototype `[data-menu-reveal]`) ──
    The four columns, the links row and the card climb in on a 200ms ladder
    instead of appearing together.
@@ -657,7 +864,7 @@
 
    Scoped under .panel deliberately: CSS Modules reject a bare attribute
    selector ("not pure — must contain at least one local class"). */
-@media (prefers-reduced-motion: no-preference) and (min-width: 1024px) {
+@media (prefers-reduced-motion: no-preference) and (min-width: 768px) {
   .panel [data-menu-reveal] {
     animation: menuPanelRise 0.75s cubic-bezier(0.22, 0.61, 0.36, 1) backwards;
     animation-delay: calc(var(--reveal-i, 0) * 200ms);

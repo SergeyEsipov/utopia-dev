@@ -16,12 +16,12 @@ function ScrollSnapEngine({ transition }: { transition: SnapTransition }) {
  * `data-snap-screen` (hero → destinations → opening → private world).
  * Renders nothing; the home page mounts it once.
  *
- * **Gated on the variant, and off in `rounded`.** No designers' prototype has
- * step-scrolling — `grep -i "scroll-snap|data-snap"` over desktop_v8,
+ * **Gated on the variant: `sharp` steps, `rounded` does not.** No designers'
+ * prototype settles it — `grep -i "scroll-snap|data-snap"` over desktop_v8,
  * desktop_v9 and desktop_v10 (index.html and css/style.css) is empty in all
- * three — so `rounded` (desktop_v8, the default) scrolls normally and returns
- * null here, mounting no listeners. `sharp` keeps the current behaviour until
- * the client decides; flip `transition.snap` in lib/site-variant to change it.
+ * three — so it is a design call, carried as `transition.snap` in
+ * lib/site-variant. `rounded` (the default) returns null here and mounts no
+ * listeners at all.
  */
 export function ScrollSnap() {
   const { transition } = useSiteVariant();

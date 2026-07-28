@@ -248,3 +248,18 @@
   display: flex;
   align-items: center;
 }
+
+/* The header CTA on desktop. v10's `.nav__cta` reads the control scale —
+   `--button-text-size` / `--button-text-tracking` / `--control-line-height`,
+   i.e. 17 / -0.17 / 20 at 1440 — where this pill was still on the 14px
+   `--utopia-text-sm` step with -0.07 tracking, the one text in the bar that
+   had not been moved onto the tokens. Measured against the prototype: v10
+   163x44, ours was 144x44 at 14px. Desktop only; below 1024 the bar keeps
+   its own Figma sizing. Last in the file so it beats the base rule above. */
+@media (min-width: 1024px) {
+  .requestPill {
+    font-size: var(--utopia-button-text-size);
+    letter-spacing: var(--utopia-button-text-tracking);
+    line-height: var(--utopia-control-line-height);
+  }
+}

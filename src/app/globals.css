@@ -22,12 +22,19 @@ html {
   background: var(--utopia-bg-cream);
 }
 
+/* No `-webkit-font-smoothing: antialiased` / `-moz-osx-font-smoothing:
+   grayscale` here, deliberately. On macOS `antialiased` switches Chrome and
+   Safari off subpixel rendering onto grayscale, which strips roughly a
+   half-stem of coverage from every glyph — the type reads a weight lighter at
+   identical `font-weight` and identical font file. **No designers' prototype
+   sets it**: `grep -rn "font-smoothing" css/ index.html` over desktop_v8,
+   desktop_v9 and desktop_v10 returns nothing, so they all render at the UA
+   default. That single declaration, not the font cut, is what made our type
+   look thinner than v10 side by side. Do not put it back. */
 body {
   color: var(--utopia-text-primary);
   background: var(--utopia-bg-cream);
   font-family: var(--utopia-font-body);
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
 }
 
 * {

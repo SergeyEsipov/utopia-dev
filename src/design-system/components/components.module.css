@@ -445,6 +445,18 @@
     gap: calc(var(--utopia-control-gap) * var(--utopia-control-scale));
   }
 
+  /* Buttons read the desktop control scale, not `--utopia-text-md`. v10's
+     `--button-text-size` is 17 (and 19.55 past 2000) with `--control-line-
+     height` 20; ours were frozen at the 16px mobile step, so every desktop
+     button — the "Request a stay" CTA included — came out a point small.
+     Measured against `.hero__cta` in the prototype: 17px / -0.17 / 20. The
+     token already existed and only the nav pill was reading it. */
+  .buttonMd {
+    font-size: var(--utopia-button-text-size);
+    letter-spacing: var(--utopia-button-text-tracking);
+    line-height: var(--utopia-control-line-height);
+  }
+
   /* Same inline-height override as the arrows, so all three stay one row. */
   .navPillLabel {
     height: calc(44px * var(--utopia-control-scale)) !important;

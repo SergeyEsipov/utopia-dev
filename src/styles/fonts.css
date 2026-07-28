@@ -14,9 +14,20 @@
  * were being synthesised by the browser from the single regular face.
  */
 
+/* Both display cuts are back on the trial .otf, for the same reason as the
+   body regular below: **desktop_v10 serves exactly these three files** — its
+   own `@font-face` block points at `../fonts/gt-ultra-median-{light,regular}
+   .otf` and `nb-international-regular.otf`. The licensed .woff cuts are a
+   different drawing of the same families and render visibly lighter, which is
+   the "our type is thinner than v10" report. Same file → same rendering.
+
+   The cost is the trial GT Ultra Median's character set (243 codepoints
+   against the licensed 487): no apostrophe, so Chrome falls back to Georgia
+   mid-word in "It's all yours" and "Discover Utopia's Private World". v10 has
+   that defect too, for exactly this reason — matching it is the point here. */
 @font-face {
   font-family: "GT Ultra Median";
-  src: url("/fonts/GTUltraMedian-Light.woff") format("woff");
+  src: url("/fonts/gt-ultra-median-light.otf") format("opentype");
   font-weight: 300;
   font-style: normal;
   font-display: swap;
@@ -24,15 +35,19 @@
 
 @font-face {
   font-family: "GT Ultra Median";
-  src: url("/fonts/GTUltraMedian-Regular.woff") format("woff");
+  src: url("/fonts/gt-ultra-median-regular.otf") format("opentype");
   font-weight: 400;
   font-style: normal;
   font-display: swap;
 }
 
+/* Regular is back on the pre-2026-07-27 trial cut, by the user's request.
+   `nb-international-regular.otf` is the only old file there is, so the three
+   faces below stay on the licensed .woff — swapping one face does not undo
+   the real Bold/Italic the job description needs. */
 @font-face {
   font-family: "NB International Pro";
-  src: url("/fonts/NB-International-Pro-Regular.woff") format("woff");
+  src: url("/fonts/nb-international-regular.otf") format("opentype");
   font-weight: 400;
   font-style: normal;
   font-display: swap;

@@ -271,15 +271,9 @@
      inset, so the CSS padding gives the border back its pixel. */
   padding: 10px 23px;
   border: 1px solid rgba(28, 28, 28, 0.55);
-  /* Literal 100, not `--utopia-radius-control`: that token drops to 2px in
-     sharp, and these two are the one place on the site where that is wrong.
-     The variant fork comes from desktop_v8 vs v9, and neither prototype has a
-     Careers page — Figma 24.07 is the only source for this screen and it draws
-     both controls as full pills (`154:8352` / `154:8356` rounded-[100px],
-     same at 768 and 378). The other Careers controls (.rolePill, .showMore,
-     .workNavBtn, .ctaButton) still follow the token and do square off in
-     sharp; pin them the same way if the client picks that build. */
-  border-radius: 100px;
+  /* Pills in rounded (Figma 24.07 `154:8352` / `154:8356`), squared off in
+     sharp with every other control — the user asked for the token here. */
+  border-radius: var(--utopia-radius-control);
   background: transparent;
   font-family: var(--utopia-font-body);
   font-size: 15px;
@@ -764,12 +758,144 @@ a.roleCard:hover {
    `154:8491`) draw the image fills with no overlay. Removed. To put it back,
    restore that one declaration. */
 
+/* Each photo is placed exactly where Figma 24.07 places its image layer inside
+   the card frame — the layer is larger than the frame and the frame clips it.
+   The anchor is the *focal point*, not the layer's top-left corner: the card
+   grows with the viewport while the window stays 160 tall, so a corner anchor
+   let the visible band slide down the photograph between breakpoints (the band
+   Design development shows at 1440 had drifted a third of the way up the frame
+   by 1023). `--team-focus-*` is that point in the image's own coordinates —
+   `translate()` percentages resolve against the element — so it stays on the
+   centre of the frame at any width, and only the field of view tightens.
+   `--team-crop-w` is the Figma layer width as a share of the card, `height:
+   auto` because the two files with a watermark cropped off the bottom must
+   keep their own aspect. Figma's Finance layer is `154:8486` / `154:3694`: it
+   shows up only in the node's code output, not in the geometry dump. */
 .teamImage {
   display: block;
-  width: 100%;
-  height: 100%;
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: var(--team-crop-w, 100%);
+  height: var(--team-crop-h, 100%);
+  /* The file's own ratio, stated rather than inherited from the decoded image:
+     the lazy-loaded cards fall back to the `width`/`height` props until they
+     decode, and the focal anchor would place that wrong box. */
+  aspect-ratio: var(--team-aspect, auto);
+  /* the global `img { max-width: 100% }` would clamp every crop back to the box */
+  max-width: none;
+  transform: translate(
+    calc(-1 * var(--team-focus-x, 50%)),
+    calc(-1 * var(--team-focus-y, 50%))
+  );
   object-fit: cover;
   object-position: center center;
+}
+
+/* Mobile — `154:3668`, `154:3681`, `154:3688`, `154:3694`, `154:3707`. */
+.teamCardFeatured .teamImage {
+  --team-aspect: 1400 / 1344;
+  --team-crop-w: 122.832%;
+  --team-crop-h: auto;
+  --team-focus-x: 47.529%;
+  --team-focus-y: 58.578%;
+}
+
+.teamsGridRest .teamCard:nth-child(1) .teamImage {
+  --team-aspect: 1260 / 1400;
+  --team-crop-w: 103.179%;
+  --team-crop-h: auto;
+  --team-focus-x: 48.459%;
+  --team-focus-y: 73.613%;
+}
+
+.teamsGridRest .teamCard:nth-child(2) .teamImage {
+  --team-aspect: 1224 / 1400;
+  --team-crop-w: 109.827%;
+  --team-crop-h: auto;
+  --team-focus-x: 54.474%;
+  --team-focus-y: 31.52%;
+}
+
+.teamsGridRest .teamCard:nth-child(3) .teamImage {
+  --team-aspect: 1121 / 1400;
+  --team-crop-w: 119.364%;
+  --team-crop-h: auto;
+  --team-focus-x: 42.615%;
+  --team-focus-y: 57%;
+}
+
+.teamsGridRest .teamCard:nth-child(4) .teamImage {
+  --team-aspect: 1400 / 1188;
+  --team-crop-w: 147.727%;
+  --team-crop-h: auto;
+  --team-focus-x: 52.956%;
+  --team-focus-y: 28.112%;
+}
+
+/* Tablet — `154:5591`, `154:5605`, `154:5612`, `154:5618`, `154:5632`. */
+@media (min-width: 640px) and (max-width: 1023px) {
+  .teamCardFeatured .teamImage {
+    --team-crop-w: 101.543%;
+    --team-focus-x: 49.24%;
+    --team-focus-y: 59.366%;
+  }
+
+  .teamsGridRest .teamCard:nth-child(1) .teamImage {
+    --team-crop-w: 113.694%;
+    --team-focus-x: 43.978%;
+  }
+
+  .teamsGridRest .teamCard:nth-child(2) .teamImage {
+    --team-crop-w: 112.42%;
+    --team-focus-x: 54.108%;
+    --team-focus-y: 30.216%;
+  }
+
+  .teamsGridRest .teamCard:nth-child(3) .teamImage {
+    --team-crop-w: 126.115%;
+    --team-focus-x: 40.404%;
+    --team-focus-y: 57.021%;
+  }
+
+  .teamsGridRest .teamCard:nth-child(4) .teamImage {
+    --team-crop-w: 144.861%;
+    --team-focus-x: 50.347%;
+    --team-focus-y: 27.97%;
+  }
+}
+
+/* Desktop — `154:8457`, `154:8472`, `154:8479`, `154:8486`, `154:8499`. */
+@media (min-width: 1024px) {
+  .teamCardFeatured .teamImage {
+    --team-aspect: 1070 / 1337;
+    --team-crop-w: 121.384%;
+    --team-focus-x: 43.523%;
+    --team-focus-y: 50.9%;
+  }
+
+  .teamsGridRest .teamCard:nth-child(1) .teamImage {
+    --team-crop-w: 111.912%;
+    --team-focus-x: 44.678%;
+  }
+
+  .teamsGridRest .teamCard:nth-child(2) .teamImage {
+    --team-crop-w: 110.658%;
+    --team-focus-x: 54.816%;
+    --team-focus-y: 30.216%;
+  }
+
+  .teamsGridRest .teamCard:nth-child(3) .teamImage {
+    --team-crop-w: 124.138%;
+    --team-focus-x: 41.035%;
+    --team-focus-y: 57.021%;
+  }
+
+  .teamsGridRest .teamCard:nth-child(4) .teamImage {
+    --team-crop-w: 142.591%;
+    --team-focus-x: 50.897%;
+    --team-focus-y: 27.97%;
+  }
 }
 
 .teamInfo {

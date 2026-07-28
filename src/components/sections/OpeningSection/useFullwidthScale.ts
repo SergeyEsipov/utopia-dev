@@ -8,6 +8,27 @@ const FALLBACK_MIN_SCALE = 0.55;
 const RADIUS_PEAK_AT = 0.18;
 const RADIUS_FADE_AT = 0.76;
 
+/**
+ * How far `progress` has to fall back before a reveal is undone.
+ *
+ * The copy and the nav pill are the only two things here that are a *boolean*
+ * of scroll position rather than a continuous function of it, and each carries
+ * a long fade — 0.75s on a 140ms ladder for the copy, 0.6s for the pill. With a
+ * bare threshold, any wobble across it re-runs the whole fade from zero, and the
+ * scroll position does wobble: a trackpad settling at the end of a flick, or
+ * smooth-scroll easing, moves a couple of px back and forth. Measured at 1440
+ * before this: parked on the copy's threshold (scrollY 1396, section top 405)
+ * and wobbled ±2px, the flag flipped **25 times** and the eyebrow's opacity
+ * swung 0.03 ↔ 0.68 without ever landing — which is the reported flicker of the
+ * "Opening in 2027" block on the way in from the destinations screen.
+ *
+ * The band only widens what it takes to *undo* a reveal, so nothing appears any
+ * later than before. 0.08 of progress is ~36px of scroll at a 900-tall
+ * viewport — far more than any settle wobble, far less than a deliberate scroll
+ * back up, which still hides both as it always did.
+ */
+const REVEAL_HYSTERESIS = 0.08;
+
 const clamp01 = (x: number) => (x < 0 ? 0 : x > 1 ? 1 : x);
 const smooth = (t: number) => t * t * (3 - 2 * t);
 
@@ -43,6 +64,12 @@ export function useFullwidthScale(sectionRef: RefObject<HTMLElement | null>) {
 
     let frame: number | null = null;
     let attached = false;
+    /** Latched state of the two boolean reveals — see REVEAL_HYSTERESIS. */
+    let contentRevealed = false;
+    let navRevealed = false;
+
+    const latch = (was: boolean, progress: number, at: number) =>
+      was ? progress > at - REVEAL_HYSTERESIS : progress >= at;
 
     /** Fully-grown state — also what reduced motion and mobile get.
      *
@@ -56,6 +83,8 @@ export function useFullwidthScale(sectionRef: RefObject<HTMLElement | null>) {
       inner.style.borderRadius = "0px";
       card.style.borderRadius = "0px";
       card.style.transform = "none";
+      contentRevealed = true;
+      navRevealed = true;
       if (content) {
         content.style.top = "";
         content.dataset.fullwidthVisible = "true";
@@ -131,12 +160,14 @@ export function useFullwidthScale(sectionRef: RefObject<HTMLElement | null>) {
         }
       }
 
-      if (content) {
-        content.dataset.fullwidthVisible = String(
-          progress >= fullwidth.contentRevealAt,
-        );
-      }
-      if (nav) nav.dataset.fullwidthVisible = String(progress >= 1);
+      contentRevealed = latch(
+        contentRevealed,
+        progress,
+        fullwidth.contentRevealAt,
+      );
+      navRevealed = latch(navRevealed, progress, 1);
+      if (content) content.dataset.fullwidthVisible = String(contentRevealed);
+      if (nav) nav.dataset.fullwidthVisible = String(navRevealed);
     };
 
     const requestUpdate = () => {

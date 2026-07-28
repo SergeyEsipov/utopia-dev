@@ -18,8 +18,8 @@ import styles from "./careers.module.css";
    (0.800), so the fit is height-driven and needs 425 × 1070/1337 ≈ 341 CSS px,
    where a literal 318 would have under-served it. The band below 1024 is
    width-driven (648 at 768, 346 at 378) and 708 covers it. */
-const FEATURED_WIDE_SIZES = "341px";
-const FEATURED_BAND_SIZES = "(min-width: 640px) 708px, 100vw";
+const FEATURED_WIDE_SIZES = "386px";
+const FEATURED_BAND_SIZES = "(min-width: 640px) 708px, 426px";
 
 function FeaturedTeamImage() {
   // `quality` is deliberately absent: Next only accepts qualities declared in
@@ -102,7 +102,7 @@ export function CareerTeams() {
                     alt=""
                     width={692}
                     height={320}
-                    sizes="(min-width: 1024px) 319px, (min-width: 640px) 344px, 346px"
+                    sizes="(min-width: 1024px) 480px, (min-width: 640px) 460px, 512px"
                     className={styles.teamImage}
                   />
                 </div>

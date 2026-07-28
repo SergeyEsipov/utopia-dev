@@ -33,6 +33,18 @@
   pointer-events: none;
   display: block;
   background: var(--utopia-bg-cream);
+  /* Its own compositing layer, exactly as `hero-section.module.css`'s .bgVideo
+     already does. Without it the video has no transform of its own, so it is
+     rastered into `.track`'s layer — a nine-viewport-wide row — which sits
+     inside `.slides`, the element useFullwidthScale rescales *and* re-rounds on
+     every frame of the grow. desktop_v10 puts the same declaration on
+     `.fullwidth__bg-video`: "Force its own compositing layer — Safari can
+     otherwise freeze the video on a static frame when it sits inside an
+     ancestor with a CSS transform (the card's scroll-scale animation)", and its
+     markup keeps the video out of the scaled wrapper for the same reason.
+     `will-change` is deliberately left off: nine standing hints is what Chrome
+     asks you not to do, and the transform alone promotes. */
+  transform: translateZ(0);
   /* See hero-section.module.css. */
   user-select: none;
   -webkit-user-select: none;

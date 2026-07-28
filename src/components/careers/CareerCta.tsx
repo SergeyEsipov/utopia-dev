@@ -18,8 +18,14 @@ export function CareerCta() {
             {careerCta.descriptionTail}
           </p>
         </div>
-        {/* No destination yet — see routes.ts. */}
-        <a className={styles.ctaButton}>{careerCta.buttonLabel}</a>
+        <a
+          className={styles.ctaButton}
+          href="https://apply.workable.com/utopia-life-worth-living/"
+          target="_blank"
+          rel="noreferrer noopener"
+        >
+          {careerCta.buttonLabel}
+        </a>
       </div>
     </section>
   );

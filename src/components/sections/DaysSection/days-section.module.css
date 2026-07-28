@@ -34,6 +34,13 @@
       minmax(0, 1fr);
     column-gap: 20px;
     align-items: center;
+    /* The single row is content-sized and *centred* in the section rather than
+       stretched to `min-height`. Stretching moves the belt (the tallest item)
+       to the middle of the row while the title, which is pinned to the row's
+       top edge so it can centre on the cards, stays put — 53.6px apart at
+       1024, where the zoomed-down belt leaves the section shorter than the
+       viewport. The belt itself lands in the same place either way. */
+    align-content: center;
     padding: 100px 120px 100px clamp(96px, calc(50vw - 450px), 120px);
     min-height: var(--utopia-viewport-height);
   }
@@ -74,15 +81,35 @@
   }
 }
 
+/* The title centres on the **cards**, not on the cards plus the caption below
+   them. Figma 24.07 draws the heading (`154:4226`, and `154:4836` in the second
+   desktop frame) at y=215 h=86 inside a 516-tall images row: both centres land
+   on 258. The prototype says the same thing structurally — its title is a child
+   of `.private-world__images` (`align-items: center`), and the caption is a
+   *sibling* of that row, so the caption never enters the title's centring.
+   Here the caption is inside `.carousel`, which is the grid item, so the title
+   gets the belt's height as its own box and centres inside that instead of
+   riding the row (which was 118.5px lower at 1440, 129 at 1920).
+   `--pw-active-h` comes from the carousel's metrics (DaysSection) and
+   `--pw-scale` is the short-viewport zoom on `.trackWrap`, so this tracks the
+   belt at whatever size it is actually painted. */
+@media (min-width: 1024px) {
+  .titleWrap {
+    grid-column: 1;
+    grid-row: 1;
+    align-self: start;
+    display: flex;
+    align-items: center;
+    height: calc(var(--pw-active-h, 516px) * var(--pw-scale, 1));
+  }
+}
+
 /* `--pw-title-scale` is 1 except on the narrow desktops where the belt has to
    shrink to stay centred; there the title shrinks with it, floored at 28px,
    which is the prototype's `.private-world__title` rule verbatim. */
 @media (min-width: 1024px) {
   .title {
     position: static;
-    grid-column: 1;
-    grid-row: 1;
-    align-self: center;
     max-width: calc(387px * var(--pw-title-scale, 1));
     margin-left: 0;
     padding-right: 0;
@@ -120,7 +147,14 @@
 /* `--pw-shift` is the room a short viewport takes off the belt (useDaysScaleCap);
    handing it back as a left offset keeps the active card on the screen centre
    at any height. It sits on `.carousel` so the caption moves with the belt —
-   and because a margin on `.trackWrap` would itself be multiplied by its zoom. */
+   and because a margin on `.trackWrap` would itself be multiplied by its zoom.
+
+   The belt → caption gap is **32**, not the 16 this used to inherit from the
+   mobile rule: Figma 24.07 puts the caption container at y=548 under a 516-tall
+   images row (`154:4235` over `154:4225`, and `154:4845` over `154:4835` — both
+   desktop frames agree), and the tablet frame `154:5294` repeats the same 32.
+   The prototypes say 28 here (`.private-world__inner { gap }`, identical in
+   v8, v9 and v10) — a 4px disagreement, resolved toward Figma. */
 @media (min-width: 1024px) {
   .carousel {
     grid-column: 2;
@@ -128,13 +162,19 @@
     margin-left: var(--pw-shift, 0px);
     width: 1044px;
     max-width: none;
+    gap: 32px;
   }
 }
 
+/* The ultra tier is the prototypes' composition throughout (its 521x697 / 27
+   card metrics come from there, Figma 24.07 having no frame past 1440), so its
+   gap comes from there too: `.private-world__inner { gap: 24px }` in v8/v9/v10.
+   The old 40 was the last number in this tier still taken from the 13.07 frame
+   `1:1763`, whose card sizes we had already rejected. */
 @media (min-width: 1900px) and (min-aspect-ratio: 1101/1000) {
   .carousel {
     width: 1218px;
-    gap: 40px;
+    gap: 24px;
   }
 }
 

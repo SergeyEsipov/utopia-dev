@@ -390,7 +390,46 @@ the `/_next/static/chunks/*.css` chunks to confirm which rule actually wins.
 Nothing is committed yet — **all work sits uncommitted in the working tree on
 `main`**. Offer to branch and commit when the user is ready.
 
-Latest batch (five fixes plus one follow-up, all measured):
+Latest batch — Private World vertical rhythm (two fixes, both measured):
+
+- **"Discover Utopia's" centres on the cards, not on the cards plus their
+  caption.** The section is a two-column grid and the whole carousel — belt,
+  caption and progress pill — is *one* grid item, so `align-items: center` was
+  centring the title against all of it: 118.5px below the card centre at 1440,
+  129 at 1920. Figma draws the heading (`154:4226`, and `154:4836` in the second
+  desktop frame `154:4833`) at y=215 h=86 inside a 516-tall images row, so both
+  centres land on 258; the prototypes say the same structurally, since their
+  title is a child of `.private-world__images` (`align-items: center`) and the
+  caption is a *sibling* of that row. The title wrapper now takes the belt's own
+  box — `height: calc(var(--pw-active-h) * var(--pw-scale))`, the height handed
+  over from the carousel's metrics so the two cannot drift — and centres inside
+  it. **The row also had to stop stretching**: `min-height: 100vh` on the grid
+  let the single auto row absorb the slack, which centred the belt in the row
+  while the title stayed pinned to the row's top edge — 53.6px apart at 1024,
+  where the zoomed-down belt leaves the section shorter than the viewport.
+  `align-content: center` sizes the row to its content and centres *that*; the
+  belt lands in exactly the same place. Measured title-centre − card-centre =
+  **0.00 at 1024, 1100, 1280, 1366, 1440, 1600, 1920 and 2560**, in both
+  variants and on a 700-tall window (the `--pw-shift` path). Card centring on
+  the screen is unchanged.
+- **The belt → caption gap was the mobile 16 everywhere on desktop.** The
+  `@media (min-width: 1024px)` block never overrode `.carousel`'s base gap.
+  Figma puts the caption container at y=548 under the 516-tall images row —
+  **32** — in both desktop frames (`154:4235`, `154:4845`) and again on tablet
+  (`154:5294`); mobile's 16 (`154:6329`) was the only tier already right.
+  The prototypes say **28** here (`.private-world__inner`, identical in v8, v9
+  and v10) — a 4px disagreement, resolved toward Figma; say so if the designers
+  prefer 28. The ultra tier went **40 → 24**: 40 was the last number in that
+  tier still taken from the 13.07 frame `1:1763`, whose card sizes we had
+  already rejected, and the prototypes' `--pw-scale` composition that we *did*
+  take 521×697/27 from sets 24. Figma 24.07 has no frame past 1440.
+  **Still open**: the caption's own internals reserve the tallest of the three
+  slides (`.captionText { min-height }` plus the stacked layers), so the
+  progress pill sits ~67px below a two-line description where Figma draws it 16
+  below. That is deliberate — the pill cannot jump as the copy changes — but it
+  is the one place this block is still visibly looser than the frame.
+
+Previous batch (five fixes plus one follow-up, all measured):
 
 - **The dock is phone-only now, and the boundary is 640.** `.nav` switched on at
   640 while `.dockWrap` only switched off at 1024, so the whole 640–1023 band
@@ -481,7 +520,7 @@ Latest batch (five fixes plus one follow-up, all measured):
   Worth knowing: **`154:4162`, the nav instance over the home sections, is
   `hidden` in Figma** — the only bar it draws is the one inside the hero.
 
-Previous batch (six fixes, all measured):
+Batch before that (six fixes, all measured):
 
 - **Private World framing was the mobile prototype's, applied everywhere.**
   `center 35%` comes from v3's `.days__card img`; desktop_v8/v9 set

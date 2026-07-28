@@ -45,8 +45,17 @@ export function DaysSection() {
       data-snap-screen="private-world"
       className={styles.section}
       aria-label="Private World"
+      style={
+        {
+          /* The belt's own height, so the title can centre on the *cards*
+             rather than on the cards plus the caption below them — see
+             `.titleWrap`. It follows the same metrics the stage is sized
+             from, so the two can never disagree, at any tier. */
+          "--pw-active-h": `${stageHeight}px`,
+        } as React.CSSProperties
+      }
     >
-      <div data-reveal>
+      <div data-reveal className={styles.titleWrap}>
         <Heading variant="card" as="h2" className={styles.title}>
           Discover Utopia&apos;s
           <br />
